@@ -10,6 +10,7 @@ target/
 .idea/libraries/
 .idea/remote-targets.xml
 .idea/dataSources.xml
+.idea/uiDesigner.xmlno
 *.iws
 *.iml
 *.ipr
@@ -38,3 +39,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
