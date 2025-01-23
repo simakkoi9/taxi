@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
-@Data
 @Entity
 @Table(name = "passengers")
 public class Passenger {
