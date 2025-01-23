@@ -11,6 +11,8 @@ target/
 .idea/remote-targets.xml
 .idea/dataSources.xml
 .idea/uiDesigner.xml
+.idea/jpa-buddy.xml
+.jpb
 *.iws
 *.iml
 *.ipr
