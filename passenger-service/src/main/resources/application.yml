@@ -1,6 +1,13 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: passenger-service
-
-server:
-  port: 8000
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/passenger_db
+    username: simakkoi
+    password: 4130
+  liquibase:
+    change-log: classpath:/db/changelog/main-changelog.yaml
