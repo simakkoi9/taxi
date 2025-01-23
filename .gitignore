@@ -12,6 +12,7 @@ target/
 .idea/dataSources.xml
 .idea/uiDesigner.xml
 .idea/jpa-buddy.xml
+.idea/misc.xml
 .jpb
 *.iws
 *.iml
