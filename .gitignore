@@ -9,6 +9,7 @@ target/
 .idea/compiler.xml
 .idea/libraries/
 .idea/remote-targets.xml
+.idea/dataSources.xml
 *.iws
 *.iml
 *.ipr
