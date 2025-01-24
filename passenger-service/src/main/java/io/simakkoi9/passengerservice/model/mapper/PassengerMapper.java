@@ -7,6 +7,7 @@ import io.simakkoi9.passengerservice.model.entity.Passenger;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PassengerMapper {
@@ -18,7 +19,7 @@ public interface PassengerMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    Passenger updateRequestToEntity(PassengerUpdateRequest passengerUpdateRequest);
+    void setPassengerUpdateRequest(PassengerUpdateRequest passengerUpdateRequest, @MappingTarget Passenger passenger);
 
     @Mapping(target = "status" ,expression = "java(passenger.getStatus().name())")
     PassengerResponse toResponse(Passenger passenger);
