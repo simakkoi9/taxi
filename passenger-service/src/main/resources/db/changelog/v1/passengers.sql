@@ -2,8 +2,7 @@
 drop type if exists user_status;
 create type user_status as enum ('ACTIVE', 'DELETED');
 
-drop table if exists passengers;
-create table passengers
+create table if not exists passengers
 (
     id bigserial
         constraint passengers_pk primary key                    not null,
