@@ -3,7 +3,6 @@ package io.simakkoi9.passengerservice.service;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
-import io.simakkoi9.passengerservice.model.entity.Passenger;
 
 import java.util.List;
 
