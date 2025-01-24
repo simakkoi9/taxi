@@ -1,15 +1,13 @@
 package io.simakkoi9.passengerservice.model.dto.response;
 
-import io.simakkoi9.passengerservice.model.entity.UserStatus;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public record PassengerCreateResponse(
+public record PassengerResponse(
         Long id,
         String name,
         String email,
         String phone,
-        UserStatus status,
+        String status,
         Timestamp createdAt) implements Serializable {
 }

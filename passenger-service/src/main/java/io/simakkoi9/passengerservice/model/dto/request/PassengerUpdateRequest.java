@@ -6,7 +6,10 @@ import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;
 
-public record PassengerCreateRequest(
+/**
+ * DTO for {@link io.simakkoi9.passengerservice.model.entity.Passenger}
+ */
+public record PassengerUpdateRequest(
         @NotBlank
         String name,
         @Email
