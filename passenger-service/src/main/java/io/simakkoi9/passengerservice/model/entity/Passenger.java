@@ -2,6 +2,7 @@ package io.simakkoi9.passengerservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.sql.Timestamp;
@@ -12,6 +13,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity
+@DynamicInsert
 @Table(name = "passengers")
 public class Passenger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,16 +21,17 @@ public class Passenger {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", nullable = false, length = 255)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "phone", nullable = false, length = 255)
+    @Column(name = "phone", nullable = false)
     private String phone;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     @Column(name = "created_at", nullable = false)
