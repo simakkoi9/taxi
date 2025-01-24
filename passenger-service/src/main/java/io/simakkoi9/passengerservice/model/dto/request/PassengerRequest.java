@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 
-public record PassengerDeleteRequest(
+public record PassengerRequest(
         @Email
         @NotBlank
         String email) implements Serializable {
