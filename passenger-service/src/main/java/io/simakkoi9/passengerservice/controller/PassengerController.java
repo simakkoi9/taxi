@@ -1,10 +1,9 @@
 package io.simakkoi9.passengerservice.controller;
 
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
-import io.simakkoi9.passengerservice.model.dto.request.PassengerDeleteRequest;
+import io.simakkoi9.passengerservice.model.dto.request.PassengerRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
-import io.simakkoi9.passengerservice.model.entity.Passenger;
 import io.simakkoi9.passengerservice.service.PassengerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +35,7 @@ public class PassengerController {
     }
 
     @DeleteMapping()
-    public PassengerResponse deletePassenger(@RequestBody PassengerDeleteRequest passengerDeleteRequest){
+    public PassengerResponse deletePassenger(@RequestBody PassengerRequest passengerDeleteRequest){
         return passengerService.deletePassenger(passengerDeleteRequest.email());
     }
 
@@ -45,7 +44,12 @@ public class PassengerController {
         return passengerService.getPassenger(id);
     }
 
-    @GetMapping
+    @GetMapping()
+    public PassengerResponse getPassenger(@RequestBody PassengerRequest passengerGetRequest){
+        return passengerService.getPassenger(passengerGetRequest.email());
+    }
+
+    @GetMapping("/all")
     public List<PassengerResponse> getAllPassengers(){
         return passengerService.getAllPassengers();
     }
