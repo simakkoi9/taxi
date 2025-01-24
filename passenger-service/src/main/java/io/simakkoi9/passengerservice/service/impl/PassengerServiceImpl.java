@@ -13,6 +13,8 @@ import io.simakkoi9.passengerservice.service.PassengerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +29,8 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
         Passenger passenger = mapper.createRequestToEntity(passengerCreateRequest);
+        passenger.setStatus(UserStatus.ACTIVE);
+        passenger.setCreatedAt(Timestamp.from(Instant.now()));
         if (repository.existsByEmail(passengerCreateRequest.email())){
             throw new DuplicateFoundException();
         }
@@ -52,6 +56,10 @@ public class PassengerServiceImpl implements PassengerService {
         Passenger passenger = findPassenger(id);
         passenger.setStatus(UserStatus.DELETED);
         return mapper.toResponse(repository.save(passenger));
+    }
+
+    public PassengerResponse getPassenger(String email){
+        return mapper.toResponse(findPassenger(email));
     }
 
     @Override

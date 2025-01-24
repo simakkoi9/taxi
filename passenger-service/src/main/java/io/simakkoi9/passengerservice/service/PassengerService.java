@@ -18,5 +18,7 @@ public interface PassengerService {
 
     PassengerResponse getPassenger(Long id);
 
+    PassengerResponse getPassenger(String email);
+
     List<PassengerResponse> getAllPassengers();
 }
