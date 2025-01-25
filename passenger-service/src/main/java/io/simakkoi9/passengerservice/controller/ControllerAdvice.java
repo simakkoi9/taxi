@@ -27,7 +27,7 @@ public class ControllerAdvice {
                         .builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .message(INTERNAL_SERVER_ERROR_MESSAGE)
+                        .message(INTERNAL_SERVER_ERROR_MESSAGE + "\n" + e.getMessage())
                         .build());
     }
 
@@ -63,7 +63,7 @@ public class ControllerAdvice {
                         .builder()
                         .status(HttpStatus.CONFLICT.value())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .message(VALIDATION_FAILED_MESSAGE)
+                        .message(VALIDATION_FAILED_MESSAGE + "\n" + e.getMessage())
                         .build());
     }
 }
