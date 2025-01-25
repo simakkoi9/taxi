@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 2
-      author: simakkoi
-      changes:
-        - sqlFile:
-            path: db/changelog/v2/alter.sql
