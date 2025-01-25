@@ -9,10 +9,10 @@ import java.io.Serializable;
 public record PassengerCreateRequest(
         @NotBlank
         String name,
-        @Email
+        @Email(regexp = "^(.+)@(\\S+)$")
         @NotBlank
         String email,
-        @Pattern(regexp = "^\\+375(25|29|33|44|17)\\d{7}$|^80(25|29|33|44|17)\\d{7}$")
+        @Pattern(regexp = "^\\+?[1-9][0-9]{7,14}$")
         @NotBlank
         String phone) implements Serializable {
 }

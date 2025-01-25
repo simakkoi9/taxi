@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 public record PassengerRequest(
-        @Email
+        @Email(regexp = "^(.+)@(\\S+)$")
         @NotBlank
         String email) implements Serializable {
 }

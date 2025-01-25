@@ -6,13 +6,11 @@ import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;
 
-/**
- * DTO for {@link io.simakkoi9.passengerservice.model.entity.Passenger}
- */
+
 public record PassengerUpdateRequest(
         @NotBlank
         String name,
-        @Email
+        @Email(regexp = "^(.+)@(\\S+)$")
         @NotBlank
         String email,
         @Pattern(regexp = "^\\+375(25|29|33|44|17)\\d{7}$|^80(25|29|33|44|17)\\d{7}$")
