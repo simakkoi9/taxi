@@ -6,12 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;
 
-import static io.simakkoi9.passengerservice.util.ValidationMessages.BLANK_EMAIL;
-import static io.simakkoi9.passengerservice.util.ValidationMessages.BLANK_NAME;
-import static io.simakkoi9.passengerservice.util.ValidationMessages.BLANK_PHONE;
-import static io.simakkoi9.passengerservice.util.ValidationMessages.NOT_VALID_EMAIL;
-import static io.simakkoi9.passengerservice.util.ValidationMessages.NOT_VALID_PHONE;
-import static io.simakkoi9.passengerservice.util.ValidationMessages.PHONE_REGEX;
+import static io.simakkoi9.passengerservice.util.ValidationMessages.*;
 
 
 public record PassengerUpdateRequest(
