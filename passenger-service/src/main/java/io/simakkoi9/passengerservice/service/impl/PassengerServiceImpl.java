@@ -87,10 +87,10 @@ public class PassengerServiceImpl implements PassengerService {
 
     private Passenger findPassenger(Long id){
         return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_MESSAGE, "ID " + id)));
     }
     private Passenger findPassenger(String email){
         return repository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_MESSAGE, email)));
     }
 }
