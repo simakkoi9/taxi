@@ -19,7 +19,7 @@ public class PassengerController {
     private final PassengerService passengerService;
 
     @PostMapping
-    public PassengerResponse createPassenger(@RequestBody @Validated PassengerCreateRequest passengerCreateRequest){
+    public PassengerResponse createPassenger(@Validated @RequestBody PassengerCreateRequest passengerCreateRequest){
         return passengerService.createPassenger(passengerCreateRequest);
     }
     @PutMapping("/{id}")
