@@ -6,6 +6,7 @@ import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.service.PassengerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class PassengerController {
     @PutMapping("/{id}")
     public PassengerResponse updatePassenger(
             @PathVariable Long id,
-            @RequestBody PassengerUpdateRequest passengerUpdateRequest
+            @Validated @RequestBody PassengerUpdateRequest passengerUpdateRequest
     ){
         return passengerService.updatePassenger(id, passengerUpdateRequest);
     }
@@ -35,7 +36,7 @@ public class PassengerController {
     }
 
     @DeleteMapping()
-    public PassengerResponse deletePassenger(@RequestBody PassengerRequest passengerDeleteRequest){
+    public PassengerResponse deletePassenger(@Validated @RequestBody PassengerRequest passengerDeleteRequest){
         return passengerService.deletePassenger(passengerDeleteRequest.email());
     }
 
@@ -45,7 +46,7 @@ public class PassengerController {
     }
 
     @GetMapping()
-    public PassengerResponse getPassenger(@RequestBody PassengerRequest passengerGetRequest){
+    public PassengerResponse getPassenger(@Validated @RequestBody PassengerRequest passengerGetRequest){
         return passengerService.getPassenger(passengerGetRequest.email());
     }
 
