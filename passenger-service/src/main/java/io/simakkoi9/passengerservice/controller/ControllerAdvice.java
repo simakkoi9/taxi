@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -27,7 +28,7 @@ public class ControllerAdvice {
                         .builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .message(INTERNAL_SERVER_ERROR_MESSAGE + "\n" + e.getMessage())
+                        .message(INTERNAL_SERVER_ERROR_MESSAGE + " " + e.getMessage())
                         .build());
     }
 
@@ -61,9 +62,21 @@ public class ControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
                         .builder()
-                        .status(HttpStatus.CONFLICT.value())
+                        .status(HttpStatus.BAD_REQUEST.value())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .message(VALIDATION_FAILED_MESSAGE + "\n" + e.getMessage())
+                        .message(VALIDATION_FAILED_MESSAGE + " " + e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> sqlException(SQLException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .timestamp(Timestamp.from(Instant.now()))
+                        .message(e.getMessage())
                         .build());
     }
 }
