@@ -1,13 +1,13 @@
 
-create table if not exists passengers
+CREATE TABLE IF NOT EXISTS passengers
 (
-    id bigserial
-        constraint passengers_pk primary key    not null,
-    name       varchar                          not null,
-    email      varchar                          not null,
-    phone      varchar                          not null,
-    status     varchar                          not null,
-    created_at timestamp                        not null
+    id BIGSERIAL
+        CONSTRAINT passengers_pk PRIMARY KEY    NOT NULL,
+    name       VARCHAR                          NOT NULL,
+    email      VARCHAR                          NOT NULL,
+    phone      VARCHAR                          NOT NULL,
+    status     VARCHAR                          NOT NULL,
+    created_at TIMESTAMP                        NOT NULL
 );
 
 

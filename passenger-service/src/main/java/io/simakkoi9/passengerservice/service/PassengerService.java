@@ -11,13 +11,9 @@ public interface PassengerService {
 
     PassengerResponse updatePassenger(Long id, PassengerUpdateRequest passengerUpdateRequest);
 
-    PassengerResponse deletePassenger(String email);
-
     PassengerResponse deletePassenger(Long id);
 
     PassengerResponse getPassenger(Long id);
-
-    PassengerResponse getPassenger(String email);
 
     List<PassengerResponse> getAllPassengers();
 }

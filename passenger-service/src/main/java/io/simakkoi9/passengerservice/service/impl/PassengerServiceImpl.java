@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.simakkoi9.passengerservice.util.ErrorMessages.*;
+import static io.simakkoi9.passengerservice.util.ErrorMessages.DUPLICATE_FOUND_MESSAGE;
+import static io.simakkoi9.passengerservice.util.ErrorMessages.RESOURCE_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -32,65 +33,48 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     @Transactional
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
+        if (repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE)){
+            throw new DuplicateFoundException(DUPLICATE_FOUND_MESSAGE.formatted(passengerCreateRequest.email()));
+        }
         Passenger passenger = mapper.createRequestToEntity(passengerCreateRequest);
         passenger.setStatus(UserStatus.ACTIVE);
         passenger.setCreatedAt(Timestamp.from(Instant.now()));
-        if (repository.existsByEmail(passengerCreateRequest.email())){
-            throw new DuplicateFoundException(String.format(DUPLICATE_FOUND_MESSAGE, passengerCreateRequest.email()));
-        }
         return mapper.toResponse(repository.save(passenger));
     }
 
     @Override
     @Transactional
     public PassengerResponse updatePassenger(Long id, PassengerUpdateRequest passengerUpdateRequest) {
-        Passenger passenger = findPassenger(id);
+        Passenger passenger = findActivePassenger(id);
         mapper.setPassengerUpdateRequest(passengerUpdateRequest, passenger);
         return mapper.toResponse(repository.save(passenger));
     }
 
     @Override
     @Transactional
-    public PassengerResponse deletePassenger(String email) {
-        Passenger passenger = findPassenger(email);
-        passenger.setStatus(UserStatus.DELETED);
-        return mapper.toResponse(repository.save(passenger));
-    }
-
-    @Override
-    @Transactional
     public PassengerResponse deletePassenger(Long id) {
-        Passenger passenger = findPassenger(id);
+        Passenger passenger = findActivePassenger(id);
         passenger.setStatus(UserStatus.DELETED);
         return mapper.toResponse(repository.save(passenger));
-    }
-
-    @Override
-    public PassengerResponse getPassenger(String email){
-        return mapper.toResponse(findPassenger(email));
     }
 
     @Override
     public PassengerResponse getPassenger(Long id) {
-        return mapper.toResponse(findPassenger(id));
+        return mapper.toResponse(findActivePassenger(id));
     }
 
     @Override
     public List<PassengerResponse> getAllPassengers() {
         List<Passenger> passengers = new ArrayList<>();
-        repository.findAll().forEach(passengers::add);
+        repository.findAllByStatus(UserStatus.ACTIVE).forEach(passengers::add);
         return passengers.stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
+    private Passenger findActivePassenger(Long id){
+        return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND_MESSAGE.formatted("ID " + id)));
+    }
 
-    private Passenger findPassenger(Long id){
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_MESSAGE, "ID " + id)));
-    }
-    private Passenger findPassenger(String email){
-        return repository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_MESSAGE, email)));
-    }
 }

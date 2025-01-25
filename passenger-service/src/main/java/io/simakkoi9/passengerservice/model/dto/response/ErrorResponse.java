@@ -2,13 +2,11 @@ package io.simakkoi9.passengerservice.model.dto.response;
 
 import lombok.Builder;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Builder
 public record ErrorResponse(
-        Timestamp timestamp,
+        LocalDateTime timestamp,
         int status,
         String message
-) {
-
-}
+) {}
