@@ -8,6 +8,5 @@ public record PassengerResponse(
         String name,
         String email,
         String phone,
-        String status,
         Timestamp createdAt) implements Serializable {
 }

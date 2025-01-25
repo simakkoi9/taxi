@@ -21,7 +21,6 @@ public interface PassengerMapper {
     @Mapping(target = "createdAt", ignore = true)
     void setPassengerUpdateRequest(PassengerUpdateRequest passengerUpdateRequest, @MappingTarget Passenger passenger);
 
-    @Mapping(target = "status" ,expression = "java(passenger.getStatus().name())")
     PassengerResponse toResponse(Passenger passenger);
 
 }
