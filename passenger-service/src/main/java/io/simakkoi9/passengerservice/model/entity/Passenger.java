@@ -2,7 +2,6 @@ package io.simakkoi9.passengerservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.sql.Timestamp;
@@ -13,7 +12,6 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@DynamicInsert
 @Table(name = "passengers")
 public class Passenger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
