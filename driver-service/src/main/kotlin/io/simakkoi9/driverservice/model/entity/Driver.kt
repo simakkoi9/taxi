@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.model
+package io.simakkoi9.driverservice.model.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -52,4 +52,5 @@ open class Driver {
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
     open var status: UserStatus? = UserStatus.ACTIVE
+
 }

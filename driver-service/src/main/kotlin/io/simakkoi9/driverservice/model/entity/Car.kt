@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.model
+package io.simakkoi9.driverservice.model.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -43,6 +43,4 @@ open class Car {
     @Column(name = "status", nullable = false)
     open var status: UserStatus? = UserStatus.ACTIVE
 
-    @OneToOne(mappedBy = "car")
-    open var driver: Driver? = null
 }
