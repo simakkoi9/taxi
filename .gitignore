@@ -9,9 +9,11 @@ target/
 .idea/compiler.xml
 .idea/libraries/
 .idea/remote-targets.xml
-*.iws
-*.iml
-*.ipr
+.idea/dataSources.xml
+.idea/uiDesigner.xml
+.idea/jpa-buddy.xml
+.idea/misc.xml
+.jpb
 
 ### Eclipse ###
 .apt_generated

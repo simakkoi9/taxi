@@ -8,7 +8,6 @@ import java.util.Optional
 
 @Repository
 interface DriverRepository : CrudRepository<Driver, Long> {
-
     fun findByIdAndStatus(id: Long, status: UserStatus): Optional<Driver>
 
     fun findAllByStatus(status: UserStatus): Iterable<Driver>

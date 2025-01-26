@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Positive
 import java.io.Serializable
 
 data class DriverCreateRequest(
-
     @field:NotBlank
     val name: String,
 
@@ -26,5 +25,4 @@ data class DriverCreateRequest(
 
     @Positive
     val carId: Long
-
 ) : Serializable

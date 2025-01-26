@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Positive
 import java.io.Serializable
 
 data class DriverUpdateRequest(
-
     val name: String? = null,
 
     @field:Email
@@ -20,5 +19,4 @@ data class DriverUpdateRequest(
 
     @Positive
     val carId: Long? = null
-
 ) : Serializable

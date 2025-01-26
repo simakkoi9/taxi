@@ -4,7 +4,6 @@ import io.simakkoi9.driverservice.model.entity.Gender
 import java.io.Serializable
 
 data class DriverResponse(
-
     val id: Long,
 
     val name: String,
@@ -16,5 +15,4 @@ data class DriverResponse(
     val gender: Gender,
 
     val carId: Long
-
 ) : Serializable

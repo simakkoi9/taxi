@@ -7,6 +7,7 @@ enum class Gender {
     MALE, FEMALE;
 
     companion object {
+        @JvmStatic
         @JsonCreator
         fun fromValue(value: String): Gender {
             return entries.find {

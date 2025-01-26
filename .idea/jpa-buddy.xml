@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JpaBuddyIdeaProjectConfig" newRepositoryParent="org.springframework.data.repository.CrudRepository">
+    <option name="defaultUnitInitialized" value="true" />
+    <option name="renamerInitialized" value="true" />
+    <option name="reverseEngineeringLastDbConnectionId" value="c27b8692-fc19-45e0-94bf-0d6ace64074e__driver_db_public" />
+    <option name="reLastEntityCreationPackage" value="driver-service/src/main/kotlin/io/simakkoi9/driverservice/model" />
+  </component>
+</project>

@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank
 import java.io.Serializable
 
 data class CarCreateRequest(
-
     @field:NotBlank
     val brand: String,
 
@@ -16,5 +15,4 @@ data class CarCreateRequest(
 
     @field:NotBlank
     val number: String
-
 ) : Serializable
