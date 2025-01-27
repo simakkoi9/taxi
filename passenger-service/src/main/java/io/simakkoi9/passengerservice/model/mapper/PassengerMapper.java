@@ -19,7 +19,7 @@ import org.mapstruct.ReportingPolicy;
 public interface PassengerMapper {
 
     @Mapping(target = "status", constant = "ACTIVE")
-    @Mapping(target = "createdAt", expression = "java(java.sql.Timestamp.from(java.time.Instant.now()))")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     Passenger toEntity(PassengerCreateRequest passengerCreateRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

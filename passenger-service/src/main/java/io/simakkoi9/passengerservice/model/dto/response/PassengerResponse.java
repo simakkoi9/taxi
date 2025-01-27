@@ -1,12 +1,12 @@
 package io.simakkoi9.passengerservice.model.dto.response;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public record PassengerResponse(
         Long id,
         String name,
         String email,
         String phone,
-        Timestamp createdAt
+        LocalDateTime createdAt
 ) implements Serializable {}
