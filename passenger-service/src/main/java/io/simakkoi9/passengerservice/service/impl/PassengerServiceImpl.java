@@ -29,10 +29,11 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     @Transactional
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
-        if (repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE)){
+        String passengerEmail = passengerCreateRequest.email();
+        if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)){
             throw new DuplicatePassengerFoundException(DUPLICATE_PASSENGER_FOUND_MESSAGE.formatted(passengerCreateRequest.email()));
         }
-        Passenger passenger = mapper.createRequestToEntity(passengerCreateRequest);
+        Passenger passenger = mapper.toEntity(passengerCreateRequest);
         Passenger createdPassenger = repository.save(passenger);
         return mapper.toResponse(createdPassenger);
     }

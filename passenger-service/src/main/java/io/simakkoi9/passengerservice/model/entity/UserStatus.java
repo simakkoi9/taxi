@@ -1,13 +1,13 @@
 package io.simakkoi9.passengerservice.model.entity;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public enum UserStatus {
-    ACTIVE(1), DELETED(2);
+    ACTIVE(1),
+    DELETED(2);
 
     private final int code;
-
-    UserStatus(int code){
-        this.code = code;
-    }
 
     public int getCode() {
         return code;

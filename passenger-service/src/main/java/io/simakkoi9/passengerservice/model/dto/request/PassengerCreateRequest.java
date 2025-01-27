@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 
-import static io.simakkoi9.passengerservice.util.RegularConstants.NAME_REGEX;
-import static io.simakkoi9.passengerservice.util.RegularConstants.PHONE_REGEX;
+import static io.simakkoi9.passengerservice.util.RegularExpressionConstants.NAME_REGEX;
+import static io.simakkoi9.passengerservice.util.RegularExpressionConstants.PHONE_REGEX;
 
 public record PassengerCreateRequest(
         @NotBlank(message = "{name.blank}")
