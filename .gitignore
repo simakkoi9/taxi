@@ -9,6 +9,11 @@ target/
 .idea/compiler.xml
 .idea/libraries/
 .idea/remote-targets.xml
+.idea/dataSources.xml
+.idea/uiDesigner.xml
+.idea/jpa-buddy.xml
+.idea/misc.xml
+.jpb
 *.iws
 *.iml
 *.ipr
@@ -37,3 +42,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
+

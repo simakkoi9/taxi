@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: simakkoi
+      changes:
+        - sqlFile:
+            path: db/changelog/v1/passengers.sql
