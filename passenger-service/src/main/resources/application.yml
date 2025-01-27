@@ -7,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
 
   datasource:
     driver-class-name: ${DB_DRIVER:org.postgresql.Driver}

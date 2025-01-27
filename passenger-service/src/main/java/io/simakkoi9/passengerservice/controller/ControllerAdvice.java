@@ -1,8 +1,8 @@
 package io.simakkoi9.passengerservice.controller;
 
 
-import io.simakkoi9.passengerservice.exception.DuplicateFoundException;
-import io.simakkoi9.passengerservice.exception.ResourceNotFoundException;
+import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
+import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +29,8 @@ public class ControllerAdvice {
                         .build());
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> resourceNotFoundException(ResourceNotFoundException e) {
+    @ExceptionHandler(PassengerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> resourceNotFoundException(PassengerNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse
                         .builder()
@@ -40,8 +40,8 @@ public class ControllerAdvice {
                         .build());
     }
 
-    @ExceptionHandler(DuplicateFoundException.class)
-    public ResponseEntity<ErrorResponse> duplicateFoundException(DuplicateFoundException e) {
+    @ExceptionHandler(DuplicatePassengerFoundException.class)
+    public ResponseEntity<ErrorResponse> duplicateFoundException(DuplicatePassengerFoundException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErrorResponse
                         .builder()

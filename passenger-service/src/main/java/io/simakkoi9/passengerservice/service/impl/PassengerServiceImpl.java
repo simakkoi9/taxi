@@ -1,7 +1,7 @@
 package io.simakkoi9.passengerservice.service.impl;
 
-import io.simakkoi9.passengerservice.exception.DuplicateFoundException;
-import io.simakkoi9.passengerservice.exception.ResourceNotFoundException;
+import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
+import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
@@ -14,14 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static io.simakkoi9.passengerservice.util.ErrorMessages.DUPLICATE_FOUND_MESSAGE;
-import static io.simakkoi9.passengerservice.util.ErrorMessages.RESOURCE_NOT_FOUND_MESSAGE;
+import static io.simakkoi9.passengerservice.util.ErrorMessages.DUPLICATE_PASSENGER_FOUND_MESSAGE;
+import static io.simakkoi9.passengerservice.util.ErrorMessages.PASSENGER_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -34,47 +30,48 @@ public class PassengerServiceImpl implements PassengerService {
     @Transactional
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
         if (repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE)){
-            throw new DuplicateFoundException(DUPLICATE_FOUND_MESSAGE.formatted(passengerCreateRequest.email()));
+            throw new DuplicatePassengerFoundException(DUPLICATE_PASSENGER_FOUND_MESSAGE.formatted(passengerCreateRequest.email()));
         }
         Passenger passenger = mapper.createRequestToEntity(passengerCreateRequest);
-        passenger.setStatus(UserStatus.ACTIVE);
-        passenger.setCreatedAt(Timestamp.from(Instant.now()));
-        return mapper.toResponse(repository.save(passenger));
+        Passenger createdPassenger = repository.save(passenger);
+        return mapper.toResponse(createdPassenger);
     }
 
     @Override
     @Transactional
     public PassengerResponse updatePassenger(Long id, PassengerUpdateRequest passengerUpdateRequest) {
-        Passenger passenger = findActivePassenger(id);
+        Passenger passenger = findActivePassengerOrElseThrow(id);
         mapper.setPassengerUpdateRequest(passengerUpdateRequest, passenger);
-        return mapper.toResponse(repository.save(passenger));
+        Passenger updatedPassenger = repository.save(passenger);
+        return mapper.toResponse(updatedPassenger);
     }
 
     @Override
     @Transactional
     public PassengerResponse deletePassenger(Long id) {
-        Passenger passenger = findActivePassenger(id);
+        Passenger passenger = findActivePassengerOrElseThrow(id);
         passenger.setStatus(UserStatus.DELETED);
-        return mapper.toResponse(repository.save(passenger));
+        Passenger deletedPassenger = repository.save(passenger);
+        return mapper.toResponse(deletedPassenger);
     }
 
     @Override
     public PassengerResponse getPassenger(Long id) {
-        return mapper.toResponse(findActivePassenger(id));
+        Passenger passenger = findActivePassengerOrElseThrow(id);
+        return mapper.toResponse(passenger);
     }
 
     @Override
     public List<PassengerResponse> getAllPassengers() {
-        List<Passenger> passengers = new ArrayList<>();
-        repository.findAllByStatus(UserStatus.ACTIVE).forEach(passengers::add);
+        List<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE);
         return passengers.stream()
                 .map(mapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private Passenger findActivePassenger(Long id){
+    private Passenger findActivePassengerOrElseThrow(Long id){
         return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND_MESSAGE.formatted("ID " + id)));
+                .orElseThrow(() -> new PassengerNotFoundException(PASSENGER_NOT_FOUND_MESSAGE.formatted("ID " + id)));
     }
 
 }

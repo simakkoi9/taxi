@@ -2,15 +2,20 @@ package io.simakkoi9.passengerservice.model.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 
-import static io.simakkoi9.passengerservice.util.ValidationMessages.*;
+import static io.simakkoi9.passengerservice.util.RegularConstants.NAME_REGEX;
+import static io.simakkoi9.passengerservice.util.RegularConstants.PHONE_REGEX;
 
 
 public record PassengerUpdateRequest(
+        @Pattern(regexp = NAME_REGEX, message = "{name.not-valid}")
         String name,
-        @Email(message = NOT_VALID_EMAIL)
+        @Email(message = "{email.not-valid}")
+        @Size(max = 320, message = "{email.not-valid}")
         String email,
-        @Pattern(regexp = PHONE_REGEX, message = NOT_VALID_PHONE)
-        String phone) implements Serializable {}
+        @Pattern(regexp = PHONE_REGEX, message = "{phone.not-valid}")
+        String phone
+) implements Serializable {}

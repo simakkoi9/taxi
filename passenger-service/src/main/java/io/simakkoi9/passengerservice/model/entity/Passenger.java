@@ -1,9 +1,9 @@
 package io.simakkoi9.passengerservice.model.entity;
 
+import io.simakkoi9.passengerservice.model.converter.UserStatusConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,7 +37,7 @@ public class Passenger {
     private String phone;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = UserStatusConverter.class)
     private UserStatus status;
 
     @Column(name = "created_at", nullable = false)

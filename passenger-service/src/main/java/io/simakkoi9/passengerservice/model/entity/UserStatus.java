@@ -1,5 +1,24 @@
 package io.simakkoi9.passengerservice.model.entity;
 
 public enum UserStatus {
-    ACTIVE, DELETED
+    ACTIVE(1), DELETED(2);
+
+    private final int code;
+
+    UserStatus(int code){
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public static UserStatus fromCode(int code) {
+        for (UserStatus status : UserStatus.values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
 }

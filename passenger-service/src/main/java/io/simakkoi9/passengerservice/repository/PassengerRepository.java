@@ -5,6 +5,7 @@ import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,6 +14,6 @@ public interface PassengerRepository extends CrudRepository<Passenger, Long> {
 
     Optional<Passenger> findByIdAndStatus(Long id, UserStatus status);
 
-    Iterable<Passenger> findAllByStatus(UserStatus status);
+    List<Passenger> findAllByStatus(UserStatus status);
 
 }
