@@ -1,9 +1,6 @@
 package io.simakkoi9.passengerservice.util;
 
-import lombok.experimental.UtilityClass;
-
-@UtilityClass
-public class ValidationMessages {
+public final class ValidationMessages {
     public static final String BLANK_NAME = "Укажите имя пассажира.";
     public static final String NOT_VALID_EMAIL = "Неверный адрес электронной почты.";
     public static final String BLANK_EMAIL = "Укажите электронную почту.";
