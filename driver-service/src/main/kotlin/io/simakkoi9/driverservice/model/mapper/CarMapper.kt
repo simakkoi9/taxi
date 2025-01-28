@@ -13,7 +13,7 @@ import org.mapstruct.ReportingPolicy
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 interface CarMapper {
-    fun createRequestToEntity(carCreateRequest: CarCreateRequest): Car
+    fun toEntity(carCreateRequest: CarCreateRequest): Car
 
     fun toResponse(car: Car): CarResponse
 

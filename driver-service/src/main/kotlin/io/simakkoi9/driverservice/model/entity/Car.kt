@@ -1,6 +1,8 @@
 package io.simakkoi9.driverservice.model.entity
 
+import io.simakkoi9.driverservice.model.converter.UserStatusConverter
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -40,6 +42,7 @@ open class Car {
 
     @NotNull
     @Column(name = "status", nullable = false)
+    @Convert(converter = UserStatusConverter::class)
     open var status: UserStatus? = UserStatus.ACTIVE
 
 }

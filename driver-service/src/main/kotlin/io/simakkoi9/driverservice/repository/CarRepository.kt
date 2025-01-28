@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.repository;
+package io.simakkoi9.driverservice.repository
 
 import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.UserStatus
@@ -10,5 +10,5 @@ import java.util.Optional
 interface CarRepository : CrudRepository<Car, Long> {
     fun findByIdAndStatus(id: Long, status: UserStatus): Optional<Car>
 
-    fun findAllByStatus(status: UserStatus): Iterable<Car>
+    fun findAllByStatus(status: UserStatus): List<Car>
 }

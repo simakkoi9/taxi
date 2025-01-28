@@ -1,9 +1,10 @@
 package io.simakkoi9.driverservice.model.entity
 
+import io.simakkoi9.driverservice.model.converter.GenderConverter
+import io.simakkoi9.driverservice.model.converter.UserStatusConverter
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -41,7 +42,7 @@ open class Driver {
 
     @NotNull
     @Column(name = "gender", nullable = false)
-    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = GenderConverter::class)
     open var gender: Gender? = null
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -50,7 +51,7 @@ open class Driver {
 
     @NotNull
     @Column(name = "status", nullable = false)
-    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = UserStatusConverter::class)
     open var status: UserStatus? = UserStatus.ACTIVE
 
 }

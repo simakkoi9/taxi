@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS cars
     model      VARCHAR                          NOT NULL,
     color      VARCHAR                          NOT NULL,
     number     VARCHAR                          NOT NULL,
-    status     VARCHAR                          NOT NULL
+    status     INTEGER                          NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS drivers
@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS drivers
     name   VARCHAR                              NOT NULL,
     email  VARCHAR                              NOT NULL,
     phone  VARCHAR                              NOT NULL,
-    gender VARCHAR                              NOT NULL,
+    gender INTEGER                              NOT NULL,
     car_id BIGINT CONSTRAINT drivers_cars_id_fk REFERENCES cars,
-    status VARCHAR                              NOT NULL
+    status INTEGER                              NOT NULL
 );
 
 
