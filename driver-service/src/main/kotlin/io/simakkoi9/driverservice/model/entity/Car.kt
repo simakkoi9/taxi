@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull
 import lombok.Getter
 import lombok.Setter
 import lombok.ToString
+import java.time.LocalDateTime
 
 @Getter
 @Setter
@@ -43,6 +44,9 @@ open class Car {
     @NotNull
     @Column(name = "status", nullable = false)
     @Convert(converter = UserStatusConverter::class)
-    open var status: UserStatus? = UserStatus.ACTIVE
+    open var status: UserStatus = UserStatus.ACTIVE
 
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    open var createdAt: LocalDateTime = LocalDateTime.now()
 }

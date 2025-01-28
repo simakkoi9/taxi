@@ -1,6 +1,7 @@
 package io.simakkoi9.driverservice.model.dto.car.response
 
 import java.io.Serializable
+import java.time.LocalDateTime
 
 data class CarResponse(
     val id: Long,
@@ -11,5 +12,7 @@ data class CarResponse(
 
     val color: String,
 
-    val number: String
+    val number: String,
+
+    val createdAt: LocalDateTime
 ) : Serializable

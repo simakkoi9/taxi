@@ -8,6 +8,8 @@ import java.util.Optional
 
 @Repository
 interface CarRepository : CrudRepository<Car, Long> {
+    fun existsByNumberAndStatus(number: String, status: UserStatus): Boolean
+
     fun findByIdAndStatus(id: Long, status: UserStatus): Optional<Car>
 
     fun findAllByStatus(status: UserStatus): List<Car>
