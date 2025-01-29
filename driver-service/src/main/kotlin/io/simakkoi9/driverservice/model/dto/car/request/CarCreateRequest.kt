@@ -12,13 +12,14 @@ data class CarCreateRequest(
     val brand: String,
 
     @field:NotBlank(message = "{model.not-blank}")
-    @field:Size(max = 25, message = "{model.size}")
+    @field:Size(max = 40, message = "{model.size}")
     val model: String,
 
     @field:NotBlank(message = "{color.not-blank}")
-    @field:Size(max = 25, message = "{color.size}")
+    @field:Size(max = 40, message = "{color.size}")
     val color: String,
 
     @field:Pattern(regexp = CAR_NUMBER_REGEX, message = "{number.invalid}")
+    @field:Size(max = 15, message = "{color.size}")
     val number: String
 ) : Serializable

@@ -9,12 +9,13 @@ data class CarUpdateRequest(
     @field:Size(max = 25, message = "{brand.size}")
     val brand: String? = null,
 
-    @field:Size(max = 25, message = "{model.size}")
+    @field:Size(max = 40, message = "{model.size}")
     val model: String? = null,
 
-    @field:Size(max = 25, message = "{color.size}")
+    @field:Size(max = 40, message = "{color.size}")
     val color: String? = null,
 
     @field:Pattern(regexp = RegularExpressionsConstants.CAR_NUMBER_REGEX, message = "{number.invalid}")
+    @field:Size(max = 15, message = "{color.size}")
     val number: String? = null
 ) : Serializable
