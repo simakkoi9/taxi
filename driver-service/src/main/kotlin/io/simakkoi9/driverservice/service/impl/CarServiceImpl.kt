@@ -7,7 +7,7 @@ import io.simakkoi9.driverservice.model.dto.car.request.CarCreateRequest
 import io.simakkoi9.driverservice.model.dto.car.request.CarUpdateRequest
 import io.simakkoi9.driverservice.model.dto.car.response.CarResponse
 import io.simakkoi9.driverservice.model.entity.Car
-import io.simakkoi9.driverservice.model.entity.UserStatus
+import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.model.mapper.CarMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.service.CarService
@@ -15,12 +15,15 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class CarServiceImpl(private val carRepository: CarRepository, private val carMapper: CarMapper) : CarService {
+class CarServiceImpl(
+    private val carRepository: CarRepository,
+    private val carMapper: CarMapper
+) : CarService {
 
     @Transactional
     override fun createCar(carCreateRequest: CarCreateRequest): CarResponse {
         val car = carMapper.toEntity(carCreateRequest)
-        if (carRepository.existsByNumberAndStatus(carCreateRequest.number, UserStatus.ACTIVE)){
+        if (carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE)) {
             throw DuplicateCarFoundException("")
         }
         val createdCar = carRepository.save(car)
@@ -38,7 +41,7 @@ class CarServiceImpl(private val carRepository: CarRepository, private val carMa
     @Transactional
     override fun deleteCar(id: Long): CarResponse {
         val car = findActiveCarOrElseThrow(id)
-        car.status = UserStatus.DELETED
+        car.status = EntryStatus.DELETED
         return carMapper.toResponse(car)
     }
 
@@ -48,8 +51,8 @@ class CarServiceImpl(private val carRepository: CarRepository, private val carMa
     }
 
     override fun getAllCars(): List<CarResponse> {
-        val cars = carRepository.findAllByStatus(UserStatus.ACTIVE)
-        if (cars.isEmpty()){
+        val cars = carRepository.findAllByStatus(EntryStatus.ACTIVE)
+        if (cars.isEmpty()) {
             throw EmptyCarListException("")
         }
         return cars.stream()
@@ -58,8 +61,7 @@ class CarServiceImpl(private val carRepository: CarRepository, private val carMa
     }
 
     private fun findActiveCarOrElseThrow(id: Long): Car {
-        return carRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
+        return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow { CarNotFoundException("") }
     }
-
 }

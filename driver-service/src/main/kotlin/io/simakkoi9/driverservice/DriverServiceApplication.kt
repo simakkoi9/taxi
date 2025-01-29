@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class DriverServiceApplication
 
 fun main(args: Array<String>) {
-	runApplication<DriverServiceApplication>(*args)
+    runApplication<DriverServiceApplication>(*args)
 }

@@ -13,14 +13,14 @@ enum class Gender(val code: Int) {
         fun fromValue(value: String): Gender {
             return entries.find {
                 it.name.equals(value, ignoreCase = true)
-            } ?: throw IllegalArgumentException("Unknown status: $value")
+            } ?: throw IllegalArgumentException("Unknown gender status: $value")
         }
 
         @JvmStatic
         fun fromCode(code: Int): Gender {
             return entries.find {
                 it.code == code
-            } ?: throw IllegalArgumentException("Unknown code: $code")
+            } ?: throw IllegalArgumentException("Unknown gender type code: $code")
         }
     }
 

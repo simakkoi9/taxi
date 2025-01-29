@@ -2,6 +2,7 @@ package io.simakkoi9.driverservice.model.dto.driver.response
 
 import io.simakkoi9.driverservice.model.entity.Gender
 import java.io.Serializable
+import java.time.LocalDateTime
 
 data class DriverResponse(
     val id: Long,
@@ -14,5 +15,7 @@ data class DriverResponse(
 
     val gender: Gender,
 
-    val carId: Long
+    val carId: Long,
+
+    val createdAt: LocalDateTime
 ) : Serializable

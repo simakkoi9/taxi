@@ -1,8 +1,8 @@
 package io.simakkoi9.driverservice.model.converter
 
 import io.simakkoi9.driverservice.model.entity.Gender
-import jakarta.persistence.Converter
 import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 
 @Converter(autoApply = true)
 class GenderConverter : AttributeConverter<Gender, Int> {

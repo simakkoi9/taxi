@@ -12,7 +12,10 @@ import org.mapstruct.MappingTarget
 import org.mapstruct.NullValuePropertyMappingStrategy
 import org.mapstruct.ReportingPolicy
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    componentModel = MappingConstants.ComponentModel.SPRING
+)
 interface DriverMapper {
     @Mapping(source = "carId", target = "car", ignore = true)
     fun toEntity(driverCreateRequest: DriverCreateRequest): Driver

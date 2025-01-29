@@ -1,6 +1,6 @@
 package io.simakkoi9.driverservice.model.entity
 
-import io.simakkoi9.driverservice.model.converter.UserStatusConverter
+import io.simakkoi9.driverservice.model.converter.EntryStatusConverter
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
@@ -9,14 +9,8 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
-import lombok.Getter
-import lombok.Setter
-import lombok.ToString
 import java.time.LocalDateTime
 
-@Getter
-@Setter
-@ToString
 @Entity
 @Table(name = "cars")
 open class Car {
@@ -43,8 +37,8 @@ open class Car {
 
     @NotNull
     @Column(name = "status", nullable = false)
-    @Convert(converter = UserStatusConverter::class)
-    open var status: UserStatus = UserStatus.ACTIVE
+    @Convert(converter = EntryStatusConverter::class)
+    open var status: EntryStatus = EntryStatus.ACTIVE
 
     @NotNull
     @Column(name = "created_at", nullable = false)
