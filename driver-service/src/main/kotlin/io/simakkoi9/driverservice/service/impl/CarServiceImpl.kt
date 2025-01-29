@@ -32,7 +32,7 @@ class CarServiceImpl(
 
     @Transactional
     override fun updateCar(id: Long, carUpdateRequest: CarUpdateRequest): CarResponse {
-        val car = findActiveCarOrElseThrow(id)
+        val car = findActiveCarByIdOrElseThrow(id)
         carMapper.partialUpdate(carUpdateRequest, car)
         val updatedCar = carRepository.save(car)
         return carMapper.toResponse(updatedCar)
@@ -40,13 +40,14 @@ class CarServiceImpl(
 
     @Transactional
     override fun deleteCar(id: Long): CarResponse {
-        val car = findActiveCarOrElseThrow(id)
+        val car = findActiveCarByIdOrElseThrow(id)
         car.status = EntryStatus.DELETED
-        return carMapper.toResponse(car)
+        val deletedCar = carRepository.save(car)
+        return carMapper.toResponse(deletedCar)
     }
 
     override fun getCar(id: Long): CarResponse {
-        val car = findActiveCarOrElseThrow(id)
+        val car = findActiveCarByIdOrElseThrow(id)
         return carMapper.toResponse(car)
     }
 
@@ -60,7 +61,7 @@ class CarServiceImpl(
             .toList()
     }
 
-    private fun findActiveCarOrElseThrow(id: Long): Car {
+    private fun findActiveCarByIdOrElseThrow(id: Long): Car {
         return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow { CarNotFoundException("") }
     }

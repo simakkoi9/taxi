@@ -20,6 +20,7 @@ interface DriverMapper {
     @Mapping(source = "carId", target = "car", ignore = true)
     fun toEntity(driverCreateRequest: DriverCreateRequest): Driver
 
+    @Mapping(source = "car.id" , target = "carId")
     fun toResponse(driver: Driver): DriverResponse
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
