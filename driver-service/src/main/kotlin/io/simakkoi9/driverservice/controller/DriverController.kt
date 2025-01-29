@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -33,10 +34,10 @@ class DriverController(
         return driverService.updateDriver(id, driverUpdateRequest)
     }
 
-    @PatchMapping("/{driverId}/setCar/{carId}")
+    @PatchMapping("/{driverId}/setCar")
     fun updateCarForDriver(
         @PathVariable driverId: Long,
-        @PathVariable carId: Long
+        @RequestParam(name = "id") carId: Long
     ) : DriverResponse {
         return driverService.setCarForDriver(driverId, carId)
     }

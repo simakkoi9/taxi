@@ -4,7 +4,6 @@ import io.simakkoi9.driverservice.model.entity.Gender
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Positive
 import java.io.Serializable
 
 data class DriverCreateRequest(
@@ -21,7 +20,4 @@ data class DriverCreateRequest(
 
     @field:NotNull
     val gender: Gender,
-
-    @Positive
-    val carId: Long?
 ) : Serializable

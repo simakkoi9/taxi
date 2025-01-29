@@ -1,5 +1,6 @@
 package io.simakkoi9.driverservice.service.impl
 
+import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
@@ -27,12 +28,8 @@ class DriverServiceImpl(
     @Transactional
     override fun createDriver(driverCreateRequest: DriverCreateRequest): DriverResponse {
         val driver = driverMapper.toEntity(driverCreateRequest)
-        if (driverRepository.existsByEmailAndStatus(driverCreateRequest.email, EntryStatus.ACTIVE)){
+        if (driverRepository.existsByEmailAndStatus(driverCreateRequest.email, EntryStatus.ACTIVE)) {
             throw DuplicateDriverFoundException("")
-        }
-        if (driverCreateRequest.carId != null){
-            val car = findActiveCarByIdOrElseThrow(driverCreateRequest.carId)
-            driver.car = car
         }
         val createdDriver = driverRepository.save(driver)
         return driverMapper.toResponse(createdDriver)
@@ -48,6 +45,9 @@ class DriverServiceImpl(
 
     @Transactional
     override fun setCarForDriver(driverId: Long, carId: Long): DriverResponse {
+        if (!isCarAvailable(carId)) {
+            throw CarIsNotAvailableException("")
+        }
         val driver = findActiveDriverByIdOrElseThrow(driverId)
         val car = findActiveCarByIdOrElseThrow(carId)
         driver.car = car
@@ -94,5 +94,10 @@ class DriverServiceImpl(
     private fun findActiveCarByIdOrElseThrow(id: Long) : Car {
         return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow { CarNotFoundException("") }
+    }
+
+    private fun isCarAvailable(id: Long) : Boolean {
+        val car = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
+        return !(car.isPresent && driverRepository.existsByCarAndStatus(car.get(), EntryStatus.ACTIVE))
     }
 }

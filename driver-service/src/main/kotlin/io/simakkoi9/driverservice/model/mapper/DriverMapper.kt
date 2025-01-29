@@ -17,7 +17,7 @@ import org.mapstruct.ReportingPolicy
     componentModel = MappingConstants.ComponentModel.SPRING
 )
 interface DriverMapper {
-    @Mapping(source = "carId", target = "car", ignore = true)
+    @Mapping(target = "car", ignore = true)
     fun toEntity(driverCreateRequest: DriverCreateRequest): Driver
 
     @Mapping(source = "car.id" , target = "carId")
