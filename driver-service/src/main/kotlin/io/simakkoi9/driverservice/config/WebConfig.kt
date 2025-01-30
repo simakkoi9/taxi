@@ -14,7 +14,7 @@ import java.util.Locale
 @Configuration
 class WebConfig : WebMvcConfigurer {
     @Bean
-    fun messageSource() : MessageSource? {
+    fun messageSource(): MessageSource? {
         val messageSource = ReloadableResourceBundleMessageSource()
         messageSource.setBasename("classpath:messages")
         messageSource.setDefaultEncoding("UTF-8")

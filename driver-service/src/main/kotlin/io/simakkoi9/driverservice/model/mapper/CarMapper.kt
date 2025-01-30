@@ -20,6 +20,8 @@ interface CarMapper {
 
     fun toResponse(car: Car): CarResponse
 
+    fun toResponseList(cars: List<Car>): List<CarResponse>
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     fun partialUpdate(carUpdateRequest: CarUpdateRequest, @MappingTarget car: Car): Car
 }

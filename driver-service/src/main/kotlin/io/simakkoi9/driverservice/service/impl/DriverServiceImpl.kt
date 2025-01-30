@@ -14,10 +14,10 @@ import io.simakkoi9.driverservice.model.mapper.DriverMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.DriverService
-import io.simakkoi9.driverservice.util.ErrorMessages.CAR_IS_NOT_AVAILABLE_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.CAR_NOT_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.DRIVER_NOT_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.DUPLICATE_DRIVER_FOUND_MESSAGE
+import org.springframework.context.MessageSource
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,21 +25,22 @@ import org.springframework.transaction.annotation.Transactional
 class DriverServiceImpl(
     private val driverRepository: DriverRepository,
     private val carRepository: CarRepository,
-    private val driverMapper: DriverMapper
+    private val driverMapper: DriverMapper,
+    private val messageSource: MessageSource
 ) : DriverService {
 
     @Transactional
     override fun createDriver(driverCreateRequest: DriverCreateRequest): DriverResponse {
         val driver = driverMapper.toEntity(driverCreateRequest)
         if (driverRepository.existsByEmailAndStatus(driverCreateRequest.email, EntryStatus.ACTIVE)) {
-            throw DuplicateDriverFoundException(DUPLICATE_DRIVER_FOUND_MESSAGE.format(driverCreateRequest.email))
+            throw DuplicateDriverFoundException("duplicate.driver.found", messageSource, driverCreateRequest.email)
         }
         val createdDriver = driverRepository.save(driver)
         return driverMapper.toResponse(createdDriver)
     }
 
     @Transactional
-    override fun updateDriver(id: Long ,driverUpdateRequest: DriverUpdateRequest): DriverResponse {
+    override fun updateDriver(id: Long, driverUpdateRequest: DriverUpdateRequest): DriverResponse {
         val driver = findActiveDriverByIdOrElseThrow(id)
         driverMapper.partialUpdate(driverUpdateRequest, driver)
         val updatedDriver = driverRepository.save(driver)
@@ -49,7 +50,7 @@ class DriverServiceImpl(
     @Transactional
     override fun setCarForDriver(driverId: Long, carId: Long): DriverResponse {
         if (!isCarAvailable(carId)) {
-            throw CarIsNotAvailableException(CAR_IS_NOT_AVAILABLE_MESSAGE)
+            throw CarIsNotAvailableException("car.is.not.available", messageSource)
         }
         val driver = findActiveDriverByIdOrElseThrow(driverId)
         val car = findActiveCarByIdOrElseThrow(carId)
@@ -59,7 +60,7 @@ class DriverServiceImpl(
     }
 
     @Transactional
-    override fun removeCarForDriver(id: Long) : DriverResponse {
+    override fun removeCarForDriver(id: Long): DriverResponse {
         val driver = findActiveDriverByIdOrElseThrow(id)
         driver.car = null
         val updatedDriver = driverRepository.save(driver)
@@ -79,24 +80,27 @@ class DriverServiceImpl(
         return driverMapper.toResponse(driver)
     }
 
-    override fun getAllDrivers(): List<DriverResponse> {
-        val drivers = driverRepository.findAllByStatus(EntryStatus.ACTIVE)
-        return drivers.stream()
-            .map(driverMapper::toResponse)
-            .toList()
+    override fun getAllDrivers(pageable: Pageable): Page<DriverResponse> {
+        val driverPage = driverRepository.findAllByStatus(EntryStatus.ACTIVE, pageable)
+        val driverResponseList = driverMapper.toResponseList(driverPage.content)
+        return PageImpl(driverResponseList, pageable, driverPage.totalElements)
     }
 
-    private fun findActiveDriverByIdOrElseThrow(id: Long) : Driver {
+    private fun findActiveDriverByIdOrElseThrow(id: Long): Driver {
         return driverRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
-            .orElseThrow { DriverNotFoundException(DRIVER_NOT_FOUND_MESSAGE.format(id)) }
+            .orElseThrow {
+                DriverNotFoundException("driver.not.found", messageSource, id)
+            }
     }
 
-    private fun findActiveCarByIdOrElseThrow(id: Long) : Car {
+    private fun findActiveCarByIdOrElseThrow(id: Long): Car {
         return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
-            .orElseThrow { CarNotFoundException(CAR_NOT_FOUND_MESSAGE.format(id)) }
+            .orElseThrow {
+                CarNotFoundException("car.not.found", messageSource, id)
+            }
     }
 
-    private fun isCarAvailable(id: Long) : Boolean {
+    private fun isCarAvailable(id: Long): Boolean {
         val car = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
         return !(car.isPresent && driverRepository.existsByCarAndStatus(car.get(), EntryStatus.ACTIVE))
     }

@@ -9,23 +9,28 @@ import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.model.mapper.CarMapper
 import io.simakkoi9.driverservice.repository.CarRepository
+import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.CarService
-import io.simakkoi9.driverservice.util.ErrorMessages.CAR_NOT_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.DUPLICATE_CAR_FOUND_MESSAGE
+import org.springframework.context.MessageSource
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CarServiceImpl(
     private val carRepository: CarRepository,
-    private val carMapper: CarMapper
+    private val driverRepository: DriverRepository,
+    private val carMapper: CarMapper,
+    private val messageSource: MessageSource
 ) : CarService {
 
     @Transactional
     override fun createCar(carCreateRequest: CarCreateRequest): CarResponse {
         val car = carMapper.toEntity(carCreateRequest)
         if (carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE)) {
-            throw DuplicateCarFoundException(DUPLICATE_CAR_FOUND_MESSAGE.format(carCreateRequest.number))
+            throw DuplicateCarFoundException("duplicate.car.found", messageSource, carCreateRequest.number)
         }
         val createdCar = carRepository.save(car)
         return carMapper.toResponse(createdCar)
@@ -42,6 +47,12 @@ class CarServiceImpl(
     @Transactional
     override fun deleteCar(id: Long): CarResponse {
         val car = findActiveCarByIdOrElseThrow(id)
+
+        driverRepository.findAllByCarAndStatus(car, EntryStatus.ACTIVE).forEach { driver ->
+            driver.car = null
+            driverRepository.save(driver)
+        }
+
         car.status = EntryStatus.DELETED
         val deletedCar = carRepository.save(car)
         return carMapper.toResponse(deletedCar)
@@ -52,15 +63,16 @@ class CarServiceImpl(
         return carMapper.toResponse(car)
     }
 
-    override fun getAllCars(): List<CarResponse> {
-        val cars = carRepository.findAllByStatus(EntryStatus.ACTIVE)
-        return cars.stream()
-            .map(carMapper::toResponse)
-            .toList()
+    override fun getAllCars(pageable: Pageable): Page<CarResponse> {
+        val carPage = carRepository.findAllByStatus(EntryStatus.ACTIVE, pageable)
+        val carResponseList = carMapper.toResponseList(carPage.content)
+        return PageImpl(carResponseList, pageable, carPage.totalElements)
     }
 
     private fun findActiveCarByIdOrElseThrow(id: Long): Car {
         return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
-            .orElseThrow { CarNotFoundException(CAR_NOT_FOUND_MESSAGE.format(id)) }
+            .orElseThrow {
+                CarNotFoundException("car.not.found", messageSource, id)
+            }
     }
 }

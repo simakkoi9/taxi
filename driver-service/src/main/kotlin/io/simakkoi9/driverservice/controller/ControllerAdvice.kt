@@ -5,127 +5,91 @@ import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
-import io.simakkoi9.driverservice.exception.GenderValidationException
 import io.simakkoi9.driverservice.model.dto.ErrorResponse
-import io.simakkoi9.driverservice.util.ErrorMessages.CAR_IS_NOT_AVAILABLE_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.CAR_NOT_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.DRIVER_NOT_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.DUPLICATE_CAR_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.DUPLICATE_DRIVER_FOUND_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.INTERNAL_SERVER_ERROR_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_GENDER_VALUE_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.VALIDATION_FAILED_MESSAGE
+import org.springframework.context.MessageSource
+import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.time.LocalDateTime
 
 @RestControllerAdvice
-class ControllerAdvice {
+class ControllerAdvice(
+    private val messageSource: MessageSource
+) {
     @ExceptionHandler(Exception::class)
-    fun handleGenericException(e: Exception) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$INTERNAL_SERVER_ERROR_MESSAGE ${e.message}"
-                )
-            )
-    }
+    fun handleGenericException(e: Exception): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)
 
     @ExceptionHandler(CarIsNotAvailableException::class)
-    fun handleCarIsNotAvailableException(e: CarIsNotAvailableException) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.CONFLICT.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$CAR_IS_NOT_AVAILABLE_MESSAGE ${e.message}"
-                )
-            )
-    }
+    fun handleCarIsNotAvailableException(e: CarIsNotAvailableException): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.CONFLICT, e)
 
-    @ExceptionHandler(CarNotFoundException::class)
-    fun handleCarNotFoundException(e: CarNotFoundException) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.NOT_FOUND.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$CAR_NOT_FOUND_MESSAGE ${e.message}"
-                )
-            )
-    }
+    @ExceptionHandler(
+        CarNotFoundException::class,
+        DriverNotFoundException::class
+    )
+    fun handleCarNotFoundException(e: RuntimeException): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.NOT_FOUND, e)
 
-    @ExceptionHandler(DriverNotFoundException::class)
-    fun handleDriverNotFoundException(e: DriverNotFoundException) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.NOT_FOUND.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$DRIVER_NOT_FOUND_MESSAGE ${e.message}"
-                )
-            )
-    }
-
-    @ExceptionHandler(DuplicateCarFoundException::class)
-    fun handleDuplicateCarFoundException(e: DuplicateCarFoundException) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.BAD_REQUEST.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$DUPLICATE_CAR_FOUND_MESSAGE ${e.message}"
-                )
-            )
-    }
-
-    @ExceptionHandler(DuplicateDriverFoundException::class)
-    fun handleDuplicateDriverFoundException(e: DuplicateDriverFoundException) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.BAD_REQUEST.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$DUPLICATE_DRIVER_FOUND_MESSAGE ${e.message}"
-                )
-            )
-    }
+    @ExceptionHandler(
+        DuplicateCarFoundException::class,
+        DuplicateDriverFoundException::class
+    )
+    fun handleDuplicateCarFoundException(e: RuntimeException): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.BAD_REQUEST, e)
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationException(e: MethodArgumentNotValidException) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.BAD_REQUEST.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$VALIDATION_FAILED_MESSAGE ${e.message}"
-                )
-            )
-    }
+    fun handleValidationExceptions(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.BAD_REQUEST, e)
 
-    @ExceptionHandler(GenderValidationException::class)
-    fun handleGenderValidationException(e: GenderValidationException ) : ResponseEntity<ErrorResponse> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(
-                ErrorResponse(
-                    status = HttpStatus.BAD_REQUEST.value(),
-                    timestamp = LocalDateTime.now(),
-                    message = "$UNKNOWN_GENDER_VALUE_MESSAGE ${e.message}"
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleJsonParseException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.BAD_REQUEST, e)
+
+    private fun buildErrorResponse(status: HttpStatus, e: Exception): ResponseEntity<ErrorResponse> {
+        val errors = mutableListOf<String?>()
+
+        when (e) {
+            is MethodArgumentNotValidException -> {
+                e.bindingResult.allErrors.forEach {
+                    errors.add(
+                        it.defaultMessage ?: messageSource
+                            .getMessage(
+                                "validation.failed",
+                                null,
+                                LocaleContextHolder.getLocale()
+                            )
+                    )
+                }
+            }
+
+            is HttpMessageNotReadableException -> {
+                errors.add(e.message)
+            }
+
+            else -> {
+                errors.add(
+                    e.message ?: messageSource
+                        .getMessage(
+                            "internal.server.error",
+                            null,
+                            LocaleContextHolder.getLocale()
+                        )
                 )
+            }
+        }
+
+        return ResponseEntity.status(status).body(
+            ErrorResponse(
+                status = status.value(),
+                timestamp = LocalDateTime.now(),
+                errors = errors
             )
+        )
     }
 
 }
