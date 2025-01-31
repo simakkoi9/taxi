@@ -8,6 +8,7 @@
     <modules>
         <module>passenger-service</module>
         <module>driver-service</module>
+        <module>rides-service</module>
     </modules>
     <dependencyManagement>
         <dependencies>
