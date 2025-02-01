@@ -1,21 +1,27 @@
 package io.simakkoi9.ridesservice.model.entity;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "rides")
-public class Rides {
+public class Ride {
     @Id
     private Long id;
 
-    private Driver driver;
-
     private Passenger passenger;
+
+    private Driver driver;
 
     private String pickupAddress;
 
