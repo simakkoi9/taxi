@@ -32,8 +32,8 @@ public class RideServiceImpl implements RideService {
     private final RideMapper mapper;
     private final WebClient osrmWebClient;
     private final RideRepository repository;
-    private final static BigDecimal START_FARE = new BigDecimal("5");
-    private final static BigDecimal FARE_PER_KM = new BigDecimal("3.4");
+    private final static BigDecimal START_FARE = new BigDecimal("3");
+    private final static BigDecimal FARE_PER_KM = new BigDecimal("2.5");
 
     @Override
     public RideResponse createRide(RideCreateRequest rideCreateRequest) {
@@ -44,8 +44,8 @@ public class RideServiceImpl implements RideService {
                 rideCreateRequest.pickupAddress(),
                 rideCreateRequest.destinationAddress()
         ).block();
-        System.out.println(cost);
         ride.setCost(cost);
+
         Ride createdRide = repository.save(ride);
         return mapper.toResponse(createdRide);
     }
@@ -88,7 +88,7 @@ public class RideServiceImpl implements RideService {
         );
     }
 
-    private Mono<BigDecimal> calculateFare(String pickupAddress, String destinationAddress) {
+    private Mono<Double> getDistance(String pickupAddress, String destinationAddress) {
         String[] pickupSplit = pickupAddress.split("\\s*,\\s*");
         String[] destinationSplit = destinationAddress.split("\\s*,\\s*");
 
@@ -112,12 +112,21 @@ public class RideServiceImpl implements RideService {
                                 .get("distance")
                                 .asDouble();
                         System.out.println("distance: " + distanceMeters);
-                        Double distanceKm = distanceMeters / 1000.0;
-                        BigDecimal fare = FARE_PER_KM.multiply(new BigDecimal(String.valueOf(distanceKm))).add(START_FARE);
-                        sink.next(fare);
+                        double distanceKm = distanceMeters / 1000.0;
+                        sink.next(distanceKm);
                     } catch (JsonProcessingException e) {
-                        sink.error(new RuntimeException("", e));
+                        sink.error(new RuntimeException("Error parsing OSRM response", e));
                     }
                 });
     }
+
+    private BigDecimal calculateFareFromDistance(double distanceKm) {
+        return FARE_PER_KM.multiply(new BigDecimal(String.valueOf(distanceKm))).add(START_FARE);
+    }
+
+    public Mono<BigDecimal> calculateFare(String pickupAddress, String destinationAddress) {
+        return getDistance(pickupAddress, destinationAddress)
+                .map(this::calculateFareFromDistance);
+    }
+
 }
