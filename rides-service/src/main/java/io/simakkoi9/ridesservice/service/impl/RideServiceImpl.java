@@ -1,6 +1,5 @@
 package io.simakkoi9.ridesservice.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
@@ -13,32 +12,36 @@ import io.simakkoi9.ridesservice.model.mapper.RideMapper;
 import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.RideService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class RideServiceImpl implements RideService {
 
     private final RideMapper mapper;
-    private final WebClient openRouteWebClient;
+    private final WebClient osrmWebClient;
     private final RideRepository repository;
-    private final static BigDecimal START_FARE = new BigDecimal(5);
+    private final static BigDecimal START_FARE = new BigDecimal("5");
     private final static BigDecimal FARE_PER_KM = new BigDecimal("3.4");
-    private final static String API_KEY = "5b3ce3597851110001cf6248600bc8a9a1d5403fa618a185fd113d68";
 
     @Override
     public RideResponse createRide(RideCreateRequest rideCreateRequest) {
         Ride ride = mapper.toEntity(rideCreateRequest);
-        ride.setPassenger(getPassenger());
+        ride.setPassenger(getPassenger(rideCreateRequest.passengerId()));
         ride.setDriver(findAvailableDriver());
         BigDecimal cost = calculateFare(
                 rideCreateRequest.pickupAddress(),
                 rideCreateRequest.destinationAddress()
         ).block();
+        System.out.println(cost);
         ride.setCost(cost);
         Ride createdRide = repository.save(ride);
         return mapper.toResponse(createdRide);
@@ -51,6 +54,14 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    public Page<RideResponse> getAllRides(Pageable pageable) {
+        Page<Ride> rides = repository.getAll(pageable);
+        List<Ride> ridesList = rides.toList();
+        List<RideResponse> rideResponseList = mapper.toResponseList(ridesList);
+        return new PageImpl<>(rideResponseList, pageable, rides.getTotalElements());
+    }
+
+    @Override
     public RideResponse setRideStatus(Long id, RideStatus rideStatus) {
         Ride ride = repository.findById(id).orElseThrow();
         ride.setStatus(rideStatus);
@@ -58,7 +69,7 @@ public class RideServiceImpl implements RideService {
         return mapper.toResponse(updatedRide);
     }
 
-    private Passenger getPassenger(){
+    private Passenger getPassenger(Long id){
         return new Passenger();
     }
 
@@ -73,64 +84,35 @@ public class RideServiceImpl implements RideService {
     }
 
     private Mono<BigDecimal> calculateFare(String pickupAddress, String destinationAddress) {
-        return Mono.zip(
-                    geocodeAddress(pickupAddress),
-                    geocodeAddress(destinationAddress)
-                ).flatMap(coords -> {
-                    String pickupCoords = coords.getT1();
-                    String destinationCoords = coords.getT2();
+        String[] pickupSplit = pickupAddress.split("\\s*,\\s*");
+        String[] destinationSplit = destinationAddress.split("\\s*,\\s*");
 
-                    String requestBody = String.format("{\"coordinates\": [[%s], [%s]]}", pickupCoords, destinationCoords);
+        String requestBody = "%s,%s;%s,%s".formatted(pickupSplit[1], pickupSplit[0], destinationSplit[1], pickupSplit[0]);
 
-                    return openRouteWebClient.post()
-                            .uri("/v2/directions/driving-car/json")
-                            .bodyValue(requestBody)
-                            .header("Authorization", "Bearer 5b3ce3597851110001cf6248600bc8a9a1d5403fa618a185fd113d68")
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .handle((response, sink) -> {
-                                try {
-                                    ObjectMapper objectMapper = new ObjectMapper();
-                                    JsonNode jsonResponse = objectMapper.readTree(response);
-                                    double distanceMeters = jsonResponse.get("routes")
-                                            .get(0)
-                                            .get("segments")
-                                            .get(0)
-                                            .get("distance")
-                                            .asDouble();
-
-                                    double distanceKm = distanceMeters / 1000;
-                                    BigDecimal fare = FARE_PER_KM.multiply(new BigDecimal(distanceKm)).add(START_FARE);
-                                    sink.next(fare);
-                                } catch (Exception e) {
-                                    sink.error(new RuntimeException("", e));
-                                }
-                            });
-                });
-    }
-
-    private Mono<String> geocodeAddress(String address) {
-        return openRouteWebClient.get()
+        return osrmWebClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/geocode/search")
-                        .queryParam("api_key", API_KEY)
-                        .queryParam("text", address.replaceAll(" ", "%20"))
+                        .path("/route/v1/driving")
+                        .path("/" + requestBody)
+                        .queryParam("overview", "false")
                         .build()
-                ).retrieve()
+                )
+                .retrieve()
                 .bodyToMono(String.class)
                 .handle((response, sink) -> {
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
                         JsonNode jsonResponse = objectMapper.readTree(response);
-                        sink.next(jsonResponse.get("features")
+                        double distanceMeters = jsonResponse.get("routes")
                                 .get(0)
-                                .get("geometry")
-                                .get("coordinates")
-                                .toString());
-                    } catch (JsonProcessingException e) {
-                        sink.error(new RuntimeException(e));
+                                .get("distance")
+                                .asDouble();
+                        System.out.println("distance: " + distanceMeters);
+                        Double distanceKm = distanceMeters / 1000.0;
+                        BigDecimal fare = FARE_PER_KM.multiply(new BigDecimal(String.valueOf(distanceKm))).add(START_FARE);
+                        sink.next(fare);
+                    } catch (Exception e) {
+                        sink.error(new RuntimeException("", e));
                     }
                 });
     }
-
 }

@@ -7,8 +7,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebConfig {
+
     @Bean
-    public WebClient openRouteWebClient() {
-        return WebClient.create("https://api.openrouteservice.org");
+    public WebClient osrmWebClient() {
+        return WebClient.create("http://router.project-osrm.org");
     }
+
 }
