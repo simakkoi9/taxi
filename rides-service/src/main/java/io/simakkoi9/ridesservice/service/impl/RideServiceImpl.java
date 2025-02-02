@@ -15,6 +15,7 @@ import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.FareService;
 import io.simakkoi9.ridesservice.service.RideService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class RideServiceImpl implements RideService {
     private final RideMapper mapper;
     private final RideRepository repository;
     private final FareService fareService;
+    private final MessageSource messageSource;
 
     @Override
     public RideResponse createRide(RideCreateRequest rideCreateRequest) {
@@ -91,13 +93,13 @@ public class RideServiceImpl implements RideService {
 
     private Ride findRideByIdOrElseThrow(String id){
         return repository.findById(id).orElseThrow(
-                () -> new RideNotFoundException("")
+                () -> new RideNotFoundException("", messageSource, id)
         );
     }
 
     private Passenger findFreePassengerOrElseThrow(Long id){
         if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())){
-            throw new BusyPassengerException("");
+            throw new BusyPassengerException("", messageSource, id);
         }
 
         return new Passenger();                         //Получим из сервиса пассажиров
