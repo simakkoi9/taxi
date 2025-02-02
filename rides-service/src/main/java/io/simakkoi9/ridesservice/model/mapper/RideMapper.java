@@ -16,10 +16,11 @@ import java.util.List;
 )
 public interface RideMapper {
     @Mapping(target = "status", constant = "CREATED")
-    @Mapping(target = "orderDatetime", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "orderDateTime", expression = "java(LocalDateTime.now())")
     Ride toEntity(RideCreateRequest rideCreateRequest);
 
     RideResponse toResponse(Ride ride);
 
     List<RideResponse> toResponseList(List<Ride> rides);
+
 }

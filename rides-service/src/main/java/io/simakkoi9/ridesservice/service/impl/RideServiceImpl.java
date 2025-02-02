@@ -1,9 +1,12 @@
 package io.simakkoi9.ridesservice.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
+import io.simakkoi9.ridesservice.model.entity.Car;
 import io.simakkoi9.ridesservice.model.entity.Driver;
 import io.simakkoi9.ridesservice.model.entity.Passenger;
 import io.simakkoi9.ridesservice.model.entity.Ride;
@@ -35,8 +38,8 @@ public class RideServiceImpl implements RideService {
     @Override
     public RideResponse createRide(RideCreateRequest rideCreateRequest) {
         Ride ride = mapper.toEntity(rideCreateRequest);
-        ride.setPassenger(getPassenger(rideCreateRequest.passengerId()));
-        ride.setDriver(findAvailableDriver());
+        ride.setPassenger(findPassengerOrElseThrow(rideCreateRequest.passengerId()));
+        ride.setDriver(findAvailableDriverOrElseThrow());
         BigDecimal cost = calculateFare(
                 rideCreateRequest.pickupAddress(),
                 rideCreateRequest.destinationAddress()
@@ -48,38 +51,40 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public RideResponse getRide(Long id) {
+    public RideResponse getRide(String id) {
         Ride ride = findRideByIdOrElseThrow(id);
         return mapper.toResponse(ride);
     }
 
     @Override
     public Page<RideResponse> getAllRides(Pageable pageable) {
-        Page<Ride> rides = repository.getAll(pageable);
-        List<Ride> ridesList = rides.toList();
-        List<RideResponse> rideResponseList = mapper.toResponseList(ridesList);
+        Page<Ride> rides = repository.findAll(pageable);
+        List<Ride> rideList = rides.getContent();
+        List<RideResponse> rideResponseList = mapper.toResponseList(rideList);
         return new PageImpl<>(rideResponseList, pageable, rides.getTotalElements());
     }
 
     @Override
-    public RideResponse setRideStatus(Long id, RideStatus rideStatus) {
-        Ride ride = repository.findById(id).orElseThrow();
+    public RideResponse setRideStatus(String id, RideStatus rideStatus) {
+        Ride ride = findRideByIdOrElseThrow(id);
         ride.setStatus(rideStatus);
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
     }
 
-    private Passenger getPassenger(Long id){
+    private Passenger findPassengerOrElseThrow(Long id){
         return new Passenger();
     }
 
-    private Driver findAvailableDriver(){
-        return new Driver();
+    private Driver findAvailableDriverOrElseThrow(){
+        Driver driver = new Driver();
+        driver.setCar(new Car());
+        return driver;
     }
 
-    private Ride findRideByIdOrElseThrow(Long id){
+    private Ride findRideByIdOrElseThrow(String id){
         return repository.findById(id).orElseThrow(
-                () -> new RuntimeException("")
+                () -> new RideNotFoundException("")
         );
     }
 
@@ -110,7 +115,7 @@ public class RideServiceImpl implements RideService {
                         Double distanceKm = distanceMeters / 1000.0;
                         BigDecimal fare = FARE_PER_KM.multiply(new BigDecimal(String.valueOf(distanceKm))).add(START_FARE);
                         sink.next(fare);
-                    } catch (Exception e) {
+                    } catch (JsonProcessingException e) {
                         sink.error(new RuntimeException("", e));
                     }
                 });

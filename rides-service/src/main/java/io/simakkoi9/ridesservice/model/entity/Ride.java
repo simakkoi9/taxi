@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "rides")
 public class Ride {
-    @Id
-    private Long id;
+    @MongoId
+    private String id;
 
     private Passenger passenger;
 
@@ -31,5 +31,5 @@ public class Ride {
 
     private RideStatus status;
 
-    private LocalDateTime orderDatetime;
+    private LocalDateTime orderDateTime;
 }

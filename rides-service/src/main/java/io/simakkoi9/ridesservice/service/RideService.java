@@ -9,9 +9,9 @@ import org.springframework.data.domain.Pageable;
 public interface RideService {
     RideResponse createRide(RideCreateRequest rideCreateRequest);
 
-    RideResponse getRide(Long id);
+    RideResponse getRide(String id);
 
     Page<RideResponse> getAllRides(Pageable pageable);
 
-    RideResponse setRideStatus(Long id, RideStatus rideStatus);
+    RideResponse setRideStatus(String id, RideStatus rideStatus);
 }

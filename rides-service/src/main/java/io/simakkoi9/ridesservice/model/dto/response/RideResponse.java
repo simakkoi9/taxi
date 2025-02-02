@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record RideResponse(
-    Long rideId,
+    String id,
 
     Passenger passenger,
 

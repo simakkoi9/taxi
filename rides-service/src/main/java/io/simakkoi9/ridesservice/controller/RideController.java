@@ -31,7 +31,7 @@ public class RideController {
     }
 
     @GetMapping("/{id}")
-    public RideResponse getRide(@PathVariable Long id){
+    public RideResponse getRide(@PathVariable String id){
         return rideService.getRide(id);
     }
 
@@ -41,7 +41,7 @@ public class RideController {
     }
 
     @PatchMapping("/{id}")
-    public RideResponse setRideStatus(@PathVariable Long id, @RequestParam RideStatus status){
+    public RideResponse setRideStatus(@PathVariable String id, @RequestParam RideStatus status){
         return rideService.setRideStatus(id, status);
     }
 }
