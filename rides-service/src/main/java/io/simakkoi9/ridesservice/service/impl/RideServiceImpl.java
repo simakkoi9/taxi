@@ -93,13 +93,13 @@ public class RideServiceImpl implements RideService {
 
     private Ride findRideByIdOrElseThrow(String id){
         return repository.findById(id).orElseThrow(
-                () -> new RideNotFoundException("", messageSource, id)
+                () -> new RideNotFoundException("ride.not-found.error", messageSource, id)
         );
     }
 
     private Passenger findFreePassengerOrElseThrow(Long id){
         if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())){
-            throw new BusyPassengerException("", messageSource, id);
+            throw new BusyPassengerException("busy.passenger.error", messageSource, id);
         }
 
         return new Passenger();                         //Получим из сервиса пассажиров

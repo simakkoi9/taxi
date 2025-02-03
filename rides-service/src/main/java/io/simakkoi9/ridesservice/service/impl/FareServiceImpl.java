@@ -56,7 +56,7 @@ public class FareServiceImpl implements FareService {
                         double distanceKm = distanceMeters / 1000.0;
                         sink.next(distanceKm);
                     } catch (JsonProcessingException e) {
-                        sink.error(new DistanceProcessingException("", messageSource, e.getMessage()));
+                        sink.error(new DistanceProcessingException("distance-processing.error", messageSource, e.getMessage()));
                     }
                 });
     }
