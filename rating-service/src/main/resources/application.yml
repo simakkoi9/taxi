@@ -1,0 +1,25 @@
+quarkus:
+  datasource:
+    db-kind: postgresql
+    username: simakkoi
+    password: 4130
+    jdbc:
+      url: jdbc:postgresql://localhost:5432/rating_db
+
+  hibernate-orm:
+    database:
+      generation: validate
+
+  flyway:
+    migrate: true
+    locations: db/migration
+    logging: INFO
+    version: 6.5.7
+
+  http:
+    port: 8083
+    ssl:
+      enabled: false
+
+  dev:
+    hot-reload: true
