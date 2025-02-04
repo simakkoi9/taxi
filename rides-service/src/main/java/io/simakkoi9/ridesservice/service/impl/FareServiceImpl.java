@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.service.FareService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,8 +21,11 @@ public class FareServiceImpl implements FareService {
     private final WebClient osrmWebClient;
     private final MessageSource messageSource;
 
-    private final BigDecimal START_FARE = new BigDecimal("3");
-    private final BigDecimal FARE_PER_KM = new BigDecimal("2.5");
+    @Value("${fare.start}")
+    private BigDecimal startFare;
+
+    @Value("${fare.per-km}")
+    private BigDecimal farePerKm;
 
     @Override
     public Mono<BigDecimal> calculateFare(String pickupAddress, String destinationAddress) {
@@ -62,6 +66,6 @@ public class FareServiceImpl implements FareService {
     }
 
     private BigDecimal calculateFareFromDistance(double distanceKm) {
-        return FARE_PER_KM.multiply(new BigDecimal(String.valueOf(distanceKm))).add(START_FARE);
+        return farePerKm.multiply(new BigDecimal(String.valueOf(distanceKm))).add(startFare);
     }
 }

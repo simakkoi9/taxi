@@ -10,3 +10,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/main-changelog.yaml
     enabled: false
+
+fare:
+  start: 3
+  per-km: 2.5
