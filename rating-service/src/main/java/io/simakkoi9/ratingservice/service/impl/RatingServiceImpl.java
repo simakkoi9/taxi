@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class RatingServiceImpl implements RatingService {
@@ -75,13 +76,43 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public AverageRatingResponse getAverageRatingForDriver(Long driverId) {
-        return null;
+    public AverageRatingResponse getAverageDriverRating(Long driverId) {
+        List<Long> driverRideIdList = List.of(1L, 2L);  //Cписок из сервиса поездок
+
+        List<Rating> ratingList = ratingRepository.findAllRatingsByRideIdIn(driverRideIdList);
+
+        if (ratingList.isEmpty()){
+            throw new RuntimeException();
+        }
+
+        Double average = ratingList.stream()
+                            .map(Rating::getRateForDriver)
+                            .filter(Objects::nonNull)
+                            .mapToDouble(Integer::doubleValue)
+                            .average()
+                            .orElseThrow(RuntimeException::new);
+
+        return new AverageRatingResponse(driverId, average);
     }
 
     @Override
-    public AverageRatingResponse getAverageRatingForPassenger(Long passengerId) {
-        return null;
+    public AverageRatingResponse getAveragePassengerRating(Long passengerId) {
+        List<Long> passengerRideIdList = List.of(1L, 3L);  //Cписок из сервиса поездок
+
+        List<Rating> passengerList = ratingRepository.findAllRatingsByRideIdIn(passengerRideIdList);
+
+        if (passengerList.isEmpty()){
+            throw new RuntimeException();
+        }
+
+        Double average = passengerList.stream()
+                .map(Rating::getRateForPassenger)
+                .filter(Objects::nonNull)
+                .mapToDouble(Integer::doubleValue)
+                .average()
+                .orElseThrow(RuntimeException::new);
+
+        return new AverageRatingResponse(passengerId, average);
     }
 
     private Rating findRatingByIdOrElseThrow(Long id) {

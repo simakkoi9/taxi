@@ -7,9 +7,8 @@ import io.simakkoi9.ratingservice.model.dto.response.AverageRatingResponse;
 import io.simakkoi9.ratingservice.model.dto.response.RatingPageResponse;
 import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
 
-import java.util.List;
-
 public interface RatingService {
+
     RatingResponse createRating(RatingCreateRequest ratingCreateRequest);
 
     RatingResponse setRateForDriver(Long id, DriverRatingUpdateRequest updateRequest);
@@ -20,8 +19,8 @@ public interface RatingService {
 
     RatingPageResponse getAllRatings(int page, int size);
 
-    AverageRatingResponse getAverageRatingForDriver(Long driverId);
+    AverageRatingResponse getAverageDriverRating(Long driverId);
 
-    AverageRatingResponse getAverageRatingForPassenger(Long passengerId);
+    AverageRatingResponse getAveragePassengerRating(Long passengerId);
 
 }
