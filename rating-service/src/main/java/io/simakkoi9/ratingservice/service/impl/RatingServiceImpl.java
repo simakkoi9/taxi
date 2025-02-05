@@ -2,7 +2,9 @@ package io.simakkoi9.ratingservice.service.impl;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.simakkoi9.ratingservice.config.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
+import io.simakkoi9.ratingservice.exception.NoRatesException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
 import io.simakkoi9.ratingservice.model.dto.request.DriverRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest;
@@ -16,6 +18,7 @@ import io.simakkoi9.ratingservice.repository.RatingRepository;
 import io.simakkoi9.ratingservice.service.RatingService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,11 +29,14 @@ public class RatingServiceImpl implements RatingService {
     RatingMapper ratingMapper;
     @Inject
     RatingRepository ratingRepository;
+    @Inject
+    MessageConfig messageConfig;
 
     @Override
+    @Transactional
     public RatingResponse createRating(RatingCreateRequest ratingCreateRequest) {
         if (ratingRepository.existsByRideId(ratingCreateRequest.rideId())) {
-            throw new DuplicateRatingException();
+            throw new DuplicateRatingException("duplicate.rating", messageConfig, ratingCreateRequest.rideId());
         }
         //Нужна еще проверка наличия в сервисе поездок
         Rating rating = ratingMapper.toEntity(ratingCreateRequest);
@@ -39,18 +45,20 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
+    @Transactional
     public RatingResponse setRateForDriver(Long id, DriverRatingUpdateRequest updateRequest) {
         Rating rating = findRatingByIdOrElseThrow(id);
         Rating updatedRating = ratingMapper.driverRatingPartialUpdate(updateRequest, rating);
-        updatedRating.persist();
+
         return ratingMapper.toResponse(updatedRating);
     }
 
     @Override
+    @Transactional
     public RatingResponse setRateForPassenger(Long id, PassengerRatingUpdateRequest updateRequest) {
         Rating rating = findRatingByIdOrElseThrow(id);
         Rating updatedRating = ratingMapper.passengerRatingPartialUpdate(updateRequest, rating);
-        updatedRating.persist();
+
         return ratingMapper.toResponse(updatedRating);
     }
 
@@ -82,7 +90,7 @@ public class RatingServiceImpl implements RatingService {
         List<Rating> ratingList = ratingRepository.findAllRatingsByRideIdIn(driverRideIdList);
 
         if (ratingList.isEmpty()){
-            throw new RuntimeException();
+            throw new RatingNotFoundException("rating.not.found", messageConfig, driverRideIdList);
         }
 
         Double average = ratingList.stream()
@@ -90,7 +98,9 @@ public class RatingServiceImpl implements RatingService {
                             .filter(Objects::nonNull)
                             .mapToDouble(Integer::doubleValue)
                             .average()
-                            .orElseThrow(RuntimeException::new);
+                            .orElseThrow(
+                                    () -> new NoRatesException("driver.no.rates", messageConfig, driverId)
+                            );
 
         return new AverageRatingResponse(driverId, average);
     }
@@ -102,7 +112,7 @@ public class RatingServiceImpl implements RatingService {
         List<Rating> passengerList = ratingRepository.findAllRatingsByRideIdIn(passengerRideIdList);
 
         if (passengerList.isEmpty()){
-            throw new RuntimeException();
+            throw new RatingNotFoundException("rating.not.found", messageConfig, passengerRideIdList);
         }
 
         Double average = passengerList.stream()
@@ -110,14 +120,17 @@ public class RatingServiceImpl implements RatingService {
                 .filter(Objects::nonNull)
                 .mapToDouble(Integer::doubleValue)
                 .average()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(
+                        () -> new NoRatesException("passenger.no.rates", messageConfig, passengerId)
+                );
 
         return new AverageRatingResponse(passengerId, average);
     }
 
     private Rating findRatingByIdOrElseThrow(Long id) {
+
         return (Rating) Rating.findByIdOptional(id).orElseThrow(
-                RatingNotFoundException::new
+                () -> new RatingNotFoundException("rating.not.found", messageConfig, id)
         );
     }
 }

@@ -1,18 +1,28 @@
 package io.simakkoi9.ratingservice.model.dto.response;
 
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbPropertyOrder;
+
 import java.io.Serializable;
 
+@JsonbPropertyOrder({"id", "rideId", "rateForDriver", "rateForPassenger", "commentForDriver", "commentForPassenger"})
 public record RatingResponse(
-        Long id,
+    @JsonbProperty
+    Long id,
 
-        String rideId,
+    @JsonbProperty
+    String rideId,
 
-        Integer rateForDriver,
+    @JsonbProperty
+    Integer rateForDriver,
 
-        Integer rateForPassenger,
+    @JsonbProperty
+    Integer rateForPassenger,
 
-        String commentForDriver,
+    @JsonbProperty
+    String commentForDriver,
 
-        String commentForPassenger
+    @JsonbProperty
+    String commentForPassenger
 
 ) implements Serializable {}
