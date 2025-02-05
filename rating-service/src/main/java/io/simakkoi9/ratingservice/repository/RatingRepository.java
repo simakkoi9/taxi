@@ -6,5 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class RatingRepository implements PanacheRepository<Rating> {
-
+    public boolean existsByRideId(String rideId) {
+        return count("rideId = ?1", rideId) > 0;
+    }
 }

@@ -12,6 +12,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.CDI
@@ -20,6 +22,8 @@ public interface RatingMapper {
     Rating toEntity(RatingCreateRequest ratingCreateRequest);
 
     RatingResponse toResponse(Rating rating);
+
+    List<RatingResponse> toResponseList(List<Rating> ratingList);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Rating driverRatingPartialUpdate(DriverRatingUpdateRequest driverRatingUpdateRequest, @MappingTarget Rating rating);
