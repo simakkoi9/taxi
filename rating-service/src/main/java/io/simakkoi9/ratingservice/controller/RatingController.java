@@ -9,6 +9,7 @@ import io.simakkoi9.ratingservice.model.dto.response.RatingPageResponse;
 import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
 import io.simakkoi9.ratingservice.service.RatingService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -33,7 +34,7 @@ public class RatingController {
 
     @POST
     public RatingResponse createRating(
-            RatingCreateRequest ratingCreateRequest,
+            @Valid RatingCreateRequest ratingCreateRequest,
             @QueryParam("lang") String lang
     ) {
         if (lang != null) {
@@ -69,7 +70,7 @@ public class RatingController {
     @PATCH
     @Path("/{id}/driver/rate")
     public RatingResponse setRateForDriver(
-            DriverRatingUpdateRequest driverRatingUpdateRequest,
+            @Valid DriverRatingUpdateRequest driverRatingUpdateRequest,
             @PathParam("id") Long id,
             @QueryParam("lang") String lang
     ) {
@@ -82,7 +83,7 @@ public class RatingController {
     @PATCH
     @Path("/{id}/passenger/rate")
     public RatingResponse setRateForPassenger(
-            PassengerRatingUpdateRequest passengerRatingUpdateRequest,
+            @Valid PassengerRatingUpdateRequest passengerRatingUpdateRequest,
             @PathParam("id") Long id,
             @QueryParam("lang") String lang
     ) {
