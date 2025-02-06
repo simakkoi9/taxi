@@ -10,8 +10,8 @@ import java.io.Serializable;
 
 public record PassengerRatingUpdateRequest(
     @NotNull
-    @Min(value = 1, message = "{rate.driver.size}")
-    @Max(value = 5, message = "{rate.driver.size}")
+    @Min(value = 1, message = "{rate.passenger.size}")
+    @Max(value = 5, message = "{rate.passenger.size}")
     @JsonbProperty("rate")
     Integer rateForPassenger,
 

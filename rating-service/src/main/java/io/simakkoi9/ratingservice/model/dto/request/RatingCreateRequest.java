@@ -18,11 +18,11 @@ public record RatingCreateRequest(
     @JsonbProperty
     Integer rateForDriver,
 
+    @Min(value = 1, message = "{rate.passenger.size}")
     @Max(value = 5, message = "{rate.passenger.size}")
     @JsonbProperty
     Integer rateForPassenger,
 
-    @Min(value = 1, message = "{rate.driver.size}")
     @Size(min = 1, max = 240, message = "{comment.driver.size}")
     @JsonbProperty
     String commentForDriver,
