@@ -3,7 +3,6 @@ package io.simakkoi9.ratingservice.controller;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
 import io.simakkoi9.ratingservice.model.dto.ErrorResponse;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -11,10 +10,10 @@ import jakarta.ws.rs.ext.Provider;
 import java.time.LocalDateTime;
 
 @Provider
-public class RatingExceptionMapper implements ExceptionMapper<Throwable> {
+public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> {
 
     @Override
-    public Response toResponse(Throwable e) {
+    public Response toResponse(RuntimeException e) {
 
         if (e instanceof DuplicateRatingException){
             return Response
@@ -34,17 +33,6 @@ public class RatingExceptionMapper implements ExceptionMapper<Throwable> {
                             new ErrorResponse(
                                     LocalDateTime.now(),
                                     Response.Status.NOT_FOUND.getStatusCode(),
-                                    e.getMessage()
-                            )
-                    )
-                    .build();
-        } else if (e instanceof ConstraintViolationException) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(
-                            new ErrorResponse(
-                                    LocalDateTime.now(),
-                                    Response.Status.BAD_REQUEST.getStatusCode(),
                                     e.getMessage()
                             )
                     )
