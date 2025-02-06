@@ -1,5 +1,6 @@
 package io.simakkoi9.ratingservice.config;
 
+import io.simakkoi9.ratingservice.exception.InvalidValidationMessageKeyException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.MessageInterpolator;
 import lombok.Getter;
@@ -16,8 +17,12 @@ public class MessageConfig implements MessageInterpolator {
     private Locale locale = Locale.ENGLISH;
 
     public String getMessage(String key) {
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
-        return bundle.getString(key);
+        try {
+            ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
+            return bundle.getString(key);
+        } catch (InvalidValidationMessageKeyException e) {
+            return key;
+        }
     }
 
     @Override
