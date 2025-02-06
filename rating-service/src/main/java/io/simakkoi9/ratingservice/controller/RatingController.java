@@ -20,6 +20,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.Locale;
 
@@ -115,6 +116,15 @@ public class RatingController {
             messageConfig.setLocale(Locale.of(lang));
         }
         return ratingService.getAveragePassengerRating(id);
+    }
+
+    @POST
+    @Path("/locale")
+    public Response changeLocale(@QueryParam("lang") String lang) {
+        if (lang != null) {
+            messageConfig.setLocale(Locale.of(lang));
+        }
+        return Response.ok("Locale changed.").build();
     }
 
 }
