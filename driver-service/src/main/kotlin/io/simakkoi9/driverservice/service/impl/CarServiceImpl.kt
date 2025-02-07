@@ -69,10 +69,9 @@ class CarServiceImpl(
         return PageImpl(carResponseList, pageable, carPage.totalElements)
     }
 
-    private fun findActiveCarByIdOrElseThrow(id: Long): Car {
-        return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
+    private fun findActiveCarByIdOrElseThrow(id: Long): Car =
+        carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
                 CarNotFoundException("car.not.found", messageSource, id)
             }
-    }
 }

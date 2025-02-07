@@ -14,7 +14,7 @@ import java.util.Locale
 @Configuration
 class WebConfig : WebMvcConfigurer {
     @Bean
-    fun messageSource(): MessageSource? {
+    fun messageSource(): MessageSource {
         val messageSource = ReloadableResourceBundleMessageSource()
         messageSource.setBasename("classpath:messages")
         messageSource.setDefaultEncoding("UTF-8")
@@ -22,21 +22,21 @@ class WebConfig : WebMvcConfigurer {
     }
 
     @Bean
-    fun localeResolver(): LocaleResolver? {
+    fun localeResolver(): LocaleResolver {
         val resolver = SessionLocaleResolver()
         resolver.setDefaultLocale(Locale.ENGLISH)
         return resolver
     }
 
     @Bean
-    fun localeChangeInterceptor(): LocaleChangeInterceptor? {
+    fun localeChangeInterceptor(): LocaleChangeInterceptor {
         val interceptor = LocaleChangeInterceptor()
         interceptor.paramName = "lang"
         return interceptor
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(localeChangeInterceptor()!!)
+        registry.addInterceptor(localeChangeInterceptor())
     }
 
 }

@@ -6,11 +6,9 @@ import jakarta.persistence.Converter
 
 @Converter(autoApply = true)
 class EntryStatusConverter : AttributeConverter<EntryStatus, Int> {
-    override fun convertToDatabaseColumn(entryStatus: EntryStatus?): Int? {
-        return entryStatus?.code
-    }
+    override fun convertToDatabaseColumn(entryStatus: EntryStatus?): Int? =
+        entryStatus?.code
 
-    override fun convertToEntityAttribute(integer: Int?): EntryStatus? {
-        return integer?.let { EntryStatus.fromCode(it) }
-    }
+    override fun convertToEntityAttribute(integer: Int?): EntryStatus? =
+        integer?.let { EntryStatus.fromCode(it) }
 }

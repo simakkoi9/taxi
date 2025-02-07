@@ -25,43 +25,36 @@ class DriverController(
     private val driverService: DriverService
 ) {
     @PostMapping
-    fun createDriver(@Validated @RequestBody driverCreateRequest: DriverCreateRequest): DriverResponse {
-        return driverService.createDriver(driverCreateRequest)
-    }
+    fun createDriver(@Validated @RequestBody driverCreateRequest: DriverCreateRequest): DriverResponse =
+        driverService.createDriver(driverCreateRequest)
 
     @PutMapping("/{id}")
     fun updateDriver(
         @PathVariable id: Long,
         @Validated @RequestBody driverUpdateRequest: DriverUpdateRequest
-    ): DriverResponse {
-        return driverService.updateDriver(id, driverUpdateRequest)
-    }
+    ): DriverResponse =
+        driverService.updateDriver(id, driverUpdateRequest)
 
     @PatchMapping("/{driverId}/setCar")
     fun updateCarForDriver(
         @PathVariable driverId: Long,
         @RequestParam(name = "id") carId: Long
-    ): DriverResponse {
-        return driverService.setCarForDriver(driverId, carId)
-    }
+    ): DriverResponse =
+        driverService.setCarForDriver(driverId, carId)
 
     @PatchMapping("/{id}/removeCar")
-    fun removeCarForDriver(@PathVariable id: Long): DriverResponse {
-        return driverService.removeCarForDriver(id)
-    }
+    fun removeCarForDriver(@PathVariable id: Long): DriverResponse =
+        driverService.removeCarForDriver(id)
 
     @DeleteMapping("/{id}")
-    fun deleteDriver(@PathVariable id: Long): DriverResponse {
-        return driverService.deleteDriver(id)
-    }
+    fun deleteDriver(@PathVariable id: Long): DriverResponse =
+        driverService.deleteDriver(id)
 
     @GetMapping("/{id}")
-    fun getDriver(@PathVariable id: Long): DriverResponse {
-        return driverService.getDriver(id)
-    }
+    fun getDriver(@PathVariable id: Long): DriverResponse =
+        driverService.getDriver(id)
 
     @GetMapping
-    fun getAllDrivers(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<DriverResponse> {
-        return driverService.getAllDrivers(pageable)
-    }
+    fun getAllDrivers(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<DriverResponse> =
+        driverService.getAllDrivers(pageable)
 }

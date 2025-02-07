@@ -6,11 +6,9 @@ import jakarta.persistence.Converter
 
 @Converter(autoApply = true)
 class GenderConverter : AttributeConverter<Gender, Int> {
-    override fun convertToDatabaseColumn(gender: Gender?): Int? {
-        return gender?.code
-    }
+    override fun convertToDatabaseColumn(gender: Gender?): Int? =
+        gender?.code
 
-    override fun convertToEntityAttribute(integer: Int?): Gender? {
-        return integer?.let { Gender.fromCode(it) }
-    }
+    override fun convertToEntityAttribute(integer: Int?): Gender? =
+        integer?.let { Gender.fromCode(it) }
 }

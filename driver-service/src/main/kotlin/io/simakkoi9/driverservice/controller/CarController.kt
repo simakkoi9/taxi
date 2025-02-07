@@ -23,30 +23,26 @@ class CarController(
     private val carService: CarService
 ) {
     @PostMapping
-    fun createCar(@Validated @RequestBody carCreateRequest: CarCreateRequest): CarResponse {
-        return carService.createCar(carCreateRequest)
-    }
+    fun createCar(@Validated @RequestBody carCreateRequest: CarCreateRequest): CarResponse =
+        carService.createCar(carCreateRequest)
 
     @PutMapping("/{id}")
     fun updateCar(
         @PathVariable id: Long,
         @Validated @RequestBody carUpdateRequest: CarUpdateRequest
-    ): CarResponse {
-        return carService.updateCar(id, carUpdateRequest)
-    }
+    ): CarResponse =
+        carService.updateCar(id, carUpdateRequest)
 
     @DeleteMapping("/{id}")
-    fun deleteCar(@PathVariable id: Long): CarResponse {
-        return carService.deleteCar(id)
-    }
+    fun deleteCar(@PathVariable id: Long): CarResponse =
+        carService.deleteCar(id)
 
     @GetMapping("/{id}")
-    fun getCar(@PathVariable id: Long): CarResponse {
-        return carService.getCar(id)
-    }
+    fun getCar(@PathVariable id: Long): CarResponse =
+        carService.getCar(id)
 
     @GetMapping
-    fun getAllCars(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<CarResponse> {
-        return carService.getAllCars(pageable)
-    }
+    fun getAllCars(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<CarResponse> =
+        carService.getAllCars(pageable)
+
 }

@@ -86,19 +86,17 @@ class DriverServiceImpl(
         return PageImpl(driverResponseList, pageable, driverPage.totalElements)
     }
 
-    private fun findActiveDriverByIdOrElseThrow(id: Long): Driver {
-        return driverRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
+    private fun findActiveDriverByIdOrElseThrow(id: Long): Driver =
+        driverRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
                 DriverNotFoundException("driver.not.found", messageSource, id)
             }
-    }
 
-    private fun findActiveCarByIdOrElseThrow(id: Long): Car {
-        return carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
+    private fun findActiveCarByIdOrElseThrow(id: Long): Car =
+        carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
                 CarNotFoundException("car.not.found", messageSource, id)
             }
-    }
 
     private fun isCarAvailable(id: Long): Boolean {
         val car = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
