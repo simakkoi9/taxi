@@ -3,8 +3,10 @@ package io.simakkoi9.ratingservice.service.impl;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.simakkoi9.ratingservice.config.MessageConfig;
+import io.simakkoi9.ratingservice.exception.DriverAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.NoRatesException;
+import io.simakkoi9.ratingservice.exception.PassengerAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
 import io.simakkoi9.ratingservice.model.dto.request.DriverRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest;
@@ -48,6 +50,9 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public RatingResponse setRateForDriver(Long id, DriverRatingUpdateRequest updateRequest) {
         Rating rating = findRatingByIdOrElseThrow(id);
+        if (rating.getRateForDriver() != null){
+            throw new DriverAlreadyRatedException("driver.already.rated", messageConfig, id);
+        }
         Rating updatedRating = ratingMapper.driverRatingPartialUpdate(updateRequest, rating);
 
         return ratingMapper.toResponse(updatedRating);
@@ -57,6 +62,9 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public RatingResponse setRateForPassenger(Long id, PassengerRatingUpdateRequest updateRequest) {
         Rating rating = findRatingByIdOrElseThrow(id);
+        if (rating.getRateForPassenger() != null){
+            throw new PassengerAlreadyRatedException("passenger.already.rated", messageConfig, id);
+        }
         Rating updatedRating = ratingMapper.passengerRatingPartialUpdate(updateRequest, rating);
 
         return ratingMapper.toResponse(updatedRating);
