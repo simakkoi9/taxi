@@ -1,0 +1,21 @@
+quarkus:
+  datasource:
+    db-kind: {DB_KIND:postgresql}
+    username: {DB_USERNAME:simakkoi}
+    password: {DB_PASSWORD:4130}
+    jdbc:
+      url: {DB_URL:jdbc:postgresql://localhost:5432/rating_db}
+
+  flyway:
+    migrate-at-start: true
+    locations: db/migration
+
+  hibernate-orm:
+    database:
+      generation: validate
+
+  http:
+    port: 8083
+
+  resteasy:
+    jsonb: enabled
