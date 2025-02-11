@@ -27,6 +27,7 @@ import java.util.Objects;
 
 @ApplicationScoped
 public class RatingServiceImpl implements RatingService {
+
     @Inject
     RatingMapper ratingMapper;
     @Inject
@@ -141,4 +142,5 @@ public class RatingServiceImpl implements RatingService {
                 () -> new RatingNotFoundException("rating.not.found", messageConfig, id)
         );
     }
+
 }

@@ -49,4 +49,5 @@ public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> 
                 )
                 .build();
     }
+
 }

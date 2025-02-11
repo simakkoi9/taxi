@@ -8,6 +8,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class RatingRepository implements PanacheRepository<Rating> {
+
     public boolean existsByRideId(String rideId) {
         return count("rideId = ?1", rideId) > 0;
     }
@@ -16,4 +17,5 @@ public class RatingRepository implements PanacheRepository<Rating> {
         return  find("rideId IN ?1", rideIdList)
                 .list();
     }
+
 }

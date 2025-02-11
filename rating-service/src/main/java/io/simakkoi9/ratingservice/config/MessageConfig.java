@@ -35,4 +35,5 @@ public class MessageConfig implements MessageInterpolator {
         String key = messageTemplate.replace("{", "").replace("}", "");
         return getMessage(key);
     }
+
 }
