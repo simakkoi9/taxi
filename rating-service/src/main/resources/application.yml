@@ -19,3 +19,7 @@ quarkus:
 
   resteasy:
     jsonb: enabled
+
+
+rides:
+  count: 10
