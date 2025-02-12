@@ -15,4 +15,5 @@ public record ErrorResponse(
 
     @JsonbProperty
     String message
+
 ) {}

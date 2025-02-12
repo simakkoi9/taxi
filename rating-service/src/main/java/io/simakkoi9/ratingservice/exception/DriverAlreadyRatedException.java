@@ -2,7 +2,8 @@ package io.simakkoi9.ratingservice.exception;
 
 import io.simakkoi9.ratingservice.config.MessageConfig;
 
-public class DriverAlreadyRatedException  extends RuntimeException{
+public class DriverAlreadyRatedException  extends RuntimeException {
+
     public DriverAlreadyRatedException(String messageKey, MessageConfig messageConfig, Object... args) {
         super(getLocalizedMessage(messageKey, messageConfig, args));
     }
@@ -10,4 +11,5 @@ public class DriverAlreadyRatedException  extends RuntimeException{
     private static String getLocalizedMessage(String messageKey, MessageConfig messageConfig, Object... args) {
         return messageConfig.getMessage(messageKey).formatted(args);
     }
+
 }

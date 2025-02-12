@@ -1,7 +1,7 @@
 package io.simakkoi9.ratingservice.config;
 
 import io.simakkoi9.ratingservice.exception.InvalidValidationMessageKeyException;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.validation.MessageInterpolator;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-@ApplicationScoped
+@RequestScoped
 @Getter
 @Setter
 public class MessageConfig implements MessageInterpolator {

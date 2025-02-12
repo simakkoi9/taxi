@@ -20,6 +20,10 @@ quarkus:
   resteasy:
     jsonb: enabled
 
+  default-locale: en
+
+  locales: en,ru
+
 
 rides:
   count: 10

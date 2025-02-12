@@ -5,7 +5,7 @@ import jakarta.json.bind.annotation.JsonbPropertyOrder;
 
 import java.io.Serializable;
 
-@JsonbPropertyOrder({"averageRating", "personId"})
+@JsonbPropertyOrder({"personId", "averageRating"})
 public record AverageRatingResponse(
     @JsonbProperty
     Long personId,

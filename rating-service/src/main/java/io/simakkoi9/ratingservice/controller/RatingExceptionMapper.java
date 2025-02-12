@@ -1,8 +1,11 @@
 package io.simakkoi9.ratingservice.controller;
 
+import io.simakkoi9.ratingservice.config.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
 import io.simakkoi9.ratingservice.model.dto.ErrorResponse;
+import io.simakkoi9.ratingservice.util.MessageKeyConstants;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -12,10 +15,13 @@ import java.time.LocalDateTime;
 @Provider
 public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> {
 
+    @Inject
+    MessageConfig messageConfig;
+
     @Override
     public Response toResponse(RuntimeException e) {
 
-        if (e instanceof DuplicateRatingException){
+        if (e instanceof DuplicateRatingException) {
             return Response
                     .status(Response.Status.CONFLICT)
                     .entity(
@@ -44,7 +50,7 @@ public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> 
                         new ErrorResponse(
                                 LocalDateTime.now(),
                                 Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-                                e.getMessage()
+                                messageConfig.getMessage(MessageKeyConstants.INTERNAL_SERVER_ERROR)
                         )
                 )
                 .build();

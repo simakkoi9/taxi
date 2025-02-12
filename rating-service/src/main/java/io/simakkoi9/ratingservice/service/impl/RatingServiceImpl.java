@@ -18,6 +18,7 @@ import io.simakkoi9.ratingservice.model.entity.Rating;
 import io.simakkoi9.ratingservice.model.mapper.RatingMapper;
 import io.simakkoi9.ratingservice.repository.RatingRepository;
 import io.simakkoi9.ratingservice.service.RatingService;
+import io.simakkoi9.ratingservice.util.MessageKeyConstants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -39,7 +40,7 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public RatingResponse createRating(RatingCreateRequest ratingCreateRequest) {
         if (ratingRepository.existsByRideId(ratingCreateRequest.rideId())) {
-            throw new DuplicateRatingException("duplicate.rating", messageConfig, ratingCreateRequest.rideId());
+            throw new DuplicateRatingException(MessageKeyConstants.DUPLICATE_RATING, messageConfig, ratingCreateRequest.rideId());
         }
         //Нужна еще проверка наличия в сервисе поездок
         Rating rating = ratingMapper.toEntity(ratingCreateRequest);
@@ -51,8 +52,8 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public RatingResponse setRateForDriver(Long id, DriverRatingUpdateRequest updateRequest) {
         Rating rating = findRatingByIdOrElseThrow(id);
-        if (rating.getRateForDriver() != null){
-            throw new DriverAlreadyRatedException("driver.already.rated", messageConfig, id);
+        if (rating.getRateForDriver() != null) {
+            throw new DriverAlreadyRatedException(MessageKeyConstants.DRIVER_ALREADY_RATED, messageConfig, id);
         }
         Rating updatedRating = ratingMapper.driverRatingPartialUpdate(updateRequest, rating);
 
@@ -63,8 +64,8 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public RatingResponse setRateForPassenger(Long id, PassengerRatingUpdateRequest updateRequest) {
         Rating rating = findRatingByIdOrElseThrow(id);
-        if (rating.getRateForPassenger() != null){
-            throw new PassengerAlreadyRatedException("passenger.already.rated", messageConfig, id);
+        if (rating.getRateForPassenger() != null) {
+            throw new PassengerAlreadyRatedException(MessageKeyConstants.PASSENGER_ALREADY_RATED, messageConfig, id);
         }
         Rating updatedRating = ratingMapper.passengerRatingPartialUpdate(updateRequest, rating);
 
@@ -98,8 +99,8 @@ public class RatingServiceImpl implements RatingService {
 
         List<Rating> ratingList = ratingRepository.findAllRatingsByRideIdIn(driverRideIdList);
 
-        if (ratingList.isEmpty()){
-            throw new RatingNotFoundException("rating.not.found", messageConfig, driverRideIdList);
+        if (ratingList.isEmpty()) {
+            throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, driverRideIdList);
         }
 
         Double average = ratingList.stream()
@@ -108,7 +109,7 @@ public class RatingServiceImpl implements RatingService {
                             .mapToDouble(Integer::doubleValue)
                             .average()
                             .orElseThrow(
-                                    () -> new NoRatesException("driver.no.rates", messageConfig, driverId)
+                                    () -> new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId)
                             );
 
         return new AverageRatingResponse(driverId, average);
@@ -121,7 +122,7 @@ public class RatingServiceImpl implements RatingService {
         List<Rating> passengerList = ratingRepository.findAllRatingsByRideIdIn(passengerRideIdList);
 
         if (passengerList.isEmpty()){
-            throw new RatingNotFoundException("rating.not.found", messageConfig, passengerRideIdList);
+            throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, passengerRideIdList);
         }
 
         Double average = passengerList.stream()
@@ -130,7 +131,7 @@ public class RatingServiceImpl implements RatingService {
                 .mapToDouble(Integer::doubleValue)
                 .average()
                 .orElseThrow(
-                        () -> new NoRatesException("passenger.no.rates", messageConfig, passengerId)
+                        () -> new NoRatesException(MessageKeyConstants.PASSENGER_NO_RATES, messageConfig, passengerId)
                 );
 
         return new AverageRatingResponse(passengerId, average);
@@ -139,7 +140,7 @@ public class RatingServiceImpl implements RatingService {
     private Rating findRatingByIdOrElseThrow(Long id) {
 
         return (Rating) Rating.findByIdOptional(id).orElseThrow(
-                () -> new RatingNotFoundException("rating.not.found", messageConfig, id)
+                () -> new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, id)
         );
     }
 

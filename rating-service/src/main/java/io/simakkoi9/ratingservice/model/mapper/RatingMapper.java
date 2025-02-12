@@ -16,7 +16,7 @@ import java.util.List;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        componentModel = MappingConstants.ComponentModel.CDI
+        componentModel = MappingConstants.ComponentModel.JAKARTA_CDI
 )
 public interface RatingMapper {
     Rating toEntity(RatingCreateRequest ratingCreateRequest);

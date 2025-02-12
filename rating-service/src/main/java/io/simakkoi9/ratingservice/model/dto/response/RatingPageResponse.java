@@ -19,4 +19,5 @@ public record RatingPageResponse(
 
     @JsonbProperty
     int totalPages
+
 ) implements Serializable {}
