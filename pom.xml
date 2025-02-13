@@ -9,6 +9,7 @@
         <module>passenger-service</module>
         <module>driver-service</module>
         <module>rides-service</module>
+        <module>rating-service</module>
     </modules>
     <properties>
         <checkstyle.version>3.6.0</checkstyle.version>

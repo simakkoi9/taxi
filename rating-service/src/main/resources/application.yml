@@ -1,0 +1,25 @@
+quarkus:
+  default-locale: ru
+  locales: ru,en
+
+  datasource:
+    db-kind: postgresql
+    username: {QUARKUS_DATABASE_USERNAME:simakkoi}
+    password: {QUARKUS_DATABASE_PASSWORD:4130}
+    jdbc:
+      url: {QUARKUS_DATABASE_URL:jdbc:postgresql://localhost:5432/rating_db}
+
+  flyway:
+    migrate-at-start: true
+    locations: db/migration
+
+  hibernate-orm:
+    database:
+      generation: validate
+
+  http:
+    port: 8083
+
+
+rides:
+  count: 10
