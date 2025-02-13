@@ -1,13 +1,13 @@
-package io.simakkoi9.ratingservice.config;
+package io.simakkoi9.ratingservice.config.message;
 
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.ws.rs.Produces;
 
-@RequestScoped
+@ApplicationScoped
 public class ValidatorProducer {
 
     @Inject

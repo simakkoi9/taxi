@@ -2,7 +2,7 @@ package io.simakkoi9.ratingservice.service.impl;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
-import io.simakkoi9.ratingservice.config.MessageConfig;
+import io.simakkoi9.ratingservice.config.message.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DriverAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.NoRatesException;
@@ -104,13 +104,13 @@ public class RatingServiceImpl implements RatingService {
         }
 
         Double average = ratingList.stream()
-                            .map(Rating::getRateForDriver)
-                            .filter(Objects::nonNull)
-                            .mapToDouble(Integer::doubleValue)
-                            .average()
-                            .orElseThrow(
-                                    () -> new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId)
-                            );
+                .map(Rating::getRateForDriver)
+                .filter(Objects::nonNull)
+                .mapToDouble(Integer::doubleValue)
+                .average()
+                .orElseThrow(
+                        () -> new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId)
+                );
 
         return new AverageRatingResponse(driverId, average);
     }
@@ -138,10 +138,11 @@ public class RatingServiceImpl implements RatingService {
     }
 
     private Rating findRatingByIdOrElseThrow(Long id) {
-
         return (Rating) Rating.findByIdOptional(id).orElseThrow(
                 () -> new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, id)
         );
     }
 
 }
+
+

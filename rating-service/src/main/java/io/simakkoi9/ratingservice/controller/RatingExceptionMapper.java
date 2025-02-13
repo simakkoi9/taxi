@@ -1,6 +1,6 @@
 package io.simakkoi9.ratingservice.controller;
 
-import io.simakkoi9.ratingservice.config.MessageConfig;
+import io.simakkoi9.ratingservice.config.message.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
 import io.simakkoi9.ratingservice.model.dto.ErrorResponse;

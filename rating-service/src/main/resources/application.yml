@@ -1,10 +1,13 @@
 quarkus:
+  default-locale: ru
+  locales: ru,en
+
   datasource:
-    db-kind: {DB_KIND:postgresql}
-    username: {DB_USERNAME:simakkoi}
-    password: {DB_PASSWORD:4130}
+    db-kind: postgresql
+    username: {QUARKUS_DATABASE_USERNAME:simakkoi}
+    password: {QUARKUS_DATABASE_PASSWORD:4130}
     jdbc:
-      url: {DB_URL:jdbc:postgresql://localhost:5432/rating_db}
+      url: {QUARKUS_DATABASE_URL:jdbc:postgresql://localhost:5432/rating_db}
 
   flyway:
     migrate-at-start: true
@@ -16,13 +19,6 @@ quarkus:
 
   http:
     port: 8083
-
-  resteasy:
-    jsonb: enabled
-
-  default-locale: en
-
-  locales: en,ru
 
 
 rides:
