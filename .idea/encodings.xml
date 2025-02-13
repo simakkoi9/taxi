@@ -4,8 +4,6 @@
     <file url="file://$PROJECT_DIR$/driver-service/src/main/kotlin" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/driver-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/passenger-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/rating-service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/rating-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rides-service/src/main/java" charset="UTF-8" />
   </component>
 </project>
