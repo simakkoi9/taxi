@@ -24,12 +24,16 @@ public enum RideStatus {
         return code;
     }
 
-    public static List<RideStatus> getBusyPassengerStatusList(){
+    public static List<RideStatus> getBusyPassengerStatusList() {
         return List.of(CREATED, ACCEPTED, EN_ROUTE_TO_PASSENGER, EN_ROUTE_TO_DESTINATION);
     }
 
-    public static List<RideStatus> getBusyDriverStatusList(){
+    public static List<RideStatus> getBusyDriverStatusList() {
         return List.of(ACCEPTED, EN_ROUTE_TO_PASSENGER, EN_ROUTE_TO_DESTINATION);
+    }
+
+    public static List<RideStatus> getImmutableStatusList() {
+        return List.of(RideStatus.COMPLETED, RideStatus.CANCELLED_BY_DRIVER, RideStatus.EN_ROUTE_TO_PASSENGER);
     }
 
     @JsonCreator

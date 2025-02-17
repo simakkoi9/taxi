@@ -1,6 +1,7 @@
 package io.simakkoi9.ridesservice.service.impl;
 
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
+import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
@@ -54,8 +55,15 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest){
+    public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest) {
         Ride ride = findRideByIdOrElseThrow(id);
+        if (
+            ride.getStatus().getCode() >= rideUpdateRequest.status().getCode() ||
+            RideStatus.getImmutableStatusList().contains(ride.getStatus())
+        ) {
+            throw new InvalidStatusException("invalid.status", messageSource, rideUpdateRequest.status().toValue());
+        }
+
         mapper.partialUpdate(rideUpdateRequest, ride);
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
@@ -76,6 +84,13 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public RideResponse changeRideStatus(String id, RideStatus rideStatus) {
         Ride ride = findRideByIdOrElseThrow(id);
+        if (
+            ride.getStatus().getCode() >= rideStatus.getCode() ||
+            RideStatus.getImmutableStatusList().contains(ride.getStatus())
+        ) {
+            throw new InvalidStatusException("invalid.status", messageSource, rideStatus.toValue());
+        }
+
         ride.setStatus(rideStatus);
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
