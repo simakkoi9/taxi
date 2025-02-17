@@ -11,13 +11,11 @@ import io.simakkoi9.passengerservice.model.mapper.PassengerMapper;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
 import io.simakkoi9.passengerservice.service.PassengerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static io.simakkoi9.passengerservice.util.ErrorMessages.DUPLICATE_PASSENGER_FOUND_MESSAGE;
-import static io.simakkoi9.passengerservice.util.ErrorMessages.PASSENGER_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +23,14 @@ public class PassengerServiceImpl implements PassengerService {
 
     private final PassengerMapper mapper;
     private final PassengerRepository repository;
+    private final MessageSource messageSource;
 
     @Override
     @Transactional
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
         String passengerEmail = passengerCreateRequest.email();
         if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)){
-            throw new DuplicatePassengerFoundException(DUPLICATE_PASSENGER_FOUND_MESSAGE.formatted(passengerCreateRequest.email()));
+            throw new DuplicatePassengerFoundException("duplicate.passenger.found", messageSource, passengerEmail);
         }
         Passenger passenger = mapper.toEntity(passengerCreateRequest);
         Passenger createdPassenger = repository.save(passenger);
@@ -72,7 +71,7 @@ public class PassengerServiceImpl implements PassengerService {
 
     private Passenger findActivePassengerOrElseThrow(Long id){
         return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .orElseThrow(() -> new PassengerNotFoundException(PASSENGER_NOT_FOUND_MESSAGE.formatted("ID " + id)));
+                .orElseThrow(() -> new PassengerNotFoundException("passenger.not.found", messageSource, id));
     }
 
 }

@@ -4,8 +4,13 @@ package io.simakkoi9.passengerservice.controller;
 import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
 import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
+import io.simakkoi9.passengerservice.model.dto.response.MultiErrorResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,11 +18,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-import static io.simakkoi9.passengerservice.util.ErrorMessages.INTERNAL_SERVER_ERROR_MESSAGE;
-import static io.simakkoi9.passengerservice.util.ErrorMessages.VALIDATION_FAILED_MESSAGE;
-
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ControllerAdvice {
+
+    private final MessageSource messageSource;
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -25,8 +31,9 @@ public class ControllerAdvice {
                         .builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .timestamp(LocalDateTime.now())
-                        .message(INTERNAL_SERVER_ERROR_MESSAGE + " " + e.getMessage())
-                        .build());
+                        .message(messageSource.getMessage("internal.server.error", new Object[]{}, LocaleContextHolder.getLocale()))
+                        .build()
+                );
     }
 
     @ExceptionHandler(PassengerNotFoundException.class)
@@ -37,7 +44,8 @@ public class ControllerAdvice {
                         .status(HttpStatus.NOT_FOUND.value())
                         .timestamp(LocalDateTime.now())
                         .message(e.getMessage())
-                        .build());
+                        .build()
+                );
     }
 
     @ExceptionHandler(DuplicatePassengerFoundException.class)
@@ -48,18 +56,25 @@ public class ControllerAdvice {
                         .status(HttpStatus.CONFLICT.value())
                         .timestamp(LocalDateTime.now())
                         .message(e.getMessage())
-                        .build());
+                        .build()
+                );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> validationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<MultiErrorResponse> validationException(MethodArgumentNotValidException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
+                .body(MultiErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
-                        .message(VALIDATION_FAILED_MESSAGE + " " + e.getMessage())
-                        .build());
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .errors(
+                                e.getBindingResult()
+                                .getAllErrors()
+                                .stream()
+                                .map(ObjectError::getDefaultMessage)
+                                .toList()
+                        )
+                        .build()
+                );
     }
 
     @ExceptionHandler(SQLException.class)
@@ -70,6 +85,7 @@ public class ControllerAdvice {
                         .status(HttpStatus.BAD_REQUEST.value())
                         .timestamp(LocalDateTime.now())
                         .message(e.getMessage())
-                        .build());
+                        .build()
+                );
     }
 }
