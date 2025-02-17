@@ -5,6 +5,7 @@ import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
+import io.simakkoi9.ridesservice.model.dto.response.PageResponse;
 import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.Car;
 import io.simakkoi9.ridesservice.model.entity.Driver;
@@ -20,8 +21,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,11 +102,18 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Page<RideResponse> getAllRides(Pageable pageable) {
-        Page<Ride> rides = repository.findAll(pageable);
+    public PageResponse<RideResponse> getAllRides(int page, int size) {
+        Page<Ride> rides = repository.findAll(PageRequest.of(page, size));
         List<Ride> rideList = rides.getContent();
         List<RideResponse> rideResponseList = mapper.toResponseList(rideList);
-        return new PageImpl<>(rideResponseList, pageable, rides.getTotalElements());
+
+        return new PageResponse<>(
+            rideResponseList,
+            rides.getSize(),
+            rides.getNumber(),
+            rides.getTotalPages(),
+            rides.getTotalElements()
+        );
     }
 
     private Ride findRideByIdOrElseThrow(String id) {

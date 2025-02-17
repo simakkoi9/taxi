@@ -1,9 +1,9 @@
 package io.simakkoi9.driverservice.model.entity
 
-import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_GENDER_CODE_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_GENDER_VALUE_MESSAGE
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
+import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_GENDER_CODE_MESSAGE
+import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_GENDER_VALUE_MESSAGE
 
 enum class Gender(val code: Int) {
     MALE(1),

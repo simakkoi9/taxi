@@ -4,6 +4,7 @@ import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
 import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
+import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.model.entity.Passenger;
 import io.simakkoi9.passengerservice.model.entity.UserStatus;
@@ -13,6 +14,8 @@ import io.simakkoi9.passengerservice.service.PassengerService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,11 +64,17 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Override
-    public List<PassengerResponse> getAllPassengers() {
-        List<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE);
-        return passengers.stream()
-                .map(mapper::toResponse)
-                .toList();
+    public PageResponse<PassengerResponse> getAllPassengers(int page, int size) {
+        Page<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE, PageRequest.of(page, size));
+        List<Passenger> passengerList = passengers.getContent();
+        List<PassengerResponse> passengerResponseList = mapper.toResponseList(passengerList);
+        return new PageResponse<>(
+                passengerResponseList,
+                passengers.getSize(),
+                passengers.getNumber(),
+                passengers.getTotalPages(),
+                passengers.getTotalElements()
+        );
     }
 
     private Passenger findActivePassengerOrElseThrow(Long id) {

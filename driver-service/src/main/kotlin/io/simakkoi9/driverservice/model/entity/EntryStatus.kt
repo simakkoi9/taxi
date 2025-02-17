@@ -1,9 +1,9 @@
 package io.simakkoi9.driverservice.model.entity
 
-import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_STATUS_CODE_MESSAGE
-import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_STATUS_VALUE_MESSAGE
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
+import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_STATUS_CODE_MESSAGE
+import io.simakkoi9.driverservice.util.ErrorMessages.UNKNOWN_STATUS_VALUE_MESSAGE
 
 enum class EntryStatus(val code: Int) {
     ACTIVE(1),

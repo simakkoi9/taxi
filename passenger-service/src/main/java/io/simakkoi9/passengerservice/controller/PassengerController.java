@@ -2,9 +2,9 @@ package io.simakkoi9.passengerservice.controller;
 
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
+import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.service.PassengerService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -47,7 +48,10 @@ public class PassengerController {
     }
 
     @GetMapping
-    public List<PassengerResponse> getAllPassengers() {
-        return passengerService.getAllPassengers();
+    public PageResponse<PassengerResponse> getAllPassengers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return passengerService.getAllPassengers(page, size);
     }
 }

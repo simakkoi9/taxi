@@ -4,6 +4,7 @@ import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.model.entity.Passenger;
+import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,5 +27,7 @@ public interface PassengerMapper {
     void setPassengerUpdateRequest(PassengerUpdateRequest passengerUpdateRequest, @MappingTarget Passenger passenger);
 
     PassengerResponse toResponse(Passenger passenger);
+
+    List<PassengerResponse> toResponseList(List<Passenger> passengerList);
 
 }

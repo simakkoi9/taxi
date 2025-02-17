@@ -1,12 +1,10 @@
 package io.simakkoi9.driverservice.controller
 
+import io.simakkoi9.driverservice.model.dto.PageResponse
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
 import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
 import io.simakkoi9.driverservice.service.DriverService
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -54,6 +52,9 @@ class DriverController(
         driverService.getDriver(id)
 
     @GetMapping
-    fun getAllDrivers(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<DriverResponse> =
-        driverService.getAllDrivers(pageable)
+    fun getAllDrivers(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): PageResponse<DriverResponse> =
+        driverService.getAllDrivers(page, size)
 }

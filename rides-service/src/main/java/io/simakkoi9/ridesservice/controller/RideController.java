@@ -2,13 +2,11 @@ package io.simakkoi9.ridesservice.controller;
 
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
+import io.simakkoi9.ridesservice.model.dto.response.PageResponse;
 import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.RideStatus;
 import io.simakkoi9.ridesservice.service.RideService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -55,7 +53,10 @@ public class RideController {
     }
 
     @GetMapping
-    public Page<RideResponse> getAllRides(@PageableDefault Pageable pageable) {
-        return rideService.getAllRides(pageable);
+    public PageResponse<RideResponse> getAllRides(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return rideService.getAllRides(page, size);
     }
 }

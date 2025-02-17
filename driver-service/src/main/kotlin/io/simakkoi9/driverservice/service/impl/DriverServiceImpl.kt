@@ -4,6 +4,7 @@ import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
+import io.simakkoi9.driverservice.model.dto.PageResponse
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
 import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
@@ -15,9 +16,7 @@ import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.DriverService
 import org.springframework.context.MessageSource
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -80,10 +79,17 @@ class DriverServiceImpl(
         return driverMapper.toResponse(driver)
     }
 
-    override fun getAllDrivers(pageable: Pageable): Page<DriverResponse> {
-        val driverPage = driverRepository.findAllByStatus(EntryStatus.ACTIVE, pageable)
-        val driverResponseList = driverMapper.toResponseList(driverPage.content)
-        return PageImpl(driverResponseList, pageable, driverPage.totalElements)
+    override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {
+        val drivers = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
+        val driverList = drivers.content
+        val driverResponseList = driverMapper.toResponseList(driverList)
+        return PageResponse(
+            driverResponseList,
+            drivers.size,
+            drivers.number,
+            drivers.totalPages,
+            drivers.totalElements
+        )
     }
 
     private fun findActiveDriverByIdOrElseThrow(id: Long): Driver =

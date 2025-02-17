@@ -2,6 +2,7 @@ package io.simakkoi9.driverservice.service.impl
 
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
+import io.simakkoi9.driverservice.model.dto.PageResponse
 import io.simakkoi9.driverservice.model.dto.car.request.CarCreateRequest
 import io.simakkoi9.driverservice.model.dto.car.request.CarUpdateRequest
 import io.simakkoi9.driverservice.model.dto.car.response.CarResponse
@@ -12,9 +13,7 @@ import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.CarService
 import org.springframework.context.MessageSource
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -63,10 +62,18 @@ class CarServiceImpl(
         return carMapper.toResponse(car)
     }
 
-    override fun getAllCars(pageable: Pageable): Page<CarResponse> {
-        val carPage = carRepository.findAllByStatus(EntryStatus.ACTIVE, pageable)
-        val carResponseList = carMapper.toResponseList(carPage.content)
-        return PageImpl(carResponseList, pageable, carPage.totalElements)
+    override fun getAllCars(page: Int, size: Int): PageResponse<CarResponse> {
+        val carPage = carRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
+        val carList = carPage.content
+        val carResponseList = carMapper.toResponseList(carList)
+
+        return PageResponse(
+            carResponseList,
+            carPage.size,
+            carPage.number,
+            carPage.totalPages,
+            carPage.totalElements
+        )
     }
 
     private fun findActiveCarByIdOrElseThrow(id: Long): Car =
