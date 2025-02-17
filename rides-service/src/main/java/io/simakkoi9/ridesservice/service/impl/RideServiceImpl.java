@@ -15,6 +15,8 @@ import io.simakkoi9.ridesservice.model.mapper.RideMapper;
 import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.FareService;
 import io.simakkoi9.ridesservice.service.RideService;
+import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -22,9 +24,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,8 +57,8 @@ public class RideServiceImpl implements RideService {
     public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest) {
         Ride ride = findRideByIdOrElseThrow(id);
         if (
-            ride.getStatus().getCode() >= rideUpdateRequest.status().getCode() ||
-            RideStatus.getImmutableStatusList().contains(ride.getStatus())
+            ride.getStatus().getCode() >= rideUpdateRequest.status().getCode()
+                || RideStatus.getImmutableStatusList().contains(ride.getStatus())
         ) {
             throw new InvalidStatusException("invalid.status", messageSource, rideUpdateRequest.status().toValue());
         }
@@ -70,7 +69,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public RideResponse getAvailableDriver(String id){
+    public RideResponse getAvailableDriver(String id) {
         Ride ride = findRideByIdOrElseThrow(id);
         Driver driver = findAvailableDriverOrElseThrow();
 
@@ -85,8 +84,8 @@ public class RideServiceImpl implements RideService {
     public RideResponse changeRideStatus(String id, RideStatus rideStatus) {
         Ride ride = findRideByIdOrElseThrow(id);
         if (
-            ride.getStatus().getCode() >= rideStatus.getCode() ||
-            RideStatus.getImmutableStatusList().contains(ride.getStatus())
+            ride.getStatus().getCode() >= rideStatus.getCode()
+                || RideStatus.getImmutableStatusList().contains(ride.getStatus())
         ) {
             throw new InvalidStatusException("invalid.status", messageSource, rideStatus.toValue());
         }
@@ -110,22 +109,22 @@ public class RideServiceImpl implements RideService {
         return new PageImpl<>(rideResponseList, pageable, rides.getTotalElements());
     }
 
-    private Ride findRideByIdOrElseThrow(String id){
+    private Ride findRideByIdOrElseThrow(String id) {
         return repository.findById(id).orElseThrow(
                 () -> new RideNotFoundException("ride.not-found.error", messageSource, id)
         );
     }
 
-    private Passenger findFreePassengerOrElseThrow(Long id){
-        if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())){
+    private Passenger findFreePassengerOrElseThrow(Long id) {
+        if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())) {
             throw new BusyPassengerException("busy.passenger.error", messageSource, id);
         }
 
         return new Passenger();                         //Получим из сервиса пассажиров
     }
 
-//    Из сервиса водителей нужно получить список водителей с машиной
-    private Driver findAvailableDriverOrElseThrow(){
+    //    Из сервиса водителей нужно получить список водителей с машиной
+    private Driver findAvailableDriverOrElseThrow() {
         List<Long> driverIdList = repository.findAllByStatusIn(RideStatus.getBusyDriverStatusList())
                 .stream()
                 .map(Ride::getDriver)

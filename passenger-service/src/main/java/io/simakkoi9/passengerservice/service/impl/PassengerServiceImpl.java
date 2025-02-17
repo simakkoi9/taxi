@@ -10,12 +10,11 @@ import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.model.mapper.PassengerMapper;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
 import io.simakkoi9.passengerservice.service.PassengerService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class PassengerServiceImpl implements PassengerService {
     @Transactional
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
         String passengerEmail = passengerCreateRequest.email();
-        if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)){
+        if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)) {
             throw new DuplicatePassengerFoundException("duplicate.passenger.found", messageSource, passengerEmail);
         }
         Passenger passenger = mapper.toEntity(passengerCreateRequest);
@@ -69,7 +68,7 @@ public class PassengerServiceImpl implements PassengerService {
                 .toList();
     }
 
-    private Passenger findActivePassengerOrElseThrow(Long id){
+    private Passenger findActivePassengerOrElseThrow(Long id) {
         return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(() -> new PassengerNotFoundException("passenger.not.found", messageSource, id));
     }

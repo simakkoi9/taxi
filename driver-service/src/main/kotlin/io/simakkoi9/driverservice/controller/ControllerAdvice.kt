@@ -6,6 +6,7 @@ import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
 import io.simakkoi9.driverservice.model.dto.ErrorResponse
+import java.time.LocalDateTime
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.http.HttpStatus
@@ -14,7 +15,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import java.time.LocalDateTime
 
 @RestControllerAdvice
 class ControllerAdvice(

@@ -2,7 +2,6 @@ package io.simakkoi9.ratingservice.model.dto.response;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbPropertyOrder;
-
 import java.io.Serializable;
 
 @JsonbPropertyOrder({"personId", "averageRating"})

@@ -1,13 +1,12 @@
 package io.simakkoi9.ridesservice.model.dto.request;
 
+import static io.simakkoi9.ridesservice.util.RegularExpressionsConstants.ADDRESS_REGEX;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
-
 import java.io.Serializable;
-
-import static io.simakkoi9.ridesservice.util.RegularExpressionsConstants.ADDRESS_REGEX;
 
 public record RideCreateRequest(
     @NotNull(message = "{passenger.id.not-blank}")

@@ -1,6 +1,6 @@
 package io.simakkoi9.driverservice.model.dto.car.request
 
-import io.simakkoi9.driverservice.util.RegularExpressionsConstants
+import io.simakkoi9.driverservice.util.RegularExpressionsConstants.CAR_NUMBER_REGEX
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import java.io.Serializable
@@ -15,7 +15,7 @@ data class CarUpdateRequest(
     @field:Size(max = 40, message = "{color.size}")
     val color: String? = null,
 
-    @field:Pattern(regexp = RegularExpressionsConstants.CAR_NUMBER_REGEX, message = "{number.invalid}")
+    @field:Pattern(regexp = CAR_NUMBER_REGEX, message = "{number.invalid}")
     @field:Size(max = 15, message = "{color.size}")
     val number: String? = null
 ) : Serializable

@@ -5,14 +5,13 @@ import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest
 import io.simakkoi9.ratingservice.model.dto.request.RatingCreateRequest;
 import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
 import io.simakkoi9.ratingservice.model.entity.Rating;
+import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.List;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -29,5 +28,8 @@ public interface RatingMapper {
     Rating driverRatingPartialUpdate(DriverRatingUpdateRequest driverRatingUpdateRequest, @MappingTarget Rating rating);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Rating passengerRatingPartialUpdate(PassengerRatingUpdateRequest passengerRatingUpdateRequest, @MappingTarget Rating rating);
+    Rating passengerRatingPartialUpdate(
+            PassengerRatingUpdateRequest passengerRatingUpdateRequest,
+            @MappingTarget Rating rating
+    );
 }

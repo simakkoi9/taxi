@@ -28,34 +28,34 @@ public class RideController {
     private final RideService rideService;
 
     @PostMapping
-    public RideResponse createRide(@Validated @RequestBody RideCreateRequest rideCreateRequest){
+    public RideResponse createRide(@Validated @RequestBody RideCreateRequest rideCreateRequest) {
         return rideService.createRide(rideCreateRequest);
     }
 
     @PutMapping("/{id}")
     public RideResponse updateRide(
             @PathVariable String id,
-            @Validated @RequestBody RideUpdateRequest rideUpdateRequest){
+            @Validated @RequestBody RideUpdateRequest rideUpdateRequest) {
         return rideService.updateRide(id, rideUpdateRequest);
     }
 
     @PatchMapping("/{id}/getDriver")
-    public RideResponse getAvailableDriver(@PathVariable String id){
+    public RideResponse getAvailableDriver(@PathVariable String id) {
         return rideService.getAvailableDriver(id);
     }
 
     @PatchMapping("/{id}")
-    public RideResponse changeRideStatus(@PathVariable String id, @RequestParam RideStatus status){
+    public RideResponse changeRideStatus(@PathVariable String id, @RequestParam RideStatus status) {
         return rideService.changeRideStatus(id, status);
     }
 
     @GetMapping("/{id}")
-    public RideResponse getRide(@PathVariable String id){
+    public RideResponse getRide(@PathVariable String id) {
         return rideService.getRide(id);
     }
 
     @GetMapping
-    public Page<RideResponse> getAllRides(@PageableDefault Pageable pageable){
+    public Page<RideResponse> getAllRides(@PageableDefault Pageable pageable) {
         return rideService.getAllRides(pageable);
     }
 }

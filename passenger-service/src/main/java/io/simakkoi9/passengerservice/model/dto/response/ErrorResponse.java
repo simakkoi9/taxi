@@ -1,9 +1,8 @@
 package io.simakkoi9.passengerservice.model.dto.response;
 
-import lombok.Builder;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record ErrorResponse(

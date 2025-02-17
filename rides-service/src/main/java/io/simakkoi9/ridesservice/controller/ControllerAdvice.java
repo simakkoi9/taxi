@@ -5,6 +5,9 @@ import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.response.ErrorResponse;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -14,10 +17,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(DistanceProcessingException.class)
-    public ResponseEntity<ErrorResponse> handleDistanceProcessingException(DistanceProcessingException e){
+    public ResponseEntity<ErrorResponse> handleDistanceProcessingException(DistanceProcessingException e) {
         return buildErrorResponse(HttpStatus.BAD_GATEWAY, e);
     }
 
@@ -62,13 +61,15 @@ public class ControllerAdvice {
         List<String> errors = new ArrayList<>();
 
         if (e instanceof MethodArgumentNotValidException) {
-            ((MethodArgumentNotValidException) e).getBindingResult()
+            ((MethodArgumentNotValidException) e)
+                    .getBindingResult()
                     .getAllErrors()
-                    .forEach(error -> {
-                        error.getDefaultMessage();
-                        errors.add(error.getDefaultMessage());
-                    }
-            );
+                    .forEach(
+                        error -> {
+                            error.getDefaultMessage();
+                            errors.add(error.getDefaultMessage());
+                        }
+                );
         } else {
             errors.add(e.getMessage() != null ? e.getMessage() :
                     messageSource.getMessage("internal.server.error", new Object[]{}, LocaleContextHolder.getLocale()));

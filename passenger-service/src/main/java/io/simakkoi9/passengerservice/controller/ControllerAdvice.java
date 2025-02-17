@@ -1,10 +1,11 @@
 package io.simakkoi9.passengerservice.controller;
 
-
 import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
 import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
 import io.simakkoi9.passengerservice.model.dto.response.MultiErrorResponse;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -14,9 +15,6 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -31,7 +29,12 @@ public class ControllerAdvice {
                         .builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .timestamp(LocalDateTime.now())
-                        .message(messageSource.getMessage("internal.server.error", new Object[]{}, LocaleContextHolder.getLocale()))
+                        .message(messageSource.getMessage(
+                                "internal.server.error",
+                                new Object[]{},
+                                LocaleContextHolder.getLocale()
+                                )
+                        )
                         .build()
                 );
     }
