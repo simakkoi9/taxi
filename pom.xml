@@ -12,6 +12,7 @@
         <module>rating-service</module>
     </modules>
     <properties>
+        <java.version>21</java.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.version>10.21.2</checkstyle.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
