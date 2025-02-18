@@ -86,7 +86,7 @@ class DriverServiceImpl(
 
     override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {
         val drivers = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
-        return driverMapper.toPageResponse(drivers);
+        return driverMapper.toPageResponse(drivers)
     }
 
     private fun findActiveDriverByIdOrElseThrow(id: Long): Driver =
