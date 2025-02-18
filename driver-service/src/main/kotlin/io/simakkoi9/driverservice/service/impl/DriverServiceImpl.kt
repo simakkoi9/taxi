@@ -15,6 +15,7 @@ import io.simakkoi9.driverservice.model.mapper.DriverMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.DriverService
+import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -32,7 +33,11 @@ class DriverServiceImpl(
     override fun createDriver(driverCreateRequest: DriverCreateRequest): DriverResponse {
         val driver = driverMapper.toEntity(driverCreateRequest)
         if (driverRepository.existsByEmailAndStatus(driverCreateRequest.email, EntryStatus.ACTIVE)) {
-            throw DuplicateDriverFoundException("duplicate.driver.found", messageSource, driverCreateRequest.email)
+            throw DuplicateDriverFoundException(
+                MessageKeyConstants.DUPLICATE_DRIVER_FOUND,
+                messageSource,
+                driverCreateRequest.email
+            )
         }
         val createdDriver = driverRepository.save(driver)
         return driverMapper.toResponse(createdDriver)
@@ -49,7 +54,7 @@ class DriverServiceImpl(
     @Transactional
     override fun setCarForDriver(driverId: Long, carId: Long): DriverResponse {
         if (!isCarAvailable(carId)) {
-            throw CarIsNotAvailableException("car.is.not.available", messageSource)
+            throw CarIsNotAvailableException(MessageKeyConstants.CAR_IS_NOT_AVAILABLE, messageSource)
         }
         val driver = findActiveDriverByIdOrElseThrow(driverId)
         val car = findActiveCarByIdOrElseThrow(carId)
@@ -81,27 +86,19 @@ class DriverServiceImpl(
 
     override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {
         val drivers = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
-        val driverList = drivers.content
-        val driverResponseList = driverMapper.toResponseList(driverList)
-        return PageResponse(
-            driverResponseList,
-            drivers.size,
-            drivers.number,
-            drivers.totalPages,
-            drivers.totalElements
-        )
+        return driverMapper.toPageResponse(drivers);
     }
 
     private fun findActiveDriverByIdOrElseThrow(id: Long): Driver =
         driverRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
-                DriverNotFoundException("driver.not.found", messageSource, id)
+                DriverNotFoundException(MessageKeyConstants.DRIVER_NOT_FOUND, messageSource, id)
             }
 
     private fun findActiveCarByIdOrElseThrow(id: Long): Car =
         carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
-                CarNotFoundException("car.not.found", messageSource, id)
+                CarNotFoundException(MessageKeyConstants.CAR_NOT_FOUND, messageSource, id)
             }
 
     private fun isCarAvailable(id: Long): Boolean {

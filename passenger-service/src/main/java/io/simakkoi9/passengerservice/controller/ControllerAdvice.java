@@ -4,6 +4,7 @@ import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
 import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
 import io.simakkoi9.passengerservice.model.dto.response.MultiErrorResponse;
+import io.simakkoi9.passengerservice.util.MessageKeyConstants;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ControllerAdvice {
                         .timestamp(LocalDateTime.now())
                         .message(
                                 messageSource.getMessage(
-                                    "internal.server.error",
+                                    MessageKeyConstants.INTERNAL_SERVER_ERROR,
                                     new Object[]{},
                                     LocaleContextHolder.getLocale()
                                 )

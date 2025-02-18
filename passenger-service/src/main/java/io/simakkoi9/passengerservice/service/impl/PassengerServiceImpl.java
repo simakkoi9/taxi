@@ -11,7 +11,7 @@ import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.model.mapper.PassengerMapper;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
 import io.simakkoi9.passengerservice.service.PassengerService;
-import java.util.List;
+import io.simakkoi9.passengerservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,11 @@ public class PassengerServiceImpl implements PassengerService {
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
         String passengerEmail = passengerCreateRequest.email();
         if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)) {
-            throw new DuplicatePassengerFoundException("duplicate.passenger.found", messageSource, passengerEmail);
+            throw new DuplicatePassengerFoundException(
+                    MessageKeyConstants.DUPLICATE_PASSENGER_FOUND,
+                    messageSource,
+                    passengerEmail
+            );
         }
         Passenger passenger = mapper.toEntity(passengerCreateRequest);
         Passenger createdPassenger = repository.save(passenger);
@@ -66,20 +70,18 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     public PageResponse<PassengerResponse> getAllPassengers(int page, int size) {
         Page<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE, PageRequest.of(page, size));
-        List<Passenger> passengerList = passengers.getContent();
-        List<PassengerResponse> passengerResponseList = mapper.toResponseList(passengerList);
-        return new PageResponse<>(
-                passengerResponseList,
-                passengers.getSize(),
-                passengers.getNumber(),
-                passengers.getTotalPages(),
-                passengers.getTotalElements()
-        );
+        return mapper.toPageResponse(passengers);
     }
 
     private Passenger findActivePassengerOrElseThrow(Long id) {
         return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .orElseThrow(() -> new PassengerNotFoundException("passenger.not.found", messageSource, id));
+                .orElseThrow(
+                    () -> new PassengerNotFoundException(
+                        MessageKeyConstants.PASSENGER_NOT_FOUND,
+                        messageSource,
+                        id
+                    )
+                );
     }
 
 }

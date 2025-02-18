@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.service.FareService;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +63,7 @@ public class FareServiceImpl implements FareService {
                     } catch (JsonProcessingException e) {
                         sink.error(
                                 new DistanceProcessingException(
-                                        "distance-processing.error",
+                                        MessageKeyConstants.DISTANCE_PROCESSING_ERROR,
                                         messageSource,
                                         e.getMessage()
                                 )

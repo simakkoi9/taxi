@@ -1,5 +1,6 @@
 package io.simakkoi9.driverservice.model.mapper
 
+import io.simakkoi9.driverservice.model.dto.PageResponse
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
 import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
@@ -11,6 +12,7 @@ import org.mapstruct.MappingConstants
 import org.mapstruct.MappingTarget
 import org.mapstruct.NullValuePropertyMappingStrategy
 import org.mapstruct.ReportingPolicy
+import org.springframework.data.domain.Page
 
 @Mapper(
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -27,4 +29,15 @@ interface DriverMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     fun partialUpdate(driverUpdateRequest: DriverUpdateRequest, @MappingTarget driver: Driver): Driver
+
+    fun toPageResponse(drivers: Page<Driver>): PageResponse<DriverResponse> {
+        val driverResponseList: List<DriverResponse> = toResponseList(drivers.content)
+        return PageResponse(
+            driverResponseList,
+            drivers.size,
+            drivers.number,
+            drivers.totalPages,
+            drivers.totalElements
+        )
+    }
 }

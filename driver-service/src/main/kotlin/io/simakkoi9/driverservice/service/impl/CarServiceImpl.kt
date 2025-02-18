@@ -12,6 +12,7 @@ import io.simakkoi9.driverservice.model.mapper.CarMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.CarService
+import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -29,7 +30,11 @@ class CarServiceImpl(
     override fun createCar(carCreateRequest: CarCreateRequest): CarResponse {
         val car = carMapper.toEntity(carCreateRequest)
         if (carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE)) {
-            throw DuplicateCarFoundException("duplicate.car.found", messageSource, carCreateRequest.number)
+            throw DuplicateCarFoundException(
+                MessageKeyConstants.DUPLICATE_CAR_FOUND,
+                messageSource,
+                carCreateRequest.number
+            )
         }
         val createdCar = carRepository.save(car)
         return carMapper.toResponse(createdCar)
@@ -63,22 +68,13 @@ class CarServiceImpl(
     }
 
     override fun getAllCars(page: Int, size: Int): PageResponse<CarResponse> {
-        val carPage = carRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
-        val carList = carPage.content
-        val carResponseList = carMapper.toResponseList(carList)
-
-        return PageResponse(
-            carResponseList,
-            carPage.size,
-            carPage.number,
-            carPage.totalPages,
-            carPage.totalElements
-        )
+        val cars = carRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
+        return carMapper.toPageResponse(cars)
     }
 
     private fun findActiveCarByIdOrElseThrow(id: Long): Car =
         carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
-                CarNotFoundException("car.not.found", messageSource, id)
+                CarNotFoundException(MessageKeyConstants.CAR_NOT_FOUND, messageSource, id)
             }
 }

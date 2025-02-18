@@ -5,6 +5,7 @@ import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.response.ErrorResponse;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,12 @@ public class ControllerAdvice {
                 );
         } else {
             errors.add(e.getMessage() != null ? e.getMessage() :
-                    messageSource.getMessage("internal.server.error", new Object[]{}, LocaleContextHolder.getLocale()));
+                    messageSource.getMessage(
+                            MessageKeyConstants.INTERNAL_SERVER_ERROR,
+                            new Object[]{},
+                            LocaleContextHolder.getLocale()
+                    )
+            );
         }
 
         ErrorResponse errorResponse = new ErrorResponse(

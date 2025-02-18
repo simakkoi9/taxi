@@ -16,6 +16,7 @@ import io.simakkoi9.ridesservice.model.mapper.RideMapper;
 import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.FareService;
 import io.simakkoi9.ridesservice.service.RideService;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,11 @@ public class RideServiceImpl implements RideService {
             ride.getStatus().getCode() >= rideUpdateRequest.status().getCode()
                 || RideStatus.getImmutableStatusList().contains(ride.getStatus())
         ) {
-            throw new InvalidStatusException("invalid.status", messageSource, rideUpdateRequest.status().toValue());
+            throw new InvalidStatusException(
+                    MessageKeyConstants.INVALID_STATUS,
+                    messageSource,
+                    rideUpdateRequest.status().toValue()
+            );
         }
 
         mapper.partialUpdate(rideUpdateRequest, ride);
@@ -87,7 +92,7 @@ public class RideServiceImpl implements RideService {
             ride.getStatus().getCode() >= rideStatus.getCode()
                 || RideStatus.getImmutableStatusList().contains(ride.getStatus())
         ) {
-            throw new InvalidStatusException("invalid.status", messageSource, rideStatus.toValue());
+            throw new InvalidStatusException(MessageKeyConstants.INVALID_STATUS, messageSource, rideStatus.toValue());
         }
 
         ride.setStatus(rideStatus);
@@ -104,27 +109,18 @@ public class RideServiceImpl implements RideService {
     @Override
     public PageResponse<RideResponse> getAllRides(int page, int size) {
         Page<Ride> rides = repository.findAll(PageRequest.of(page, size));
-        List<Ride> rideList = rides.getContent();
-        List<RideResponse> rideResponseList = mapper.toResponseList(rideList);
-
-        return new PageResponse<>(
-            rideResponseList,
-            rides.getSize(),
-            rides.getNumber(),
-            rides.getTotalPages(),
-            rides.getTotalElements()
-        );
+        return mapper.toPageResponse(rides);
     }
 
     private Ride findRideByIdOrElseThrow(String id) {
         return repository.findById(id).orElseThrow(
-                () -> new RideNotFoundException("ride.not-found.error", messageSource, id)
+                () -> new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND_ERROR, messageSource, id)
         );
     }
 
     private Passenger findFreePassengerOrElseThrow(Long id) {
         if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())) {
-            throw new BusyPassengerException("busy.passenger.error", messageSource, id);
+            throw new BusyPassengerException(MessageKeyConstants.BUSY_PASSENGER_ERROR, messageSource, id);
         }
 
         return new Passenger();                         //Получим из сервиса пассажиров

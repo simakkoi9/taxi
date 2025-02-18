@@ -2,6 +2,7 @@ package io.simakkoi9.passengerservice.model.mapper;
 
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
+import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.model.entity.Passenger;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.data.domain.Page;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -29,5 +31,16 @@ public interface PassengerMapper {
     PassengerResponse toResponse(Passenger passenger);
 
     List<PassengerResponse> toResponseList(List<Passenger> passengerList);
+
+    default PageResponse<PassengerResponse> toPageResponse(Page<Passenger> passengers) {
+        List<PassengerResponse> passengerResponseList = toResponseList(passengers.getContent());
+        return new PageResponse<>(
+                passengerResponseList,
+                passengers.getSize(),
+                passengers.getNumber(),
+                passengers.getTotalPages(),
+                passengers.getTotalElements()
+        );
+    }
 
 }
