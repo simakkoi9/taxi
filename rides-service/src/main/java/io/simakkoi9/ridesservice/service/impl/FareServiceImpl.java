@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.service.FareService;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,8 @@ public class FareServiceImpl implements FareService {
         String[] pickupSplit = pickupAddress.split("\\s*,\\s*");
         String[] destinationSplit = destinationAddress.split("\\s*,\\s*");
 
-        String requestBody = "%s,%s;%s,%s".formatted(pickupSplit[1], pickupSplit[0], destinationSplit[1], pickupSplit[0]);
+        String requestBody = "%s,%s;%s,%s"
+                .formatted(pickupSplit[1], pickupSplit[0], destinationSplit[1], pickupSplit[0]);
 
         return osrmWebClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -60,7 +61,13 @@ public class FareServiceImpl implements FareService {
                         double distanceKm = distanceMeters / 1000.0;
                         sink.next(distanceKm);
                     } catch (JsonProcessingException e) {
-                        sink.error(new DistanceProcessingException("distance-processing.error", messageSource, e.getMessage()));
+                        sink.error(
+                                new DistanceProcessingException(
+                                        MessageKeyConstants.DISTANCE_PROCESSING_ERROR,
+                                        messageSource,
+                                        e.getMessage()
+                                )
+                        );
                     }
                 });
     }

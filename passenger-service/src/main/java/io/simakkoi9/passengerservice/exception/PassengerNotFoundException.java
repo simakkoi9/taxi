@@ -1,7 +1,18 @@
 package io.simakkoi9.passengerservice.exception;
 
-public class PassengerNotFoundException extends RuntimeException{
-    public PassengerNotFoundException(String message){
-        super(message);
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+
+public class PassengerNotFoundException extends RuntimeException {
+    public PassengerNotFoundException(String messageKey, MessageSource messageSource, Object... args) {
+        super(getLocalizedMessage(messageKey, messageSource, args));
+    }
+
+    private static String getLocalizedMessage(String messageKey, MessageSource messageSource, Object... args) {
+        String[] stringArgs = new String[args.length];
+        for (int i = 0; i < args.length; i++) {
+            stringArgs[i] = args[i].toString();
+        }
+        return messageSource.getMessage(messageKey, stringArgs, LocaleContextHolder.getLocale());
     }
 }

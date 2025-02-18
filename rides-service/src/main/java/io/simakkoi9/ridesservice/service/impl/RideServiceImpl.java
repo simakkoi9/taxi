@@ -1,9 +1,11 @@
 package io.simakkoi9.ridesservice.service.impl;
 
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
+import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
+import io.simakkoi9.ridesservice.model.dto.response.PageResponse;
 import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.Car;
 import io.simakkoi9.ridesservice.model.entity.Driver;
@@ -14,16 +16,15 @@ import io.simakkoi9.ridesservice.model.mapper.RideMapper;
 import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.FareService;
 import io.simakkoi9.ridesservice.service.RideService;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
+import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,15 +55,26 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest){
+    public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest) {
         Ride ride = findRideByIdOrElseThrow(id);
+        if (
+            ride.getStatus().getCode() >= rideUpdateRequest.status().getCode()
+                || RideStatus.getImmutableStatusList().contains(ride.getStatus())
+        ) {
+            throw new InvalidStatusException(
+                    MessageKeyConstants.INVALID_STATUS,
+                    messageSource,
+                    rideUpdateRequest.status().toValue()
+            );
+        }
+
         mapper.partialUpdate(rideUpdateRequest, ride);
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
     }
 
     @Override
-    public RideResponse getAvailableDriver(String id){
+    public RideResponse getAvailableDriver(String id) {
         Ride ride = findRideByIdOrElseThrow(id);
         Driver driver = findAvailableDriverOrElseThrow();
 
@@ -76,6 +88,13 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public RideResponse changeRideStatus(String id, RideStatus rideStatus) {
         Ride ride = findRideByIdOrElseThrow(id);
+        if (
+            ride.getStatus().getCode() >= rideStatus.getCode()
+                || RideStatus.getImmutableStatusList().contains(ride.getStatus())
+        ) {
+            throw new InvalidStatusException(MessageKeyConstants.INVALID_STATUS, messageSource, rideStatus.toValue());
+        }
+
         ride.setStatus(rideStatus);
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
@@ -88,29 +107,27 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Page<RideResponse> getAllRides(Pageable pageable) {
-        Page<Ride> rides = repository.findAll(pageable);
-        List<Ride> rideList = rides.getContent();
-        List<RideResponse> rideResponseList = mapper.toResponseList(rideList);
-        return new PageImpl<>(rideResponseList, pageable, rides.getTotalElements());
+    public PageResponse<RideResponse> getAllRides(int page, int size) {
+        Page<Ride> rides = repository.findAll(PageRequest.of(page, size));
+        return mapper.toPageResponse(rides);
     }
 
-    private Ride findRideByIdOrElseThrow(String id){
+    private Ride findRideByIdOrElseThrow(String id) {
         return repository.findById(id).orElseThrow(
-                () -> new RideNotFoundException("ride.not-found.error", messageSource, id)
+                () -> new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND_ERROR, messageSource, id)
         );
     }
 
-    private Passenger findFreePassengerOrElseThrow(Long id){
-        if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())){
-            throw new BusyPassengerException("busy.passenger.error", messageSource, id);
+    private Passenger findFreePassengerOrElseThrow(Long id) {
+        if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())) {
+            throw new BusyPassengerException(MessageKeyConstants.BUSY_PASSENGER_ERROR, messageSource, id);
         }
 
         return new Passenger();                         //Получим из сервиса пассажиров
     }
 
-//    Из сервиса водителей нужно получить список водителей с машиной
-    private Driver findAvailableDriverOrElseThrow(){
+    //    Из сервиса водителей нужно получить список водителей с машиной
+    private Driver findAvailableDriverOrElseThrow() {
         List<Long> driverIdList = repository.findAllByStatusIn(RideStatus.getBusyDriverStatusList())
                 .stream()
                 .map(Ride::getDriver)

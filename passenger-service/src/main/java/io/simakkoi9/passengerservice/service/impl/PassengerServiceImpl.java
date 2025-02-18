@@ -4,20 +4,20 @@ import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
 import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
+import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.model.entity.Passenger;
 import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.model.mapper.PassengerMapper;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
 import io.simakkoi9.passengerservice.service.PassengerService;
+import io.simakkoi9.passengerservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static io.simakkoi9.passengerservice.util.ErrorMessages.DUPLICATE_PASSENGER_FOUND_MESSAGE;
-import static io.simakkoi9.passengerservice.util.ErrorMessages.PASSENGER_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +25,18 @@ public class PassengerServiceImpl implements PassengerService {
 
     private final PassengerMapper mapper;
     private final PassengerRepository repository;
+    private final MessageSource messageSource;
 
     @Override
     @Transactional
     public PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest) {
         String passengerEmail = passengerCreateRequest.email();
-        if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)){
-            throw new DuplicatePassengerFoundException(DUPLICATE_PASSENGER_FOUND_MESSAGE.formatted(passengerCreateRequest.email()));
+        if (repository.existsByEmailAndStatus(passengerEmail, UserStatus.ACTIVE)) {
+            throw new DuplicatePassengerFoundException(
+                    MessageKeyConstants.DUPLICATE_PASSENGER_FOUND,
+                    messageSource,
+                    passengerEmail
+            );
         }
         Passenger passenger = mapper.toEntity(passengerCreateRequest);
         Passenger createdPassenger = repository.save(passenger);
@@ -63,16 +68,20 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Override
-    public List<PassengerResponse> getAllPassengers() {
-        List<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE);
-        return passengers.stream()
-                .map(mapper::toResponse)
-                .toList();
+    public PageResponse<PassengerResponse> getAllPassengers(int page, int size) {
+        Page<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE, PageRequest.of(page, size));
+        return mapper.toPageResponse(passengers);
     }
 
-    private Passenger findActivePassengerOrElseThrow(Long id){
+    private Passenger findActivePassengerOrElseThrow(Long id) {
         return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .orElseThrow(() -> new PassengerNotFoundException(PASSENGER_NOT_FOUND_MESSAGE.formatted("ID " + id)));
+                .orElseThrow(
+                    () -> new PassengerNotFoundException(
+                        MessageKeyConstants.PASSENGER_NOT_FOUND,
+                        messageSource,
+                        id
+                    )
+                );
     }
 
 }

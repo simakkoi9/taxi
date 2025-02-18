@@ -22,7 +22,6 @@ import io.simakkoi9.ratingservice.util.MessageKeyConstants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -40,7 +39,11 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public RatingResponse createRating(RatingCreateRequest ratingCreateRequest) {
         if (ratingRepository.existsByRideId(ratingCreateRequest.rideId())) {
-            throw new DuplicateRatingException(MessageKeyConstants.DUPLICATE_RATING, messageConfig, ratingCreateRequest.rideId());
+            throw new DuplicateRatingException(
+                    MessageKeyConstants.DUPLICATE_RATING,
+                    messageConfig,
+                    ratingCreateRequest.rideId()
+            );
         }
         //Нужна еще проверка наличия в сервисе поездок
         Rating rating = ratingMapper.toEntity(ratingCreateRequest);
@@ -121,7 +124,7 @@ public class RatingServiceImpl implements RatingService {
 
         List<Rating> passengerList = ratingRepository.findAllRatingsByRideIdIn(passengerRideIdList);
 
-        if (passengerList.isEmpty()){
+        if (passengerList.isEmpty()) {
             throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, passengerRideIdList);
         }
 

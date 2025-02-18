@@ -3,8 +3,9 @@ package io.simakkoi9.ridesservice.exception;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-public class RideNotFoundException extends RuntimeException {
-    public RideNotFoundException(String messageKey, MessageSource messageSource, Object... args) {
+public class InvalidStatusException extends RuntimeException {
+
+    public InvalidStatusException(String messageKey, MessageSource messageSource, Object... args) {
         super(getLocalizedMessage(messageKey, messageSource, args));
     }
 

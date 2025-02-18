@@ -2,8 +2,10 @@ package io.simakkoi9.ridesservice.model.mapper;
 
 import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
+import io.simakkoi9.ridesservice.model.dto.response.PageResponse;
 import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.Ride;
+import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,8 +13,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Mapper(
     componentModel = MappingConstants.ComponentModel.SPRING,
@@ -25,8 +26,19 @@ public interface RideMapper {
 
     RideResponse toResponse(Ride ride);
 
-    List<RideResponse> toResponseList(List<Ride> rides);
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(RideUpdateRequest rideUpdateRequest, @MappingTarget Ride ride);
+
+    List<RideResponse> toResponseList(List<Ride> rides);
+
+    default PageResponse<RideResponse> toPageResponse(Page<Ride> rides) {
+        List<RideResponse> rideResponseList = toResponseList(rides.getContent());
+        return new PageResponse<>(
+                rideResponseList,
+                rides.getSize(),
+                rides.getNumber(),
+                rides.getTotalPages(),
+                rides.getTotalElements()
+        );
+    }
 }

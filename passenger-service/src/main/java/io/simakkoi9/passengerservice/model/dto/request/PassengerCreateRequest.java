@@ -1,14 +1,13 @@
 package io.simakkoi9.passengerservice.model.dto.request;
 
+import static io.simakkoi9.passengerservice.util.RegularExpressionConstants.NAME_REGEX;
+import static io.simakkoi9.passengerservice.util.RegularExpressionConstants.PHONE_REGEX;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
 import java.io.Serializable;
-
-import static io.simakkoi9.passengerservice.util.RegularExpressionConstants.NAME_REGEX;
-import static io.simakkoi9.passengerservice.util.RegularExpressionConstants.PHONE_REGEX;
 
 public record PassengerCreateRequest(
         @NotBlank(message = "{name.blank}")

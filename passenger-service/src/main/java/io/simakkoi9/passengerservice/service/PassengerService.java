@@ -2,9 +2,8 @@ package io.simakkoi9.passengerservice.service;
 
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
+import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
-
-import java.util.List;
 
 public interface PassengerService {
     PassengerResponse createPassenger(PassengerCreateRequest passengerCreateRequest);
@@ -15,5 +14,5 @@ public interface PassengerService {
 
     PassengerResponse getPassenger(Long id);
 
-    List<PassengerResponse> getAllPassengers();
+    PageResponse<PassengerResponse> getAllPassengers(int page, int size);
 }

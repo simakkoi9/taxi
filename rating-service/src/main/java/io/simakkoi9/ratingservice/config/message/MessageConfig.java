@@ -5,11 +5,10 @@ import io.simakkoi9.ratingservice.exception.InvalidValidationMessageKeyException
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.MessageInterpolator;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Locale;
 import java.util.ResourceBundle;
+import lombok.Getter;
+import lombok.Setter;
 
 @ApplicationScoped
 @Getter

@@ -4,11 +4,10 @@ import io.simakkoi9.ridesservice.model.converter.GenderReadingConverter;
 import io.simakkoi9.ridesservice.model.converter.GenderWritingConverter;
 import io.simakkoi9.ridesservice.model.converter.RideStatusReadingConverter;
 import io.simakkoi9.ridesservice.model.converter.RideStatusWritingConverter;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-
-import java.util.List;
 
 @Configuration
 public class MongoConfig {

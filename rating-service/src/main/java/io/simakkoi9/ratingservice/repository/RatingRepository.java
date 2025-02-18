@@ -3,7 +3,6 @@ package io.simakkoi9.ratingservice.repository;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.simakkoi9.ratingservice.model.entity.Rating;
 import jakarta.enterprise.context.ApplicationScoped;
-
 import java.util.List;
 
 @ApplicationScoped

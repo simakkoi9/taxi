@@ -1,10 +1,9 @@
 package io.simakkoi9.driverservice.service
 
+import io.simakkoi9.driverservice.model.dto.PageResponse
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
 import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 
 interface DriverService {
     fun createDriver(driverCreateRequest: DriverCreateRequest): DriverResponse
@@ -19,5 +18,5 @@ interface DriverService {
 
     fun getDriver(id: Long): DriverResponse
 
-    fun getAllDrivers(pageable: Pageable): Page<DriverResponse>
+    fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse>
 }

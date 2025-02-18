@@ -1,10 +1,9 @@
 package io.simakkoi9.ratingservice.model.dto.response;
 
 import jakarta.json.bind.annotation.JsonbProperty;
-import lombok.Builder;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 public record RatingPageResponse(

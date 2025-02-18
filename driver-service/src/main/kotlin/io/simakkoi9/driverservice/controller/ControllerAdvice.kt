@@ -6,6 +6,7 @@ import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
 import io.simakkoi9.driverservice.model.dto.ErrorResponse
+import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.http.HttpStatus
@@ -59,7 +60,7 @@ class ControllerAdvice(
                     errors.add(
                         it.defaultMessage ?: messageSource
                             .getMessage(
-                                "validation.failed",
+                                MessageKeyConstants.VALIDATION_FAILED,
                                 null,
                                 LocaleContextHolder.getLocale()
                             )
@@ -75,7 +76,7 @@ class ControllerAdvice(
                 errors.add(
                     e.message ?: messageSource
                         .getMessage(
-                            "internal.server.error",
+                            MessageKeyConstants.INTERNAL_SERVER_ERROR,
                             null,
                             LocaleContextHolder.getLocale()
                         )
