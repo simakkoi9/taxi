@@ -29,10 +29,11 @@ public class ControllerAdvice {
                         .builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .timestamp(LocalDateTime.now())
-                        .message(messageSource.getMessage(
-                                "internal.server.error",
-                                new Object[]{},
-                                LocaleContextHolder.getLocale()
+                        .message(
+                                messageSource.getMessage(
+                                    "internal.server.error",
+                                    new Object[]{},
+                                    LocaleContextHolder.getLocale()
                                 )
                         )
                         .build()
