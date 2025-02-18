@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.service.impl;
 
+import io.simakkoi9.ridesservice.client.PassengerClient;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
@@ -34,6 +35,7 @@ public class RideServiceImpl implements RideService {
     private final RideRepository repository;
     private final FareService fareService;
     private final MessageSource messageSource;
+    private final PassengerClient passengerClient;
 
     @Override
     @Transactional
@@ -123,7 +125,7 @@ public class RideServiceImpl implements RideService {
             throw new BusyPassengerException(MessageKeyConstants.BUSY_PASSENGER_ERROR, messageSource, id);
         }
 
-        return new Passenger();                         //Получим из сервиса пассажиров
+        return passengerClient.getPassengerById(id);
     }
 
     //    Из сервиса водителей нужно получить список водителей с машиной
