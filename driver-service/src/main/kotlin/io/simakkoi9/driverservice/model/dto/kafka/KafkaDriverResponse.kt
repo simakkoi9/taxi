@@ -1,8 +1,9 @@
 package io.simakkoi9.driverservice.model.dto.kafka
 
 import io.simakkoi9.driverservice.model.entity.Gender
+import java.io.Serializable
 
-data class KafkaDriverDto(
+data class KafkaDriverResponse(
     val id: Long,
 
     val name: String,
@@ -14,4 +15,4 @@ data class KafkaDriverDto(
     val gender: Gender,
 
     val car: KafkaCarDto
-)
+): Serializable

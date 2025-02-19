@@ -32,7 +32,7 @@ public enum RideStatus {
     }
 
     public static List<RideStatus> getImmutableStatusList() {
-        return List.of(RideStatus.COMPLETED, RideStatus.CANCELLED_BY_DRIVER, RideStatus.EN_ROUTE_TO_PASSENGER);
+        return List.of(RideStatus.COMPLETED, RideStatus.CANCELLED_BY_DRIVER, RideStatus.CANCELLED_BY_PASSENGER);
     }
 
     @JsonCreator

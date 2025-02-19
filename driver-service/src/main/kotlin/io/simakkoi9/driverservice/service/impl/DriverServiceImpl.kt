@@ -4,7 +4,7 @@ import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
-import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverDto
+import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverResponse
 import io.simakkoi9.driverservice.model.dto.rest.PageResponse
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
@@ -20,6 +20,7 @@ import io.simakkoi9.driverservice.service.DriverService
 import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.hibernate.Hibernate
 import org.springframework.context.MessageSource
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -89,14 +90,19 @@ class DriverServiceImpl(
     }
 
     @Transactional
-    override fun getAvailableDriverForRide(driverIdList: List<Long>): KafkaDriverDto {
-        val driver = driverRepository.findFirstByStatusAndCarNotNullAndIdNotIn(EntryStatus.ACTIVE, driverIdList)
-        Hibernate.initialize(driver.car)
-        return kafkaDriverMapper.toDto(driver)
+    override fun getAvailableDriverForRide(driverIdList: List<Long>): KafkaDriverResponse {
+        val driver = driverRepository
+            .findFirstByStatusAndCarNotNullAndIdNotIn(EntryStatus.ACTIVE, driverIdList)
+            .firstOrNull()
+
+        driver?.let {
+            Hibernate.initialize(it.car)
+            return kafkaDriverMapper.toDto(it)
+        } ?: throw RuntimeException("No available driver found")
     }
 
     override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {
-        val drivers = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
+        val drivers: Page<Driver> = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
         return driverMapper.toPageResponse(drivers)
     }
 

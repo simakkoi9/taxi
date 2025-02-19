@@ -1,5 +1,6 @@
 package io.simakkoi9.driverservice.config
 
+import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverResponse
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -27,7 +28,7 @@ class KafkaConfig {
     }
 
     @Bean
-    fun producerFactory(): ProducerFactory<String, Any> {
+    fun producerFactory(): ProducerFactory<String, KafkaDriverResponse> {
         val config: MutableMap<String, Any> = HashMap()
         config[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = BOOTSTRAP_SERVERS
         config[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
@@ -36,7 +37,7 @@ class KafkaConfig {
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, Any> {
+    fun kafkaTemplate(): KafkaTemplate<String, KafkaDriverResponse> {
         return KafkaTemplate(producerFactory())
     }
 
@@ -47,6 +48,7 @@ class KafkaConfig {
         config[ConsumerConfig.GROUP_ID_CONFIG] = "drivers-group"
         config[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
         config[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = JsonDeserializer::class.java
+        config[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "latest"
         return DefaultKafkaConsumerFactory(config)
     }
 

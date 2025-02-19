@@ -1,6 +1,6 @@
 package io.simakkoi9.driverservice.service
 
-import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverDto
+import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverResponse
 import io.simakkoi9.driverservice.model.dto.rest.PageResponse
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
@@ -19,7 +19,7 @@ interface DriverService {
 
     fun getDriver(id: Long): DriverResponse
 
-    fun getAvailableDriverForRide(driverIdList: List<Long>): KafkaDriverDto
+    fun getAvailableDriverForRide(driverIdList: List<Long>): KafkaDriverResponse
 
     fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse>
 }

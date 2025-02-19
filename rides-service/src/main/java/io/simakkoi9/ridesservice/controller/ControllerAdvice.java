@@ -2,6 +2,7 @@ package io.simakkoi9.ridesservice.controller;
 
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
+import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.rest.response.ErrorResponse;
@@ -46,6 +47,11 @@ public class ControllerAdvice {
     @ExceptionHandler(DistanceProcessingException.class)
     public ResponseEntity<ErrorResponse> handleDistanceProcessingException(DistanceProcessingException e) {
         return buildErrorResponse(HttpStatus.BAD_GATEWAY, e);
+    }
+
+    @ExceptionHandler(InvalidStatusException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStatusException(RuntimeException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

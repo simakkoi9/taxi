@@ -5,7 +5,7 @@ import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
-import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverDto;
+import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;
@@ -47,7 +47,8 @@ public class RideServiceImpl implements RideService {
     private final MessageSource messageSource;
     private final PassengerClient passengerClient;
     private final KafkaProducer kafkaProducer;
-    private final ConcurrentHashMap<String, BlockingQueue<KafkaDriverDto>> responseCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, BlockingQueue<KafkaDriverRequest>> responseCache =
+            new ConcurrentHashMap<>();
 
     @Override
     @Transactional
@@ -90,31 +91,34 @@ public class RideServiceImpl implements RideService {
     @Override
     @Transactional
     public RideResponse getAvailableDriver(String id) {
-        Ride ride = findRideByIdOrElseThrow(id);
+        final Ride ride = findRideByIdOrElseThrow(id);
         findAvailableDriver(id);
 
-        BlockingQueue<KafkaDriverDto> queue = responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
-        KafkaDriverDto kafkaDriverDto = null;
+        BlockingQueue<KafkaDriverRequest> queue = responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
+        KafkaDriverRequest kafkaDriverRequest = null;
         try {
-            kafkaDriverDto = queue.poll(10, TimeUnit.SECONDS);
+            kafkaDriverRequest = queue.poll(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        if (kafkaDriverDto == null) {
+        if (kafkaDriverRequest == null) {
             throw new RuntimeException();
         }
 
-        Driver driver = driverMapper.toEntity(kafkaDriverDto);
+        Driver driver = driverMapper.toEntity(kafkaDriverRequest);
         ride.setDriver(driver);
-        return mapper.toResponse(ride);
+        ride.setStatus(RideStatus.ACCEPTED);
+        Ride updatedRide = repository.save(ride);
+
+        return mapper.toResponse(updatedRide);
     }
 
     @Override
-    public void handleAvailableDriver(String rideId, KafkaDriverDto kafkaDriverDto) {
-        BlockingQueue<KafkaDriverDto> queue = responseCache.get(rideId);
+    public void handleAvailableDriver(String rideId, KafkaDriverRequest kafkaDriverRequest) {
+        BlockingQueue<KafkaDriverRequest> queue = responseCache.get(rideId);
         if (queue != null) {
-            boolean isOffered = queue.offer(kafkaDriverDto);
+            boolean isOffered = queue.offer(kafkaDriverRequest);
         }
     }
 
@@ -124,6 +128,7 @@ public class RideServiceImpl implements RideService {
         Ride ride = findRideByIdOrElseThrow(id);
         if (
             ride.getStatus().getCode() >= rideStatus.getCode()
+                || ride.getStatus().getCode() == rideStatus.getCode() - 1
                 || RideStatus.getImmutableStatusList().contains(ride.getStatus())
         ) {
             throw new InvalidStatusException(MessageKeyConstants.INVALID_STATUS, messageSource, rideStatus.toValue());

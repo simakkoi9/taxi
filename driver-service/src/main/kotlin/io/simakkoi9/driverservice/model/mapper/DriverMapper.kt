@@ -33,11 +33,11 @@ interface DriverMapper {
     fun toPageResponse(drivers: Page<Driver>): PageResponse<DriverResponse> {
         val driverResponseList: List<DriverResponse> = toResponseList(drivers.content)
         return PageResponse(
-            driverResponseList,
-            drivers.size,
-            drivers.number,
-            drivers.totalPages,
-            drivers.totalElements
+            content = driverResponseList,
+            size = drivers.size,
+            page = drivers.number,
+            totalPages = drivers.totalPages,
+            totalElements = drivers.totalElements
         )
     }
 }

@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.config;
 
+import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,19 +43,25 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
+    public ConsumerFactory<String, KafkaDriverRequest> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "rides-group");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(config);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                new JsonDeserializer<>(KafkaDriverRequest.class, false)
+        );
     }
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, KafkaDriverRequest>>
         kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDriverRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

@@ -11,7 +11,7 @@ public class KafkaProducer {
 
     private final KafkaTemplate<String, List<Long>> kafkaTemplate;
 
-    public void sendDriverIdList(String rideId ,List<Long> driverIdList) {
+    public void sendDriverIdList(String rideId, List<Long> driverIdList) {
         kafkaTemplate.send("drivers-topic", rideId, driverIdList);
     }
 
