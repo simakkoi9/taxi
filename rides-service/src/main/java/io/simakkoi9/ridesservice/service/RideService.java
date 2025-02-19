@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.service;
 
+import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverDto;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;
@@ -12,6 +13,8 @@ public interface RideService {
     RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest);
 
     RideResponse getAvailableDriver(String id);
+
+    void handleAvailableDriver(String rideId, KafkaDriverDto kafkaDriverDto);
 
     RideResponse changeRideStatus(String id, RideStatus rideStatus);
 

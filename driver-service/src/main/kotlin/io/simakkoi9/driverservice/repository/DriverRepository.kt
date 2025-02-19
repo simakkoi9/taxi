@@ -20,4 +20,6 @@ interface DriverRepository : JpaRepository<Driver, Long> {
     fun findByIdAndStatus(id: Long, status: EntryStatus): Optional<Driver>
 
     fun findAllByStatus(status: EntryStatus, pageable: Pageable): Page<Driver>
+
+    fun findFirstByStatusAndCarNotNullAndIdNotIn(status: EntryStatus, driverIdList: List<Long>): Driver
 }

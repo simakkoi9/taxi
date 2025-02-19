@@ -1,8 +1,7 @@
 package io.simakkoi9.ridesservice.service.kafka;
 
 import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverDto;
-import io.simakkoi9.ridesservice.model.entity.Driver;
-import io.simakkoi9.ridesservice.model.mapper.DriverMapper;
+import io.simakkoi9.ridesservice.service.RideService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -11,15 +10,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
-    private final DriverMapper driverMapper;
+    private final RideService rideService;
 
     @KafkaListener(
-            topics = "drivers-topic",
+            topics = "rides-topic",
             groupId = "rides-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public Driver listenDriver(KafkaDriverDto kafkaDriverDto) {
-        return driverMapper.toEntity(kafkaDriverDto);
+    public void listenDriver(String rideId, KafkaDriverDto kafkaDriverDto) {
+        rideService.handleAvailableDriver(rideId, kafkaDriverDto);
     }
 
 }

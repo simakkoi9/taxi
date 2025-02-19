@@ -5,23 +5,29 @@ import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
+import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverDto;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;
 import io.simakkoi9.ridesservice.model.dto.rest.response.RideResponse;
-import io.simakkoi9.ridesservice.model.entity.Car;
 import io.simakkoi9.ridesservice.model.entity.Driver;
 import io.simakkoi9.ridesservice.model.entity.Passenger;
 import io.simakkoi9.ridesservice.model.entity.Ride;
 import io.simakkoi9.ridesservice.model.entity.RideStatus;
+import io.simakkoi9.ridesservice.model.mapper.DriverMapper;
 import io.simakkoi9.ridesservice.model.mapper.PassengerMapper;
 import io.simakkoi9.ridesservice.model.mapper.RideMapper;
 import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.FareService;
 import io.simakkoi9.ridesservice.service.RideService;
+import io.simakkoi9.ridesservice.service.kafka.KafkaProducer;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -35,10 +41,13 @@ public class RideServiceImpl implements RideService {
 
     private final RideMapper mapper;
     private final PassengerMapper passengerMapper;
+    private final DriverMapper driverMapper;
     private final RideRepository repository;
     private final FareService fareService;
     private final MessageSource messageSource;
     private final PassengerClient passengerClient;
+    private final KafkaProducer kafkaProducer;
+    private final ConcurrentHashMap<String, BlockingQueue<KafkaDriverDto>> responseCache = new ConcurrentHashMap<>();
 
     @Override
     @Transactional
@@ -79,14 +88,34 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    @Transactional
     public RideResponse getAvailableDriver(String id) {
         Ride ride = findRideByIdOrElseThrow(id);
-        Driver driver = findAvailableDriverOrElseThrow();
+        findAvailableDriver(id);
 
+        BlockingQueue<KafkaDriverDto> queue = responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
+        KafkaDriverDto kafkaDriverDto = null;
+        try {
+            kafkaDriverDto = queue.poll(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        if (kafkaDriverDto == null) {
+            throw new RuntimeException();
+        }
+
+        Driver driver = driverMapper.toEntity(kafkaDriverDto);
         ride.setDriver(driver);
-        ride.setStatus(RideStatus.ACCEPTED);
+        return mapper.toResponse(ride);
+    }
 
-        return mapper.toResponse(repository.save(ride));
+    @Override
+    public void handleAvailableDriver(String rideId, KafkaDriverDto kafkaDriverDto) {
+        BlockingQueue<KafkaDriverDto> queue = responseCache.get(rideId);
+        if (queue != null) {
+            boolean isOffered = queue.offer(kafkaDriverDto);
+        }
     }
 
     @Override
@@ -132,15 +161,13 @@ public class RideServiceImpl implements RideService {
         return passengerMapper.toEntity(passengerRequest);
     }
 
-    //    Из сервиса водителей нужно получить список водителей с машиной
-    private Driver findAvailableDriverOrElseThrow() {
+    private void findAvailableDriver(String rideId) {
         List<Long> driverIdList = repository.findAllByStatusIn(RideStatus.getBusyDriverStatusList())
                 .stream()
                 .map(Ride::getDriver)
                 .map(Driver::getId)
                 .toList();
-        Driver driver = new Driver();
-        driver.setCar(new Car());
-        return driver;
+
+        kafkaProducer.sendDriverIdList(rideId, driverIdList);
     }
 }

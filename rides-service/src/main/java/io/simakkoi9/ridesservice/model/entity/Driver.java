@@ -1,6 +1,5 @@
 package io.simakkoi9.ridesservice.model.entity;
 
-import java.io.Serializable;
 import lombok.Data;
 
 @Data
