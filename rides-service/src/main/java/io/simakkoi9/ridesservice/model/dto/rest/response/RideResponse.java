@@ -1,4 +1,4 @@
-package io.simakkoi9.ridesservice.model.dto.response;
+package io.simakkoi9.ridesservice.model.dto.rest.response;
 
 import io.simakkoi9.ridesservice.model.entity.Driver;
 import io.simakkoi9.ridesservice.model.entity.Passenger;

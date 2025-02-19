@@ -4,7 +4,7 @@ import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
-import io.simakkoi9.ridesservice.model.dto.response.ErrorResponse;
+import io.simakkoi9.ridesservice.model.dto.rest.response.ErrorResponse;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

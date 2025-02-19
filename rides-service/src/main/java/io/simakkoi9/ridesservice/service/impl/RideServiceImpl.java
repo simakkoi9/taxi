@@ -4,15 +4,17 @@ import io.simakkoi9.ridesservice.client.PassengerClient;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
-import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
-import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
-import io.simakkoi9.ridesservice.model.dto.response.PageResponse;
-import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
+import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
+import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
+import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
+import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;
+import io.simakkoi9.ridesservice.model.dto.rest.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.Car;
 import io.simakkoi9.ridesservice.model.entity.Driver;
 import io.simakkoi9.ridesservice.model.entity.Passenger;
 import io.simakkoi9.ridesservice.model.entity.Ride;
 import io.simakkoi9.ridesservice.model.entity.RideStatus;
+import io.simakkoi9.ridesservice.model.mapper.PassengerMapper;
 import io.simakkoi9.ridesservice.model.mapper.RideMapper;
 import io.simakkoi9.ridesservice.repository.RideRepository;
 import io.simakkoi9.ridesservice.service.FareService;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RideServiceImpl implements RideService {
 
     private final RideMapper mapper;
+    private final PassengerMapper passengerMapper;
     private final RideRepository repository;
     private final FareService fareService;
     private final MessageSource messageSource;
@@ -124,8 +127,9 @@ public class RideServiceImpl implements RideService {
         if (repository.existsByPassenger_IdAndStatusIn(id, RideStatus.getBusyPassengerStatusList())) {
             throw new BusyPassengerException(MessageKeyConstants.BUSY_PASSENGER_ERROR, messageSource, id);
         }
+        PassengerRequest passengerRequest = passengerClient.getPassengerById(id);
 
-        return passengerClient.getPassengerById(id);
+        return passengerMapper.toEntity(passengerRequest);
     }
 
     //    Из сервиса водителей нужно получить список водителей с машиной

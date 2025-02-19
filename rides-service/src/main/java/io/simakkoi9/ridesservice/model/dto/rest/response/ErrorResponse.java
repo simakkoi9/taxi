@@ -1,4 +1,4 @@
-package io.simakkoi9.ridesservice.model.dto.response;
+package io.simakkoi9.ridesservice.model.dto.rest.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
