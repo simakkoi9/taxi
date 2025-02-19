@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.model.dto
+package io.simakkoi9.driverservice.model.dto.rest
 
 import java.time.LocalDateTime
 

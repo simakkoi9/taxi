@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.model.dto.driver.request
+package io.simakkoi9.driverservice.model.dto.rest.driver.request
 
 import io.simakkoi9.driverservice.model.entity.Gender
 import io.simakkoi9.driverservice.util.RegularExpressionsConstants.NAME_REGEX

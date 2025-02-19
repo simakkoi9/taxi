@@ -2,8 +2,9 @@ package io.simakkoi9.driverservice.config
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.serialization.LongDeserializer
+import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -15,6 +16,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
+import org.springframework.kafka.support.serializer.JsonSerializer
 
 @Configuration
 @EnableKafka
@@ -25,16 +27,16 @@ class KafkaConfig {
     }
 
     @Bean
-    fun producerFactory(): ProducerFactory<String, String> {
+    fun producerFactory(): ProducerFactory<Long, Any> {
         val config: MutableMap<String, Any> = HashMap()
         config[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = BOOTSTRAP_SERVERS
-        config[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        config[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        config[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = LongSerializer::class.java
+        config[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JsonSerializer::class.java
         return DefaultKafkaProducerFactory(config)
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, String> {
+    fun kafkaTemplate(): KafkaTemplate<Long, Any> {
         return KafkaTemplate(producerFactory())
     }
 
@@ -42,8 +44,9 @@ class KafkaConfig {
     fun consumerFactory(): ConsumerFactory<String, String> {
         val config: MutableMap<String, Any> = HashMap()
         config[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = BOOTSTRAP_SERVERS
+        config[ConsumerConfig.GROUP_ID_CONFIG] = "drivers-group"
         config[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
-        config[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+        config[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = LongDeserializer::class.java
         return DefaultKafkaConsumerFactory(config)
     }
 

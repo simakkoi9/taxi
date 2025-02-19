@@ -1,9 +1,9 @@
 package io.simakkoi9.driverservice.service
 
-import io.simakkoi9.driverservice.model.dto.PageResponse
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
-import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
+import io.simakkoi9.driverservice.model.dto.rest.PageResponse
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.response.DriverResponse
 
 interface DriverService {
     fun createDriver(driverCreateRequest: DriverCreateRequest): DriverResponse

@@ -4,10 +4,10 @@ import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
-import io.simakkoi9.driverservice.model.dto.PageResponse
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
-import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
+import io.simakkoi9.driverservice.model.dto.rest.PageResponse
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.response.DriverResponse
 import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.Driver
 import io.simakkoi9.driverservice.model.entity.EntryStatus

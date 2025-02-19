@@ -2,7 +2,9 @@ package io.simakkoi9.ridesservice.client;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PassengerErrorDecoder implements ErrorDecoder {
 
     @Override

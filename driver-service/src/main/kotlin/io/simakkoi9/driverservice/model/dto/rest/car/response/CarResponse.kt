@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.model.dto.car.response
+package io.simakkoi9.driverservice.model.dto.rest.car.response
 
 import java.io.Serializable
 import java.time.LocalDateTime

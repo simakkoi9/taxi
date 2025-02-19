@@ -3,7 +3,7 @@ package io.simakkoi9.ridesservice.model.dto.kafka;
 import io.simakkoi9.ridesservice.model.entity.Gender;
 import java.io.Serializable;
 
-public record DriverRequest(
+public record KafkaDriverDto(
     Long id,
 
     String name,
@@ -14,5 +14,5 @@ public record DriverRequest(
 
     Gender gender,
 
-    CarRequest car
+    KafkaCarDto car
 ) implements Serializable {}

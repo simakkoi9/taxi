@@ -1,4 +1,4 @@
-package io.simakkoi9.driverservice.model.dto.driver.response
+package io.simakkoi9.driverservice.model.dto.rest.driver.response
 
 import io.simakkoi9.driverservice.model.entity.Gender
 import java.io.Serializable

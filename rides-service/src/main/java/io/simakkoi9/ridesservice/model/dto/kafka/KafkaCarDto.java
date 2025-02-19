@@ -2,7 +2,7 @@ package io.simakkoi9.ridesservice.model.dto.kafka;
 
 import java.io.Serializable;
 
-public record CarRequest(
+public record KafkaCarDto(
     Long id,
 
     String brand,
