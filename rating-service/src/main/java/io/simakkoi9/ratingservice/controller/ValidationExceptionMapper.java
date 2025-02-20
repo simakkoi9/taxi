@@ -1,7 +1,7 @@
 package io.simakkoi9.ratingservice.controller;
 
-import io.simakkoi9.ratingservice.model.dto.ErrorResponse;
-import io.simakkoi9.ratingservice.model.dto.MultiErrorResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.ErrorResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.MultiErrorResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;

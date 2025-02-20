@@ -1,11 +1,11 @@
 package io.simakkoi9.ratingservice.service;
 
-import io.simakkoi9.ratingservice.model.dto.request.DriverRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.RatingCreateRequest;
-import io.simakkoi9.ratingservice.model.dto.response.AverageRatingResponse;
-import io.simakkoi9.ratingservice.model.dto.response.RatingPageResponse;
-import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.RatingCreateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.response.AverageRatingResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingPageResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
 
 public interface RatingService {
 

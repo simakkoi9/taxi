@@ -20,6 +20,11 @@ quarkus:
   http:
     port: 8083
 
+  rest-client:
+    rides-client:
+      url: http://localhost:8082/api/v1
+
+
 
 rides:
   count: 10

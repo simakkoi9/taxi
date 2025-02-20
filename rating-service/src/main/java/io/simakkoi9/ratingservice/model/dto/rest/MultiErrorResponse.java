@@ -1,4 +1,4 @@
-package io.simakkoi9.ratingservice.model.dto;
+package io.simakkoi9.ratingservice.model.dto.rest;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 import java.io.Serializable;

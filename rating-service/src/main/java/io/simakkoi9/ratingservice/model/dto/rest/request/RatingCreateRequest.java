@@ -1,4 +1,4 @@
-package io.simakkoi9.ratingservice.model.dto.request;
+package io.simakkoi9.ratingservice.model.dto.rest.request;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.validation.constraints.Max;

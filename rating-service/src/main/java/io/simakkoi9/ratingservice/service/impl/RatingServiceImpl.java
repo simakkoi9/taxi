@@ -1,20 +1,29 @@
 package io.simakkoi9.ratingservice.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.simakkoi9.ratingservice.client.RidesClient;
 import io.simakkoi9.ratingservice.config.message.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DriverAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.NoRatesException;
 import io.simakkoi9.ratingservice.exception.PassengerAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
-import io.simakkoi9.ratingservice.model.dto.request.DriverRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.RatingCreateRequest;
-import io.simakkoi9.ratingservice.model.dto.response.AverageRatingResponse;
-import io.simakkoi9.ratingservice.model.dto.response.RatingPageResponse;
-import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
+import io.simakkoi9.ratingservice.exception.RideJsonProcessingException;
+import io.simakkoi9.ratingservice.exception.RideNotFoundException;
+import io.simakkoi9.ratingservice.exception.UncompletedRideException;
+import io.simakkoi9.ratingservice.model.dto.client.RideRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.RatingCreateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.response.AverageRatingResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingPageResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
 import io.simakkoi9.ratingservice.model.entity.Rating;
+import io.simakkoi9.ratingservice.model.entity.RideStatus;
 import io.simakkoi9.ratingservice.model.mapper.RatingMapper;
 import io.simakkoi9.ratingservice.repository.RatingRepository;
 import io.simakkoi9.ratingservice.service.RatingService;
@@ -24,16 +33,22 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
 public class RatingServiceImpl implements RatingService {
 
     @Inject
     RatingMapper ratingMapper;
+
     @Inject
     RatingRepository ratingRepository;
+
     @Inject
     MessageConfig messageConfig;
+
+    @RestClient
+    RidesClient ridesClient;
 
     @Override
     @Transactional
@@ -45,7 +60,13 @@ public class RatingServiceImpl implements RatingService {
                     ratingCreateRequest.rideId()
             );
         }
-        //Нужна еще проверка наличия в сервисе поездок
+
+        RideRequest rideRequest = getRideByid(ratingCreateRequest.rideId());
+
+        if (!rideRequest.status().equals(RideStatus.COMPLETED)) {
+            throw new UncompletedRideException("", messageConfig, ratingCreateRequest.rideId());
+        }
+
         Rating rating = ratingMapper.toEntity(ratingCreateRequest);
         rating.persist();
         return ratingMapper.toResponse(rating);
@@ -115,7 +136,7 @@ public class RatingServiceImpl implements RatingService {
                         () -> new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId)
                 );
 
-        return new AverageRatingResponse(driverId, average);
+        return new AverageRatingResponse("driver_" + driverId, average);
     }
 
     @Override
@@ -137,13 +158,31 @@ public class RatingServiceImpl implements RatingService {
                         () -> new NoRatesException(MessageKeyConstants.PASSENGER_NO_RATES, messageConfig, passengerId)
                 );
 
-        return new AverageRatingResponse(passengerId, average);
+        return new AverageRatingResponse("Passenger_" + passengerId, average);
     }
 
     private Rating findRatingByIdOrElseThrow(Long id) {
         return (Rating) Rating.findByIdOptional(id).orElseThrow(
                 () -> new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, id)
         );
+    }
+
+    private RideRequest getRideByid(String rideId) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = ridesClient.getRideById(rideId);
+        RideRequest rideRequest;
+
+        if (jsonNode.has("errors")) {
+            throw new RideNotFoundException("", messageConfig, rideId);
+        }
+
+        try {
+            rideRequest = objectMapper.treeToValue(jsonNode, RideRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new RideJsonProcessingException("", messageConfig);
+        }
+
+        return rideRequest;
     }
 
 }

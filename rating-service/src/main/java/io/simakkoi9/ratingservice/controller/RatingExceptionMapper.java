@@ -3,7 +3,7 @@ package io.simakkoi9.ratingservice.controller;
 import io.simakkoi9.ratingservice.config.message.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
-import io.simakkoi9.ratingservice.model.dto.ErrorResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.ErrorResponse;
 import io.simakkoi9.ratingservice.util.MessageKeyConstants;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;

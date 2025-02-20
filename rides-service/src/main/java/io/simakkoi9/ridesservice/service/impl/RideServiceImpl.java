@@ -131,7 +131,10 @@ public class RideServiceImpl implements RideService {
         Ride ride = findRideByIdOrElseThrow(id);
         if (
             ride.getStatus().getCode() >= rideStatus.getCode()
-                || ride.getStatus().getCode() == rideStatus.getCode() - 1
+                || (
+                    ride.getStatus().getCode() == rideStatus.getCode() - 1
+                    && !RideStatus.getImmutableStatusList().contains(rideStatus)
+                )
                 || RideStatus.getImmutableStatusList().contains(ride.getStatus())
         ) {
             throw new InvalidStatusException(MessageKeyConstants.INVALID_STATUS, messageSource, rideStatus.toValue());
