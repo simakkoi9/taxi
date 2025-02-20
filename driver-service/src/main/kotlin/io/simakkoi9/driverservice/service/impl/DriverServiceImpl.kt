@@ -4,6 +4,7 @@ import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
+import io.simakkoi9.driverservice.exception.NoAvailableDriverException
 import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverResponse
 import io.simakkoi9.driverservice.model.dto.rest.PageResponse
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
@@ -98,7 +99,7 @@ class DriverServiceImpl(
         driver?.let {
             Hibernate.initialize(it.car)
             return kafkaDriverMapper.toDto(it)
-        } ?: throw RuntimeException("No available driver found")
+        } ?: throw NoAvailableDriverException("No available driver found")
     }
 
     override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {

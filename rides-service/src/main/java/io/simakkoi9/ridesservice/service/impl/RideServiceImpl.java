@@ -1,6 +1,7 @@
 package io.simakkoi9.ridesservice.service.impl;
 
 import io.simakkoi9.ridesservice.client.PassengerClient;
+import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
@@ -115,10 +116,12 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public void handleAvailableDriver(String rideId, KafkaDriverRequest kafkaDriverRequest) {
+    public void handleAvailableDriver(String rideId, KafkaDriverRequest kafkaDriverRequest) throws RuntimeException {
         BlockingQueue<KafkaDriverRequest> queue = responseCache.get(rideId);
         if (queue != null) {
             boolean isOffered = queue.offer(kafkaDriverRequest);
+        } else {
+            throw new RuntimeException();
         }
     }
 

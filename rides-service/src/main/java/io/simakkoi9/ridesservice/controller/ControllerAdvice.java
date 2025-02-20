@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.controller;
 
+import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
@@ -44,8 +45,11 @@ public class ControllerAdvice {
         return buildErrorResponse(HttpStatus.CONFLICT, e);
     }
 
-    @ExceptionHandler(DistanceProcessingException.class)
-    public ResponseEntity<ErrorResponse> handleDistanceProcessingException(DistanceProcessingException e) {
+    @ExceptionHandler({
+        DistanceProcessingException.class,
+        AvailableDriverProcessingException.class
+    })
+    public ResponseEntity<ErrorResponse> handleDistanceProcessingException(RuntimeException e) {
         return buildErrorResponse(HttpStatus.BAD_GATEWAY, e);
     }
 

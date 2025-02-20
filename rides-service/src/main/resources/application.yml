@@ -10,6 +10,14 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/main-changelog.yaml
     enabled: false
+  cloud:
+    openfeign:
+      client:
+        config:
+          passenger-client:
+            connectTimeout: 5000
+            readTimeout: 10000
+            url: http://localhost:8080/api/v1/passengers
 
 fare:
   start: 3

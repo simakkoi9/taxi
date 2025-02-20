@@ -16,8 +16,11 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer
+import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.kafka.support.serializer.JsonSerializer
+
 
 @Configuration
 @EnableKafka
@@ -37,8 +40,22 @@ class KafkaConfig {
     }
 
     @Bean
+    fun errorProducerFactory(): ProducerFactory<String, String> {
+        val config: MutableMap<String, Any> = HashMap()
+        config[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = BOOTSTRAP_SERVERS
+        config[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        config[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        return DefaultKafkaProducerFactory(config)
+    }
+
+    @Bean
     fun kafkaTemplate(): KafkaTemplate<String, KafkaDriverResponse> {
         return KafkaTemplate(producerFactory())
+    }
+
+    @Bean
+    fun kafkaTemplateError(): KafkaTemplate<String, String> {
+        return KafkaTemplate(errorProducerFactory())
     }
 
     @Bean

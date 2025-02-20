@@ -5,10 +5,16 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class KafkaProducer(private val kafkaTemplate: KafkaTemplate<String, KafkaDriverResponse>) {
+class KafkaProducer(
+    private val kafkaTemplate: KafkaTemplate<String, KafkaDriverResponse>,
+    private val kafkaTemplateError: KafkaTemplate<String, String>
+) {
 
     fun sendDriver(rideId: String, kafkaDriverResponse: KafkaDriverResponse) {
         kafkaTemplate.send("rides-topic", rideId, kafkaDriverResponse)
     }
 
+    fun sendError(rideId: String, message: String?) {
+        kafkaTemplateError.send("rides-error-topic", rideId, message)
+    }
 }
