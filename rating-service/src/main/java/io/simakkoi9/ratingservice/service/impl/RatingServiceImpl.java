@@ -16,6 +16,7 @@ import io.simakkoi9.ratingservice.exception.RideJsonProcessingException;
 import io.simakkoi9.ratingservice.exception.RideNotFoundException;
 import io.simakkoi9.ratingservice.exception.UncompletedRideException;
 import io.simakkoi9.ratingservice.model.dto.client.RideRequest;
+import io.simakkoi9.ratingservice.model.dto.kafka.RideListRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.RatingCreateRequest;
@@ -33,6 +34,9 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import io.smallrye.reactive.messaging.kafka.Record;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -49,6 +53,10 @@ public class RatingServiceImpl implements RatingService {
 
     @RestClient
     RidesClient ridesClient;
+
+    @Inject
+    @Channel("get-list")
+    Emitter<Record<String, RideListRequest>> emitter;
 
     @Override
     @Transactional
@@ -119,6 +127,8 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public AverageRatingResponse getAverageDriverRating(Long driverId) {
+        String personId = "driver_" + driverId;
+
         List<Long> driverRideIdList = List.of(1L, 2L);  //Cписок из сервиса поездок
 
         List<Rating> ratingList = ratingRepository.findAllRatingsByRideIdIn(driverRideIdList);
@@ -136,11 +146,13 @@ public class RatingServiceImpl implements RatingService {
                         () -> new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId)
                 );
 
-        return new AverageRatingResponse("driver_" + driverId, average);
+        return new AverageRatingResponse(personId, average);
     }
 
     @Override
     public AverageRatingResponse getAveragePassengerRating(Long passengerId) {
+        String personId = "passenger_" + passengerId;
+
         List<Long> passengerRideIdList = List.of(1L, 3L);  //Cписок из сервиса поездок
 
         List<Rating> passengerList = ratingRepository.findAllRatingsByRideIdIn(passengerRideIdList);
@@ -158,7 +170,7 @@ public class RatingServiceImpl implements RatingService {
                         () -> new NoRatesException(MessageKeyConstants.PASSENGER_NO_RATES, messageConfig, passengerId)
                 );
 
-        return new AverageRatingResponse("Passenger_" + passengerId, average);
+        return new AverageRatingResponse(personId, average);
     }
 
     private Rating findRatingByIdOrElseThrow(Long id) {

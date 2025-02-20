@@ -24,7 +24,29 @@ quarkus:
     rides-client:
       url: http://localhost:8082/api/v1
 
+  kafka:
+    bootstrap:
+      servers: localhost:9092
 
+  mp:
+    messaging:
+      outgoing:
+        get-list:
+          connector: smallrye-kafka
+          topic: rides-rating-topic
+          key:
+            serializer: org.apache.kafka.common.serialization.StringSerializer
+          value:
+            serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+
+      incoming:
+        receive-list:
+          connector: smallrye-kafka
+          topic: rating-topic
+          key:
+            serializer: org.apache.kafka.common.serialization.StringSerializer
+          value:
+            serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
 
 rides:
-  count: 10
+  limit: 10
