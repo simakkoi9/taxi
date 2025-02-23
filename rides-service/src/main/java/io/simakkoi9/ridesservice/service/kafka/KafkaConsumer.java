@@ -8,9 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.MessageSource;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,11 +17,6 @@ public class KafkaConsumer {
     private final RideService rideService;
     private final MessageSource messageSource;
 
-    @Retryable(
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 1000, multiplier = 2.0),
-            retryFor = { RuntimeException.class }
-    )
     @KafkaListener(
             topics = "rides-topic",
             groupId = "rides-group",
@@ -36,11 +28,6 @@ public class KafkaConsumer {
         } catch (RuntimeException e) {
             throw new AvailableDriverProcessingException("", messageSource, record.key());
         }
-    }
-
-    @Recover
-    public void recover(AvailableDriverProcessingException e, String message) {
-        System.err.println("Ошибка после всех попыток: " + message);
     }
 
     @KafkaListener(

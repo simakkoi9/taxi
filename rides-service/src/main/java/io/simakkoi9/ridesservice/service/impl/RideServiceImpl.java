@@ -120,8 +120,6 @@ public class RideServiceImpl implements RideService {
         BlockingQueue<KafkaDriverRequest> queue = responseCache.get(rideId);
         if (queue != null) {
             boolean isOffered = queue.offer(kafkaDriverRequest);
-        } else {
-            throw new RuntimeException();
         }
     }
 
