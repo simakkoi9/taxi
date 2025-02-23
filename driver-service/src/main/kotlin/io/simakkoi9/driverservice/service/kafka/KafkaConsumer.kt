@@ -4,9 +4,6 @@ import io.simakkoi9.driverservice.exception.NoAvailableDriverException
 import io.simakkoi9.driverservice.service.DriverService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Recover
-import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 
 
@@ -16,11 +13,6 @@ class KafkaConsumer(
     private val kafkaProducer: KafkaProducer
 ) {
 
-    @Retryable(
-        maxAttempts = 5,
-        backoff = Backoff(delay = 1000, multiplier = 2.0),
-        retryFor = [NoAvailableDriverException::class]
-    )
     @KafkaListener(
         topics = ["drivers-topic"],
         groupId = "drivers-group",
@@ -33,11 +25,6 @@ class KafkaConsumer(
         } catch (e: NoAvailableDriverException) {
             throw NoAvailableDriverException(e.message)
         }
-    }
-
-    @Recover
-    fun recover(e: NoAvailableDriverException, rideId: String) {
-        kafkaProducer.sendError(rideId, e.message)
     }
 
 }

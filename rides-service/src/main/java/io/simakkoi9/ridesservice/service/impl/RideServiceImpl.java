@@ -1,7 +1,6 @@
 package io.simakkoi9.ridesservice.service.impl;
 
 import io.simakkoi9.ridesservice.client.PassengerClient;
-import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
@@ -153,6 +152,22 @@ public class RideServiceImpl implements RideService {
     public PageResponse<RideResponse> getAllRides(int page, int size) {
         Page<Ride> rides = repository.findAll(PageRequest.of(page, size));
         return mapper.toPageResponse(rides);
+    }
+
+    @Override
+    public String getRidePersonId(String rideId, String person) {
+        String personId = null;
+        if (repository.findById(rideId).isPresent()) {
+            Ride ride = repository.findById(rideId).get();
+            if (person.equals("driver")) {
+                personId = "driver_" + ride.getDriver().getId();
+            }
+            if (person.equals("passenger")) {
+                personId = "passenger_" + ride.getPassenger().getId();
+            }
+        }
+
+        return personId;
     }
 
     private Ride findRideByIdOrElseThrow(String id) {

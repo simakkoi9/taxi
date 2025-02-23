@@ -21,4 +21,6 @@ public interface RideService {
     RideResponse getRide(String id);
 
     PageResponse<RideResponse> getAllRides(int page, int size);
+
+    String getRidePersonId(String rideId, String person);
 }

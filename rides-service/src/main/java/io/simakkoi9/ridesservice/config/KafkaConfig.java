@@ -1,6 +1,7 @@
 package io.simakkoi9.ridesservice.config;
 
 import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest;
+import io.simakkoi9.ridesservice.model.dto.kafka.KafkaRatingRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,20 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ProducerFactory<String, String> ratingProducerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return new DefaultKafkaProducerFactory<>(config);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> ratingKafkaTemplate() {
+        return new KafkaTemplate<>(ratingProducerFactory());
+    }
+
+    @Bean
     public ConsumerFactory<String, KafkaDriverRequest> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -68,23 +83,27 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, String> errorConsumerFactory() {
+    public ConsumerFactory<String, KafkaRatingRequest> ratingConsumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "error-group");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "rating-group");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
-        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), new StringDeserializer());
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                new JsonDeserializer<>(KafkaRatingRequest.class, false)
+        );
     }
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
-        kafkaErrorListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, KafkaRatingRequest>>
+        kafkaRatingListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, KafkaRatingRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(errorConsumerFactory());
+        factory.setConsumerFactory(ratingConsumerFactory());
         return factory;
     }
 

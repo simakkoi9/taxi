@@ -20,5 +20,31 @@ quarkus:
   http:
     port: 8083
 
-rides:
+kafka:
+  bootstrap:
+    servers: localhost:9092
+
+mp:
+  messaging:
+    incoming:
+      get-person:
+        connector: smallrye-kafka
+        topic: person-topic
+        key:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        auto:
+          offset:
+            reset: latest
+    outgoing:
+      send-person:
+        connector: smallrye-kafka
+        topic: rating-topic
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
+rates:
   limit: 10
