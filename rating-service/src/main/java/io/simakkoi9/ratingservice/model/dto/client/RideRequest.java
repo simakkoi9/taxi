@@ -1,16 +1,16 @@
 package io.simakkoi9.ratingservice.model.dto.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.simakkoi9.ratingservice.model.entity.RideStatus;
-import jakarta.json.bind.annotation.JsonbProperty;
 import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RideRequest(
-    @JsonbProperty
+    @JsonProperty
     String id,
 
-    @JsonbProperty
+    @JsonProperty
     RideStatus status
 ) implements Serializable {}
 

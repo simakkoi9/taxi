@@ -16,7 +16,6 @@ import io.simakkoi9.ratingservice.exception.RideJsonProcessingException;
 import io.simakkoi9.ratingservice.exception.RideNotFoundException;
 import io.simakkoi9.ratingservice.exception.UncompletedRideException;
 import io.simakkoi9.ratingservice.model.dto.client.RideRequest;
-import io.simakkoi9.ratingservice.model.dto.kafka.RideListRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.RatingCreateRequest;
@@ -34,9 +33,6 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
-import io.smallrye.reactive.messaging.kafka.Record;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -51,12 +47,13 @@ public class RatingServiceImpl implements RatingService {
     @Inject
     MessageConfig messageConfig;
 
+    @Inject
     @RestClient
     RidesClient ridesClient;
 
-    @Inject
-    @Channel("get-list")
-    Emitter<Record<String, RideListRequest>> emitter;
+    //    @Inject
+    //    @Channel("send-list")
+    //    Emitter<Record<String, RideListRequest>> emitter;
 
     @Override
     @Transactional

@@ -1,19 +1,19 @@
 package io.simakkoi9.ratingservice.model.dto.rest;
 
-import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.json.bind.annotation.JsonbPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@JsonbPropertyOrder({"timestamp", "status", "message"})
+@JsonPropertyOrder({"timestamp", "status", "message"})
 public record ErrorResponse(
-    @JsonbProperty
+    @JsonProperty
     LocalDateTime timestamp,
 
-    @JsonbProperty
+    @JsonProperty
     int status,
 
-    @JsonbProperty
+    @JsonProperty
     String message
 
 ) implements Serializable {}

@@ -1,15 +1,15 @@
 package io.simakkoi9.ratingservice.model.dto.rest.response;
 
-import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.json.bind.annotation.JsonbPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
 
-@JsonbPropertyOrder({"personId", "averageRating"})
+@JsonPropertyOrder({"personId", "averageRating"})
 public record AverageRatingResponse(
-    @JsonbProperty
+    @JsonProperty
     String personId,
 
-    @JsonbProperty
+    @JsonProperty
     Double averageRating
 
 ) implements Serializable {}

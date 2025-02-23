@@ -1,22 +1,21 @@
 package io.simakkoi9.ratingservice.model.dto.rest.response;
 
-import jakarta.json.bind.annotation.JsonbProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Builder;
 
 @Builder
 public record RatingPageResponse(
-    @JsonbProperty
+    @JsonProperty
     List<RatingResponse> content,
 
-    @JsonbProperty
+    @JsonProperty
     int currentPage,
 
-    @JsonbProperty
+    @JsonProperty
     int size,
 
-    @JsonbProperty
+    @JsonProperty
     int totalPages
-
 ) implements Serializable {}

@@ -1,11 +1,11 @@
 package io.simakkoi9.ratingservice.model.dto.rest;
 
-import jakarta.json.bind.annotation.JsonbProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 
 public record MultiErrorResponse(
-        @JsonbProperty(value = "errors")
+      @JsonProperty(value = "errors")
       List<ErrorResponse> errorResponseList
 
 ) implements Serializable {}

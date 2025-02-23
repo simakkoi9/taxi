@@ -1,6 +1,6 @@
 package io.simakkoi9.ratingservice.model.dto.rest.request;
 
-import jakarta.json.bind.annotation.JsonbProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -11,11 +11,11 @@ public record PassengerRatingUpdateRequest(
     @NotNull
     @Min(value = 1, message = "{rate.passenger.size}")
     @Max(value = 5, message = "{rate.passenger.size}")
-    @JsonbProperty("rate")
+    @JsonProperty("rate")
     Integer rateForPassenger,
 
     @Size(min = 1, max = 240, message = "{comment.passenger.size}")
-    @JsonbProperty("comment")
+    @JsonProperty("comment")
     String commentForPassenger
 
 ) implements Serializable {}

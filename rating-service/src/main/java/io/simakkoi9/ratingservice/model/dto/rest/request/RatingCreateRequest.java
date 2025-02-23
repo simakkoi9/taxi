@@ -1,6 +1,6 @@
 package io.simakkoi9.ratingservice.model.dto.rest.request;
 
-import jakarta.json.bind.annotation.JsonbProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -9,25 +9,25 @@ import java.io.Serializable;
 
 public record RatingCreateRequest(
     @NotBlank(message = "{ride.id.not.blank}")
-    @JsonbProperty
+    @JsonProperty
     String rideId,
 
     @Min(value = 1, message = "{rate.driver.size}")
     @Max(value = 5, message = "{rate.driver.size}")
-    @JsonbProperty
+    @JsonProperty
     Integer rateForDriver,
 
     @Min(value = 1, message = "{rate.passenger.size}")
     @Max(value = 5, message = "{rate.passenger.size}")
-    @JsonbProperty
+    @JsonProperty
     Integer rateForPassenger,
 
     @Size(min = 1, max = 240, message = "{comment.driver.size}")
-    @JsonbProperty
+    @JsonProperty
     String commentForDriver,
 
     @Size(min = 1, max = 240, message = "{comment.passenger.size}")
-    @JsonbProperty
+    @JsonProperty
     String commentForPassenger
 
 ) implements Serializable {}
