@@ -30,17 +30,19 @@ import io.simakkoi9.ratingservice.repository.RateRepository;
 import io.simakkoi9.ratingservice.repository.RatingRepository;
 import io.simakkoi9.ratingservice.service.RatingService;
 import io.simakkoi9.ratingservice.util.MessageKeyConstants;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.reactive.messaging.kafka.KafkaRecord;
-import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Status;
+import jakarta.transaction.Synchronization;
+import jakarta.transaction.TransactionSynchronizationRegistry;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -65,6 +67,9 @@ public class RatingServiceImpl implements RatingService {
     @Channel("send-person")
     Emitter<KafkaRecord<String, RidePersonRequest>> emitter;
 
+    @Inject
+    TransactionSynchronizationRegistry txSyncRegistry;
+
     @ConfigProperty(name = "rates.limit")
     int limit;
 
@@ -86,18 +91,15 @@ public class RatingServiceImpl implements RatingService {
         }
 
         if (ratingCreateRequest.rateForDriver() != null) {
-            emitter.send(
-                    KafkaRecord.of(
-                            ratingCreateRequest.rideId(),
-                            new RidePersonRequest("driver", ratingCreateRequest.rateForDriver())
-                    )
+            emit(
+                ratingCreateRequest.rideId(),
+                new RidePersonRequest("driver", ratingCreateRequest.rateForDriver())
             );
         }
         if (ratingCreateRequest.rateForPassenger() != null) {
-            emitter.send(
-                    KafkaRecord.of(
-                            ratingCreateRequest.rideId(),
-                            new RidePersonRequest("passenger", ratingCreateRequest.rateForPassenger()))
+            emit(
+                ratingCreateRequest.rideId(),
+                new RidePersonRequest("passenger", ratingCreateRequest.rateForPassenger())
             );
         }
 
@@ -116,12 +118,7 @@ public class RatingServiceImpl implements RatingService {
 
         Rating updatedRating = ratingMapper.driverRatingPartialUpdate(updateRequest, rating);
 
-        emitter.send(
-                KafkaRecord.of(
-                        rating.getRideId(),
-                        new RidePersonRequest("driver", updateRequest.rateForDriver())
-                )
-        );
+        emit(rating.getRideId(), new RidePersonRequest("driver", updateRequest.rateForDriver()));
 
         return ratingMapper.toResponse(updatedRating);
     }
@@ -136,12 +133,7 @@ public class RatingServiceImpl implements RatingService {
 
         Rating updatedRating = ratingMapper.passengerRatingPartialUpdate(updateRequest, rating);
 
-        emitter.send(
-                KafkaRecord.of(
-                        rating.getRideId(),
-                        new RidePersonRequest("passenger", updateRequest.rateForPassenger())
-                )
-        );
+        emit(rating.getRideId(), new RidePersonRequest("passenger", updateRequest.rateForPassenger()));
 
         return ratingMapper.toResponse(updatedRating);
     }
@@ -231,20 +223,31 @@ public class RatingServiceImpl implements RatingService {
     }
 
     private Double calculateAverageRate(List<Integer> ratingList) {
-        return ratingList.stream()
+        double average = ratingList.stream()
                 .mapToDouble(Integer::doubleValue)
                 .average()
                 .orElse(0.0);
+
+        BigDecimal formatted = BigDecimal.valueOf(average).setScale(2, RoundingMode.HALF_UP);
+
+        return formatted.doubleValue();
     }
 
-    @Incoming("get-person")
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Uni<Void> listen(Record<String, String> record) {
-        Rate rate = new Rate();
-        rate.setPersonId(record.key());
-        rate.setRate(Integer.valueOf(record.value()));
-        rate.persistAndFlush();
-        return Uni.createFrom().voidItem();
+    @Transactional(Transactional.TxType.MANDATORY)
+    public void emit(String key, RidePersonRequest value) {
+        txSyncRegistry.registerInterposedSynchronization(new Synchronization() {
+            @Override
+            public void beforeCompletion() {
+
+            }
+
+            @Override
+            public void afterCompletion(int i) {
+                if (i == Status.STATUS_COMMITTED) {
+                    emitter.send(KafkaRecord.of(key, value));
+                }
+            }
+        });
     }
 
 }

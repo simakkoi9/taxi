@@ -21,38 +21,30 @@ public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> 
     public Response toResponse(RuntimeException e) {
 
         if (e instanceof DuplicateRatingException) {
-            return Response
-                    .status(Response.Status.CONFLICT)
-                    .entity(
-                            new ErrorResponse(
-                                    LocalDateTime.now(),
-                                    Response.Status.CONFLICT.getStatusCode(),
-                                    e.getMessage()
-                            )
-                    )
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse(
+                            LocalDateTime.now(),
+                            Response.Status.CONFLICT.getStatusCode(),
+                            e.getMessage()
+                    ))
                     .build();
         } else if (e instanceof RatingNotFoundException) {
-            return Response
-                    .status(Response.Status.NOT_FOUND)
-                    .entity(
-                            new ErrorResponse(
-                                    LocalDateTime.now(),
-                                    Response.Status.NOT_FOUND.getStatusCode(),
-                                    e.getMessage()
-                            )
-                    )
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse(
+                            LocalDateTime.now(),
+                            Response.Status.NOT_FOUND.getStatusCode(),
+                            e.getMessage()
+                    ))
+                    .build();
+        } else {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorResponse(
+                            LocalDateTime.now(),
+                            Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                            messageConfig.getMessage(MessageKeyConstants.INTERNAL_SERVER_ERROR)
+                    ))
                     .build();
         }
-        return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(
-                        new ErrorResponse(
-                                LocalDateTime.now(),
-                                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-                                messageConfig.getMessage(MessageKeyConstants.INTERNAL_SERVER_ERROR)
-                        )
-                )
-                .build();
     }
 
 }
