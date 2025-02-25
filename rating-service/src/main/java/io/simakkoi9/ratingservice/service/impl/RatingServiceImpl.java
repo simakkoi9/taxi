@@ -37,10 +37,12 @@ import jakarta.transaction.Status;
 import jakarta.transaction.Synchronization;
 import jakarta.transaction.TransactionSynchronizationRegistry;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+import org.apache.http.HttpStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -169,7 +171,7 @@ public class RatingServiceImpl implements RatingService {
         String personId = "driver_" + driverId;
 
         List<Rate> driverRateList = rateRepository.getLastRatesByPersonId(personId, limit);
-        
+
         if (driverRateList.isEmpty()) {
             throw new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId);
         }
@@ -210,12 +212,16 @@ public class RatingServiceImpl implements RatingService {
 
     private RideRequest getRideByid(String rideId) {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = ridesClient.getRideById(rideId);
-        RideRequest rideRequest;
-
-        if (jsonNode.has("errors")) {
-            throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = ridesClient.getRideById(rideId);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == HttpStatus.SC_NOT_FOUND) {
+                throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
+            }
         }
+
+        RideRequest rideRequest;
 
         try {
             rideRequest = objectMapper.treeToValue(jsonNode, RideRequest.class);

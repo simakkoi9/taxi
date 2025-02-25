@@ -29,7 +29,7 @@ class KafkaConfig {
     }
 
     @Bean
-    fun producerFactory(): ProducerFactory<String, KafkaDriverResponse> {
+    fun producerFactory(): ProducerFactory<String, KafkaDriverResponse?> {
         val config: MutableMap<String, Any> = HashMap()
         config[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = BOOTSTRAP_SERVERS
         config[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
@@ -47,7 +47,7 @@ class KafkaConfig {
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, KafkaDriverResponse> {
+    fun kafkaTemplate(): KafkaTemplate<String, KafkaDriverResponse?> {
         return KafkaTemplate(producerFactory())
     }
 

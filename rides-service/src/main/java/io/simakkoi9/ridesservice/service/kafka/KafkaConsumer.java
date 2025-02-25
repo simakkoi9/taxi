@@ -24,11 +24,7 @@ public class KafkaConsumer {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void listenDriver(ConsumerRecord<String, KafkaDriverRequest> record) {
-        try {
-            rideService.handleAvailableDriver(record.key(), record.value());
-        } catch (RuntimeException e) {
-            throw new AvailableDriverProcessingException("", messageSource, record.key());
-        }
+        rideService.handleAvailableDriver(record.key(), record.value());
     }
 
     @KafkaListener(
@@ -37,8 +33,6 @@ public class KafkaConsumer {
         containerFactory = "kafkaRatingListenerContainerFactory"
     )
     public void listenRating(KafkaRatingRequest kafkaRatingRequest) {
-        System.out.println(kafkaRatingRequest.key() + kafkaRatingRequest.payload());
-
         String personId = rideService.getRidePersonId(
                 kafkaRatingRequest.key(),
                 kafkaRatingRequest.payload().person()

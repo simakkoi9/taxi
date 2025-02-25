@@ -3,6 +3,7 @@ package io.simakkoi9.ridesservice.service.impl;
 import io.simakkoi9.ridesservice.client.PassengerClient;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
+import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
 import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest;
@@ -103,7 +104,7 @@ public class RideServiceImpl implements RideService {
         }
 
         if (kafkaDriverRequest == null) {
-            throw new RuntimeException();
+            throw new NoAvailableDriversException(MessageKeyConstants.NO_DRIVERS_ERROR, messageSource);
         }
 
         Driver driver = driverMapper.toEntity(kafkaDriverRequest);
@@ -115,7 +116,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public void handleAvailableDriver(String rideId, KafkaDriverRequest kafkaDriverRequest) throws RuntimeException {
+    public void handleAvailableDriver(String rideId, KafkaDriverRequest kafkaDriverRequest) {
         BlockingQueue<KafkaDriverRequest> queue = responseCache.get(rideId);
         if (queue != null) {
             boolean isOffered = queue.offer(kafkaDriverRequest);

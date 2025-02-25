@@ -99,7 +99,7 @@ class DriverServiceImpl(
         driver?.let {
             Hibernate.initialize(it.car)
             return kafkaDriverMapper.toDto(it)
-        } ?: throw NoAvailableDriverException("No available driver found")
+        } ?: throw NoAvailableDriverException()
     }
 
     override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {

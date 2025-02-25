@@ -23,7 +23,7 @@ class KafkaConsumer(
             val driverDto = driverService.getAvailableDriverForRide(record.value())
             kafkaProducer.sendDriver(record.key(), driverDto)
         } catch (e: NoAvailableDriverException) {
-            throw NoAvailableDriverException(e.message)
+            kafkaProducer.sendDriver(record.key(), null)
         }
     }
 

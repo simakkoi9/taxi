@@ -20,6 +20,10 @@ quarkus:
   http:
     port: 8083
 
+  rest-client:
+    ridesClient:
+      url: http://localhost:8082/api/v1
+
 kafka:
   bootstrap:
     servers: localhost:9092
@@ -45,6 +49,7 @@ mp:
           serializer: org.apache.kafka.common.serialization.StringSerializer
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
 
 rates:
   limit: 10

@@ -9,7 +9,7 @@ class KafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, KafkaDriverResponse>
 ) {
 
-    fun sendDriver(rideId: String, kafkaDriverResponse: KafkaDriverResponse) {
+    fun sendDriver(rideId: String, kafkaDriverResponse: KafkaDriverResponse?) {
         kafkaTemplate.send("rides-topic", rideId, kafkaDriverResponse)
     }
 
