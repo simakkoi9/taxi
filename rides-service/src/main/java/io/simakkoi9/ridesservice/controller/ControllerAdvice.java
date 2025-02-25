@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.controller;
 
+import feign.RetryableException;
 import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
@@ -13,8 +14,6 @@ import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import feign.FeignException;
-import feign.RetryableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -37,8 +36,8 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({
-            RetryableException.class,
-            PassengerNotAvailableException.class
+        RetryableException.class,
+        PassengerNotAvailableException.class
     })
     public ResponseEntity<ErrorResponse> handleFeignException(RuntimeException e) {
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, e);

@@ -1,7 +1,6 @@
 package io.simakkoi9.ratingservice.controller;
 
 import io.simakkoi9.ratingservice.config.message.MessageConfig;
-import io.simakkoi9.ratingservice.exception.CustomRuntimeException;
 import io.simakkoi9.ratingservice.exception.DriverAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.InvalidValidationMessageKeyException;

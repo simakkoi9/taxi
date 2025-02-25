@@ -1,12 +1,10 @@
 package io.simakkoi9.ridesservice.service.kafka;
 
-import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest;
 import io.simakkoi9.ridesservice.model.dto.kafka.KafkaRatingRequest;
 import io.simakkoi9.ridesservice.service.RideService;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.context.MessageSource;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumer {
 
     private final RideService rideService;
-    private final MessageSource messageSource;
     private final KafkaProducer kafkaProducer;
 
     @KafkaListener(

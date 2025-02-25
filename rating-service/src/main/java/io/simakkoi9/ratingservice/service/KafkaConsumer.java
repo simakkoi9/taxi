@@ -1,10 +1,10 @@
 package io.simakkoi9.ratingservice.service;
 
 import io.simakkoi9.ratingservice.model.entity.Rate;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.kafka.Record;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 
 @ApplicationScoped

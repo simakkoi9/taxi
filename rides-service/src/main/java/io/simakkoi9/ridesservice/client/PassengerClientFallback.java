@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class PassengerClientFallback implements PassengerClient{
+public class PassengerClientFallback implements PassengerClient {
 
     private final MessageSource messageSource;
 
