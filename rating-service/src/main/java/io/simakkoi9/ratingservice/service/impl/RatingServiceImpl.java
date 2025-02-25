@@ -9,6 +9,7 @@ import io.simakkoi9.ratingservice.client.RidesClient;
 import io.simakkoi9.ratingservice.config.message.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DriverAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
+import io.simakkoi9.ratingservice.exception.NoRatesException;
 import io.simakkoi9.ratingservice.exception.PassengerAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
 import io.simakkoi9.ratingservice.exception.RideJsonProcessingException;
@@ -87,7 +88,11 @@ public class RatingServiceImpl implements RatingService {
         RideRequest rideRequest = getRideByid(ratingCreateRequest.rideId());
 
         if (!rideRequest.status().equals(RideStatus.COMPLETED)) {
-            throw new UncompletedRideException("", messageConfig, ratingCreateRequest.rideId());
+            throw new UncompletedRideException(
+                    MessageKeyConstants.UNCOMPLETED_RIDE,
+                    messageConfig,
+                    ratingCreateRequest.rideId()
+            );
         }
 
         if (ratingCreateRequest.rateForDriver() != null) {
@@ -164,10 +169,9 @@ public class RatingServiceImpl implements RatingService {
         String personId = "driver_" + driverId;
 
         List<Rate> driverRateList = rateRepository.getLastRatesByPersonId(personId, limit);
-
-        //Поменять на другое
+        
         if (driverRateList.isEmpty()) {
-            throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, driverId);
+            throw new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId);
         }
 
         List<Integer> rateList = driverRateList.stream()
@@ -186,7 +190,7 @@ public class RatingServiceImpl implements RatingService {
         List<Rate> passengerRateList = rateRepository.getLastRatesByPersonId(personId, limit);
 
         if (passengerRateList.isEmpty()) {
-            throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, passengerId);
+            throw new NoRatesException(MessageKeyConstants.PASSENGER_NO_RATES, messageConfig, passengerId);
         }
 
         List<Integer> rateList = passengerRateList.stream()
@@ -210,13 +214,13 @@ public class RatingServiceImpl implements RatingService {
         RideRequest rideRequest;
 
         if (jsonNode.has("errors")) {
-            throw new RideNotFoundException("", messageConfig, rideId);
+            throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
         }
 
         try {
             rideRequest = objectMapper.treeToValue(jsonNode, RideRequest.class);
         } catch (JsonProcessingException e) {
-            throw new RideJsonProcessingException("", messageConfig);
+            throw new RideJsonProcessingException(MessageKeyConstants.RIDE_JSON, messageConfig);
         }
 
         return rideRequest;
