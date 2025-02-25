@@ -5,6 +5,9 @@ spring:
   application:
     name: driver-service
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
   jpa:
     hibernate:
       ddl-auto: validate
