@@ -9,15 +9,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "passengers")
 public class Passenger {
