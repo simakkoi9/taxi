@@ -1,12 +1,16 @@
 package io.simakkoi9.passengerservice.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
+import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
@@ -15,9 +19,10 @@ import io.simakkoi9.passengerservice.model.entity.Passenger;
 import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.model.mapper.PassengerMapper;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
+import io.simakkoi9.passengerservice.util.MessageKeyConstants;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +30,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class PassengerServiceImplTest {
@@ -37,16 +46,29 @@ class PassengerServiceImplTest {
     @InjectMocks
     PassengerServiceImpl passengerServiceImpl;
 
+    Long id;
     Passenger passenger;
     PassengerCreateRequest passengerCreateRequest;
+    PassengerUpdateRequest passengerUpdateRequest;
     PassengerResponse passengerResponse;
+    PassengerResponse updatedPassengerResponse;
+    LocalDateTime time;
 
     @BeforeEach
     void setUp() {
+        time = LocalDateTime.now();
+        id = 1L;
+
         passengerCreateRequest = new PassengerCreateRequest(
                 "name",
                 "email@mail.com",
                 "+375293453434"
+        );
+
+        passengerUpdateRequest = new PassengerUpdateRequest(
+                "otherName",
+                "otherEmail@mail.com",
+                "+375298765432"
         );
 
         passengerResponse = new PassengerResponse(
@@ -54,7 +76,15 @@ class PassengerServiceImplTest {
                 "name",
                 "email@mail.com",
                 "+375293453434",
-                LocalDateTime.now()
+                time
+        );
+
+        updatedPassengerResponse = new PassengerResponse(
+                1L,
+                "otherName",
+                "otherEmail@mail.com",
+                "+375298765432",
+                time
         );
 
         passenger = new Passenger(
@@ -63,12 +93,13 @@ class PassengerServiceImplTest {
                 "email@mail.com",
                 "+375293453434",
                 UserStatus.ACTIVE,
-                LocalDateTime.now()
+                time
         );
+
     }
 
     @Test
-    void testCreatePassenger_ThenReturnResponse_Valid() {
+    void testCreatePassenger_ShouldReturnResponse_Valid() {
         when(repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE))
                 .thenReturn(false);
         when(mapper.toEntity(passengerCreateRequest)).thenReturn(passenger);
@@ -77,45 +108,167 @@ class PassengerServiceImplTest {
 
         PassengerResponse result = passengerServiceImpl.createPassenger(passengerCreateRequest);
 
-        assertNotNull(result);
-        assertEquals(passengerResponse, result);
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(passengerResponse, result)
+        );
+        verify(repository).existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE);
         verify(repository).save(passenger);
         verify(mapper).toResponse(passenger);
+        verifyNoMoreInteractions(repository, mapper);
     }
 
     @Test
-    void testUpdatePassenger() {
-        when(mapper.toResponse(any())).thenReturn(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18)));
-        when(repository.findByIdAndStatus(anyLong(), any())).thenReturn(null);
+    void testCreatePassenger_ShouldThrowDuplicatePassengerFoundException() {
+        when(repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE))
+                .thenReturn(true);
 
-        PassengerResponse result = passengerServiceImpl.updatePassenger(Long.valueOf(1), new PassengerUpdateRequest("name", "email", "phone"));
-        assertEquals(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18)), result);
+        Exception exception = assertThrows(
+                DuplicatePassengerFoundException.class,
+                () -> passengerServiceImpl.createPassenger(passengerCreateRequest)
+        );
+
+        assertEquals(
+                messageSource.getMessage(
+                        MessageKeyConstants.DUPLICATE_PASSENGER_FOUND,
+                        new Object[]{passengerCreateRequest.email()},
+                        LocaleContextHolder.getLocale()
+                ),
+                exception.getMessage()
+        );
+        verify(repository).existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE);
+        verifyNoMoreInteractions(repository);
     }
 
     @Test
-    void testDeletePassenger() {
-        when(mapper.toResponse(any())).thenReturn(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18)));
-        when(repository.findByIdAndStatus(anyLong(), any())).thenReturn(null);
+    void testUpdatePassenger_ShouldReturnResponse_Valid() {
+        when(repository.findByIdAndStatus(id, UserStatus.ACTIVE)).thenReturn(Optional.of(passenger));
+        doNothing().when(mapper).setPassengerUpdateRequest(passengerUpdateRequest, passenger);
+        when(repository.save(passenger)).thenReturn(passenger);
+        when(mapper.toResponse(passenger)).thenReturn(updatedPassengerResponse);
 
-        PassengerResponse result = passengerServiceImpl.deletePassenger(Long.valueOf(1));
-        assertEquals(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18)), result);
+        PassengerResponse result = passengerServiceImpl.updatePassenger(id, passengerUpdateRequest);
+
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(updatedPassengerResponse, result)
+        );
+        verify(repository).findByIdAndStatus(id, UserStatus.ACTIVE);
+        verify(mapper).setPassengerUpdateRequest(passengerUpdateRequest, passenger);
+        verify(repository).save(passenger);
+        verify(mapper).toResponse(passenger);
+        verifyNoMoreInteractions(repository, mapper);
     }
 
     @Test
-    void testGetPassenger() {
-        when(mapper.toResponse(any())).thenReturn(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18)));
-        when(repository.findByIdAndStatus(anyLong(), any())).thenReturn(null);
+    void testDeletePassenger_ShouldReturnResponse_Valid() {
+        when(repository.findByIdAndStatus(id, UserStatus.ACTIVE)).thenReturn(Optional.of(passenger));
+        when(repository.save(passenger)).thenReturn(passenger);
+        when(mapper.toResponse(passenger)).thenReturn(passengerResponse);
 
-        PassengerResponse result = passengerServiceImpl.getPassenger(Long.valueOf(1));
-        assertEquals(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18)), result);
+        PassengerResponse result = passengerServiceImpl.deletePassenger(id);
+
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(UserStatus.DELETED, passenger.getStatus())
+        );
+        verify(repository).findByIdAndStatus(id, UserStatus.ACTIVE);
+        verify(repository).save(passenger);
+        verify(mapper).toResponse(passenger);
+        verifyNoMoreInteractions(repository, mapper);
     }
 
     @Test
-    void testGetAllPassengers() {
-        when(mapper.toPageResponse(any())).thenReturn(new PageResponse<PassengerResponse>(List.of(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18))), 0, 0, 0, 0L));
-        when(repository.findAllByStatus(any(), any())).thenReturn(null);
+    void testGetPassenger_ShouldReturnResponse_Valid() {
+        when(repository.findByIdAndStatus(id, UserStatus.ACTIVE)).thenReturn(Optional.of(passenger));
+        when(mapper.toResponse(passenger)).thenReturn(passengerResponse);
 
-        PageResponse<PassengerResponse> result = passengerServiceImpl.getAllPassengers(0, 0);
-        assertEquals(new PageResponse<PassengerResponse>(List.of(new PassengerResponse(Long.valueOf(1), "name", "email", "phone", LocalDateTime.of(2025, Month.FEBRUARY, 28, 12, 27, 18))), 0, 0, 0, 0L), result);
+        PassengerResponse result = passengerServiceImpl.getPassenger(id);
+
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(passengerResponse, result)
+        );
+        verify(repository).findByIdAndStatus(id, UserStatus.ACTIVE);
+        verify(mapper).toResponse(passenger);
+        verifyNoMoreInteractions(repository, mapper);
+    }
+
+    @Test
+    void testGetPassenger_ShouldThrowPassengerNotFoundException() {
+        when(repository.findByIdAndStatus(2L, UserStatus.ACTIVE)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(
+                    PassengerNotFoundException.class,
+                    () -> passengerServiceImpl.getPassenger(2L)
+                );
+
+        assertEquals(
+                messageSource.getMessage(
+                    MessageKeyConstants.PASSENGER_NOT_FOUND,
+                    new Object[]{2L},
+                    LocaleContextHolder.getLocale()
+                ),
+                exception.getMessage()
+        );
+        verify(repository).findByIdAndStatus(2L, UserStatus.ACTIVE);
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void getAllPassengers_ShouldReturnPageResponse_ValidPageValues() {
+        int page = 0, size = 10;
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<Passenger> passengerList = List.of(passenger);
+        Page<Passenger> passengerPage = new PageImpl<>(passengerList, pageRequest, passengerList.size());
+        PageResponse<PassengerResponse> pageResponse = new PageResponse<>(
+                List.of(passengerResponse),
+                size,
+                page,
+                1,
+                1L
+        );
+
+        when(repository.findAllByStatus(UserStatus.ACTIVE, pageRequest)).thenReturn(passengerPage);
+        when(mapper.toPageResponse(passengerPage)).thenReturn(pageResponse);
+
+        PageResponse<PassengerResponse> result = passengerServiceImpl.getAllPassengers(page, size);
+
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(1, result.content().size())
+        );
+        verify(repository).findAllByStatus(UserStatus.ACTIVE, pageRequest);
+        verify(mapper).toPageResponse(passengerPage);
+        verifyNoMoreInteractions(repository, mapper);
+    }
+
+    @Test
+    void getAllPassengers_ShouldReturnPageResponse_InvalidPageValues() {
+        int page = 0, size = 10;
+        int invalidPage = -1, invalidSize = -1;
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<Passenger> passengerList = List.of(passenger);
+        Page<Passenger> passengerPage = new PageImpl<>(passengerList, pageRequest, passengerList.size());
+        PageResponse<PassengerResponse> pageResponse = new PageResponse<>(
+                List.of(passengerResponse),
+                size,
+                page,
+                1,
+                1L
+        );
+
+        when(repository.findAllByStatus(UserStatus.ACTIVE, pageRequest)).thenReturn(passengerPage);
+        when(mapper.toPageResponse(passengerPage)).thenReturn(pageResponse);
+
+        PageResponse<PassengerResponse> result = passengerServiceImpl.getAllPassengers(invalidPage, invalidSize);
+
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(1, result.content().size())
+        );
+        verify(repository).findAllByStatus(UserStatus.ACTIVE, pageRequest);
+        verify(mapper).toPageResponse(passengerPage);
+        verifyNoMoreInteractions(repository, mapper);
     }
 }
