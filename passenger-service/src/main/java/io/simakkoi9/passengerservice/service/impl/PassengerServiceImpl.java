@@ -69,6 +69,13 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public PageResponse<PassengerResponse> getAllPassengers(int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 10;
+        }
+
         Page<Passenger> passengers = repository.findAllByStatus(UserStatus.ACTIVE, PageRequest.of(page, size));
         return mapper.toPageResponse(passengers);
     }
