@@ -5,7 +5,6 @@ import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
 import io.simakkoi9.passengerservice.model.dto.response.MultiErrorResponse;
 import io.simakkoi9.passengerservice.util.MessageKeyConstants;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -82,15 +81,4 @@ public class ControllerAdvice {
                 );
     }
 
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<ErrorResponse> sqlException(SQLException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .timestamp(LocalDateTime.now())
-                        .message(e.getMessage())
-                        .build()
-                );
-    }
 }
