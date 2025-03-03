@@ -20,6 +20,7 @@ import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.model.mapper.PassengerMapper;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
 import io.simakkoi9.passengerservice.util.MessageKeyConstants;
+import io.simakkoi9.passengerservice.util.TestDataUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,50 +53,15 @@ class PassengerServiceImplTest {
     PassengerUpdateRequest passengerUpdateRequest;
     PassengerResponse passengerResponse;
     PassengerResponse updatedPassengerResponse;
-    LocalDateTime time;
 
     @BeforeEach
     void setUp() {
-        time = LocalDateTime.now();
-        id = 1L;
-
-        passengerCreateRequest = new PassengerCreateRequest(
-                "name",
-                "email@mail.com",
-                "+375293453434"
-        );
-
-        passengerUpdateRequest = new PassengerUpdateRequest(
-                "otherName",
-                "otherEmail@mail.com",
-                "+375298765432"
-        );
-
-        passengerResponse = new PassengerResponse(
-                1L,
-                "name",
-                "email@mail.com",
-                "+375293453434",
-                time
-        );
-
-        updatedPassengerResponse = new PassengerResponse(
-                1L,
-                "otherName",
-                "otherEmail@mail.com",
-                "+375298765432",
-                time
-        );
-
-        passenger = new Passenger(
-                1L,
-                "name",
-                "email@mail.com",
-                "+375293453434",
-                UserStatus.ACTIVE,
-                time
-        );
-
+        id = TestDataUtil.ID;
+        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
+        passengerUpdateRequest = TestDataUtil.UPDATE_REQUEST;
+        passengerResponse = TestDataUtil.RESPONSE;
+        updatedPassengerResponse = TestDataUtil.UPDATED_RESPONSE;
+        passenger = TestDataUtil.PASSENGER;
     }
 
     @Test
