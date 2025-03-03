@@ -12,9 +12,8 @@ import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.model.entity.Passenger;
-import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.service.PassengerService;
-import java.time.LocalDateTime;
+import io.simakkoi9.passengerservice.util.TestDataUtil;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,50 +36,15 @@ class PassengerControllerTest {
     PassengerUpdateRequest passengerUpdateRequest;
     PassengerResponse passengerResponse;
     PassengerResponse updatedPassengerResponse;
-    LocalDateTime time;
 
     @BeforeEach
     void setUp() {
-        time = LocalDateTime.now();
-        id = 1L;
-
-        passengerCreateRequest = new PassengerCreateRequest(
-                "name",
-                "email@mail.com",
-                "+375293453434"
-        );
-
-        passengerUpdateRequest = new PassengerUpdateRequest(
-                "otherName",
-                "otherEmail@mail.com",
-                "+375298765432"
-        );
-
-        passengerResponse = new PassengerResponse(
-                1L,
-                "name",
-                "email@mail.com",
-                "+375293453434",
-                time
-        );
-
-        updatedPassengerResponse = new PassengerResponse(
-                1L,
-                "otherName",
-                "otherEmail@mail.com",
-                "+375298765432",
-                time
-        );
-
-        passenger = new Passenger(
-                1L,
-                "name",
-                "email@mail.com",
-                "+375293453434",
-                UserStatus.ACTIVE,
-                time
-        );
-
+        id = TestDataUtil.ID;
+        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
+        passengerUpdateRequest = TestDataUtil.UPDATE_REQUEST;
+        passengerResponse = TestDataUtil.RESPONSE;
+        updatedPassengerResponse = TestDataUtil.UPDATED_RESPONSE;
+        passenger = TestDataUtil.PASSENGER;
     }
 
     @Test
