@@ -1,9 +1,9 @@
 package io.simakkoi9.ratingservice.model.mapper;
 
-import io.simakkoi9.ratingservice.model.dto.request.DriverRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.RatingCreateRequest;
-import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.RatingCreateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
 import io.simakkoi9.ratingservice.model.entity.Rating;
 import java.util.List;
 import org.mapstruct.BeanMapping;

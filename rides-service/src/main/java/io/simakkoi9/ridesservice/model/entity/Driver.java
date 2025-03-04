@@ -1,10 +1,9 @@
 package io.simakkoi9.ridesservice.model.entity;
 
-import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class Driver implements Serializable {
+public class Driver {
     private Long id;
 
     private String name;

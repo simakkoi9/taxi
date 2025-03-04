@@ -20,6 +20,8 @@
 		<lombok.version>1.18.36</lombok.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
 		<checkstyle.version>10.21.2</checkstyle.version>
+		<feigh.version>4.2.0</feigh.version>
+		<kafka.version>3.3.1</kafka.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -67,6 +69,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<version>${feigh.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>${kafka.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
@@ -90,6 +104,7 @@
 			<artifactId>mapstruct-processor</artifactId>
 			<version>${mapstruct.version}</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

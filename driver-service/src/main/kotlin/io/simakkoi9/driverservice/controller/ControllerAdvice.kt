@@ -5,7 +5,7 @@ import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
-import io.simakkoi9.driverservice.model.dto.ErrorResponse
+import io.simakkoi9.driverservice.model.dto.rest.ErrorResponse
 import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder

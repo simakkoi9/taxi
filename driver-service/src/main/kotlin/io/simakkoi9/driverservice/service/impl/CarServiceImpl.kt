@@ -2,10 +2,10 @@ package io.simakkoi9.driverservice.service.impl
 
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
-import io.simakkoi9.driverservice.model.dto.PageResponse
-import io.simakkoi9.driverservice.model.dto.car.request.CarCreateRequest
-import io.simakkoi9.driverservice.model.dto.car.request.CarUpdateRequest
-import io.simakkoi9.driverservice.model.dto.car.response.CarResponse
+import io.simakkoi9.driverservice.model.dto.rest.PageResponse
+import io.simakkoi9.driverservice.model.dto.rest.car.request.CarCreateRequest
+import io.simakkoi9.driverservice.model.dto.rest.car.request.CarUpdateRequest
+import io.simakkoi9.driverservice.model.dto.rest.car.response.CarResponse
 import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.model.mapper.CarMapper

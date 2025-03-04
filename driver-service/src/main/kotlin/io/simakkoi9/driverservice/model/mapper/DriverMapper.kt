@@ -1,9 +1,9 @@
 package io.simakkoi9.driverservice.model.mapper
 
-import io.simakkoi9.driverservice.model.dto.PageResponse
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
-import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
+import io.simakkoi9.driverservice.model.dto.rest.PageResponse
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.response.DriverResponse
 import io.simakkoi9.driverservice.model.entity.Driver
 import org.mapstruct.BeanMapping
 import org.mapstruct.Mapper
@@ -33,11 +33,11 @@ interface DriverMapper {
     fun toPageResponse(drivers: Page<Driver>): PageResponse<DriverResponse> {
         val driverResponseList: List<DriverResponse> = toResponseList(drivers.content)
         return PageResponse(
-            driverResponseList,
-            drivers.size,
-            drivers.number,
-            drivers.totalPages,
-            drivers.totalElements
+            content = driverResponseList,
+            size = drivers.size,
+            page = drivers.number,
+            totalPages = drivers.totalPages,
+            totalElements = drivers.totalElements
         )
     }
 }
