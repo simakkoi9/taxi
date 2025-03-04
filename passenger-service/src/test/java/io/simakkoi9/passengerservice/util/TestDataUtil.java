@@ -14,6 +14,14 @@ public class TestDataUtil {
     public static final String BASE_URI = "http://localhost:%d/api/v1/passengers";
     public static final LocalDateTime TIME = LocalDateTime.now();
 
+    public static String getDuplicatePassengerErrorMessage(String email) {
+        return "Passenger with email %s already exists.".formatted(email);
+    }
+
+    public static String getPassengerNotFoundErrorMessage(Long id) {
+        return "Resource %d not found.".formatted(id);
+    }
+
     public static final PassengerCreateRequest CREATE_REQUEST = new PassengerCreateRequest(
             "name",
             "email@mail.com",
