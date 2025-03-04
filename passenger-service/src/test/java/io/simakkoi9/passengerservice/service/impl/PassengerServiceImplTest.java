@@ -87,20 +87,21 @@ class PassengerServiceImplTest {
     void testCreatePassenger_ShouldThrowDuplicatePassengerFoundException() {
         when(repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE))
                 .thenReturn(true);
+        String expectedMessage = TestDataUtil.getDuplicatePassengerErrorMessage(passengerCreateRequest.email());
+        when(
+                messageSource.getMessage(
+                        MessageKeyConstants.DUPLICATE_PASSENGER_FOUND,
+                        new Object[]{passengerCreateRequest.email()},
+                        LocaleContextHolder.getLocale()
+                )
+        ).thenReturn(expectedMessage);
 
         Exception exception = assertThrows(
                 DuplicatePassengerFoundException.class,
                 () -> passengerServiceImpl.createPassenger(passengerCreateRequest)
         );
 
-        assertEquals(
-                messageSource.getMessage(
-                        MessageKeyConstants.DUPLICATE_PASSENGER_FOUND,
-                        new Object[]{passengerCreateRequest.email()},
-                        LocaleContextHolder.getLocale()
-                ),
-                exception.getMessage()
-        );
+        assertEquals(expectedMessage, exception.getMessage());
         verify(repository).existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE);
         verifyNoMoreInteractions(repository);
     }
@@ -162,20 +163,20 @@ class PassengerServiceImplTest {
     @Test
     void testGetPassenger_ShouldThrowPassengerNotFoundException() {
         when(repository.findByIdAndStatus(2L, UserStatus.ACTIVE)).thenReturn(Optional.empty());
+        String expectedMessage = TestDataUtil.getPassengerNotFoundErrorMessage(2L);
+        when(messageSource.getMessage(
+                MessageKeyConstants.PASSENGER_NOT_FOUND,
+                new Object[]{"2"},
+                LocaleContextHolder.getLocale()
+            )
+        ).thenReturn(expectedMessage);
 
         Exception exception = assertThrows(
                     PassengerNotFoundException.class,
                     () -> passengerServiceImpl.getPassenger(2L)
                 );
 
-        assertEquals(
-                messageSource.getMessage(
-                    MessageKeyConstants.PASSENGER_NOT_FOUND,
-                    new Object[]{2L},
-                    LocaleContextHolder.getLocale()
-                ),
-                exception.getMessage()
-        );
+        assertEquals(expectedMessage, exception.getMessage());
         verify(repository).findByIdAndStatus(2L, UserStatus.ACTIVE);
         verifyNoMoreInteractions(repository);
     }
