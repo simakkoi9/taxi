@@ -7,6 +7,7 @@ import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.service.FareService;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -73,6 +74,8 @@ public class FareServiceImpl implements FareService {
     }
 
     private BigDecimal calculateFareFromDistance(double distanceKm) {
-        return farePerKm.multiply(new BigDecimal(String.valueOf(distanceKm))).add(startFare);
+        return farePerKm.multiply(new BigDecimal(String.valueOf(distanceKm)))
+                .add(startFare)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }

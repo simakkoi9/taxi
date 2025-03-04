@@ -1,39 +1,80 @@
 package io.simakkoi9.ratingservice.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.simakkoi9.ratingservice.client.RidesClient;
 import io.simakkoi9.ratingservice.config.message.MessageConfig;
 import io.simakkoi9.ratingservice.exception.DriverAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.DuplicateRatingException;
 import io.simakkoi9.ratingservice.exception.NoRatesException;
 import io.simakkoi9.ratingservice.exception.PassengerAlreadyRatedException;
 import io.simakkoi9.ratingservice.exception.RatingNotFoundException;
-import io.simakkoi9.ratingservice.model.dto.request.DriverRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.PassengerRatingUpdateRequest;
-import io.simakkoi9.ratingservice.model.dto.request.RatingCreateRequest;
-import io.simakkoi9.ratingservice.model.dto.response.AverageRatingResponse;
-import io.simakkoi9.ratingservice.model.dto.response.RatingPageResponse;
-import io.simakkoi9.ratingservice.model.dto.response.RatingResponse;
+import io.simakkoi9.ratingservice.exception.RideJsonProcessingException;
+import io.simakkoi9.ratingservice.exception.RideNotFoundException;
+import io.simakkoi9.ratingservice.exception.UncompletedRideException;
+import io.simakkoi9.ratingservice.model.dto.client.RideRequest;
+import io.simakkoi9.ratingservice.model.dto.kafka.RidePersonRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.request.RatingCreateRequest;
+import io.simakkoi9.ratingservice.model.dto.rest.response.AverageRatingResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingPageResponse;
+import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
+import io.simakkoi9.ratingservice.model.entity.Rate;
 import io.simakkoi9.ratingservice.model.entity.Rating;
+import io.simakkoi9.ratingservice.model.entity.RideStatus;
 import io.simakkoi9.ratingservice.model.mapper.RatingMapper;
+import io.simakkoi9.ratingservice.repository.RateRepository;
 import io.simakkoi9.ratingservice.repository.RatingRepository;
 import io.simakkoi9.ratingservice.service.RatingService;
 import io.simakkoi9.ratingservice.util.MessageKeyConstants;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Status;
+import jakarta.transaction.Synchronization;
+import jakarta.transaction.TransactionSynchronizationRegistry;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
-import java.util.Objects;
+import org.apache.http.HttpStatus;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
 public class RatingServiceImpl implements RatingService {
 
     @Inject
     RatingMapper ratingMapper;
+
     @Inject
     RatingRepository ratingRepository;
+
+    @Inject
+    RateRepository rateRepository;
+
     @Inject
     MessageConfig messageConfig;
+
+    @Inject
+    @RestClient
+    RidesClient ridesClient;
+
+    @Channel("send-person")
+    Emitter<KafkaRecord<String, RidePersonRequest>> emitter;
+
+    @Inject
+    TransactionSynchronizationRegistry txSyncRegistry;
+
+    @ConfigProperty(name = "rates.limit")
+    int limit;
 
     @Override
     @Transactional
@@ -45,7 +86,30 @@ public class RatingServiceImpl implements RatingService {
                     ratingCreateRequest.rideId()
             );
         }
-        //Нужна еще проверка наличия в сервисе поездок
+
+        RideRequest rideRequest = getRideByid(ratingCreateRequest.rideId());
+
+        if (!rideRequest.status().equals(RideStatus.COMPLETED)) {
+            throw new UncompletedRideException(
+                    MessageKeyConstants.UNCOMPLETED_RIDE,
+                    messageConfig,
+                    ratingCreateRequest.rideId()
+            );
+        }
+
+        if (ratingCreateRequest.rateForDriver() != null) {
+            emit(
+                ratingCreateRequest.rideId(),
+                new RidePersonRequest("driver", ratingCreateRequest.rateForDriver())
+            );
+        }
+        if (ratingCreateRequest.rateForPassenger() != null) {
+            emit(
+                ratingCreateRequest.rideId(),
+                new RidePersonRequest("passenger", ratingCreateRequest.rateForPassenger())
+            );
+        }
+
         Rating rating = ratingMapper.toEntity(ratingCreateRequest);
         rating.persist();
         return ratingMapper.toResponse(rating);
@@ -58,7 +122,10 @@ public class RatingServiceImpl implements RatingService {
         if (rating.getRateForDriver() != null) {
             throw new DriverAlreadyRatedException(MessageKeyConstants.DRIVER_ALREADY_RATED, messageConfig, id);
         }
+
         Rating updatedRating = ratingMapper.driverRatingPartialUpdate(updateRequest, rating);
+
+        emit(rating.getRideId(), new RidePersonRequest("driver", updateRequest.rateForDriver()));
 
         return ratingMapper.toResponse(updatedRating);
     }
@@ -70,7 +137,10 @@ public class RatingServiceImpl implements RatingService {
         if (rating.getRateForPassenger() != null) {
             throw new PassengerAlreadyRatedException(MessageKeyConstants.PASSENGER_ALREADY_RATED, messageConfig, id);
         }
+
         Rating updatedRating = ratingMapper.passengerRatingPartialUpdate(updateRequest, rating);
+
+        emit(rating.getRideId(), new RidePersonRequest("passenger", updateRequest.rateForPassenger()));
 
         return ratingMapper.toResponse(updatedRating);
     }
@@ -98,52 +168,96 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public AverageRatingResponse getAverageDriverRating(Long driverId) {
-        List<Long> driverRideIdList = List.of(1L, 2L);  //Cписок из сервиса поездок
+        String personId = "driver_" + driverId;
 
-        List<Rating> ratingList = ratingRepository.findAllRatingsByRideIdIn(driverRideIdList);
+        List<Rate> driverRateList = rateRepository.getLastRatesByPersonId(personId, limit);
 
-        if (ratingList.isEmpty()) {
-            throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, driverRideIdList);
+        if (driverRateList.isEmpty()) {
+            throw new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId);
         }
 
-        Double average = ratingList.stream()
-                .map(Rating::getRateForDriver)
-                .filter(Objects::nonNull)
-                .mapToDouble(Integer::doubleValue)
-                .average()
-                .orElseThrow(
-                        () -> new NoRatesException(MessageKeyConstants.DRIVER_NO_RATES, messageConfig, driverId)
-                );
+        List<Integer> rateList = driverRateList.stream()
+                .map(Rate::getRate)
+                .toList();
 
-        return new AverageRatingResponse(driverId, average);
+        Double average = calculateAverageRate(rateList);
+
+        return new AverageRatingResponse(personId, average);
     }
 
     @Override
     public AverageRatingResponse getAveragePassengerRating(Long passengerId) {
-        List<Long> passengerRideIdList = List.of(1L, 3L);  //Cписок из сервиса поездок
+        String personId = "passenger_" + passengerId;
 
-        List<Rating> passengerList = ratingRepository.findAllRatingsByRideIdIn(passengerRideIdList);
+        List<Rate> passengerRateList = rateRepository.getLastRatesByPersonId(personId, limit);
 
-        if (passengerList.isEmpty()) {
-            throw new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, passengerRideIdList);
+        if (passengerRateList.isEmpty()) {
+            throw new NoRatesException(MessageKeyConstants.PASSENGER_NO_RATES, messageConfig, passengerId);
         }
 
-        Double average = passengerList.stream()
-                .map(Rating::getRateForPassenger)
-                .filter(Objects::nonNull)
-                .mapToDouble(Integer::doubleValue)
-                .average()
-                .orElseThrow(
-                        () -> new NoRatesException(MessageKeyConstants.PASSENGER_NO_RATES, messageConfig, passengerId)
-                );
+        List<Integer> rateList = passengerRateList.stream()
+                .map(Rate::getRate)
+                .toList();
 
-        return new AverageRatingResponse(passengerId, average);
+        Double average = calculateAverageRate(rateList);
+
+        return new AverageRatingResponse(personId, average);
     }
 
     private Rating findRatingByIdOrElseThrow(Long id) {
         return (Rating) Rating.findByIdOptional(id).orElseThrow(
                 () -> new RatingNotFoundException(MessageKeyConstants.RATING_NOT_FOUND, messageConfig, id)
         );
+    }
+
+    private RideRequest getRideByid(String rideId) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = ridesClient.getRideById(rideId);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == HttpStatus.SC_NOT_FOUND) {
+                throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
+            }
+        }
+
+        RideRequest rideRequest;
+
+        try {
+            rideRequest = objectMapper.treeToValue(jsonNode, RideRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new RideJsonProcessingException(MessageKeyConstants.RIDE_JSON, messageConfig);
+        }
+
+        return rideRequest;
+    }
+
+    private Double calculateAverageRate(List<Integer> ratingList) {
+        double average = ratingList.stream()
+                .mapToDouble(Integer::doubleValue)
+                .average()
+                .orElse(0.0);
+
+        BigDecimal formatted = BigDecimal.valueOf(average).setScale(2, RoundingMode.HALF_UP);
+
+        return formatted.doubleValue();
+    }
+
+    @Transactional(Transactional.TxType.MANDATORY)
+    public void emit(String key, RidePersonRequest value) {
+        txSyncRegistry.registerInterposedSynchronization(new Synchronization() {
+            @Override
+            public void beforeCompletion() {
+
+            }
+
+            @Override
+            public void afterCompletion(int i) {
+                if (i == Status.STATUS_COMMITTED) {
+                    emitter.send(KafkaRecord.of(key, value));
+                }
+            }
+        });
     }
 
 }

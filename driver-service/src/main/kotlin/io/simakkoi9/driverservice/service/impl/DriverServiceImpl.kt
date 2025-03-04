@@ -4,19 +4,24 @@ import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
-import io.simakkoi9.driverservice.model.dto.PageResponse
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverCreateRequest
-import io.simakkoi9.driverservice.model.dto.driver.request.DriverUpdateRequest
-import io.simakkoi9.driverservice.model.dto.driver.response.DriverResponse
+import io.simakkoi9.driverservice.exception.NoAvailableDriverException
+import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverResponse
+import io.simakkoi9.driverservice.model.dto.rest.PageResponse
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
+import io.simakkoi9.driverservice.model.dto.rest.driver.response.DriverResponse
 import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.Driver
 import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.model.mapper.DriverMapper
+import io.simakkoi9.driverservice.model.mapper.KafkaDriverMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.service.DriverService
 import io.simakkoi9.driverservice.util.MessageKeyConstants
+import org.hibernate.Hibernate
 import org.springframework.context.MessageSource
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,6 +31,7 @@ class DriverServiceImpl(
     private val driverRepository: DriverRepository,
     private val carRepository: CarRepository,
     private val driverMapper: DriverMapper,
+    private val kafkaDriverMapper: KafkaDriverMapper,
     private val messageSource: MessageSource
 ) : DriverService {
 
@@ -84,8 +90,20 @@ class DriverServiceImpl(
         return driverMapper.toResponse(driver)
     }
 
+    @Transactional
+    override fun getAvailableDriverForRide(driverIdList: List<Long>): KafkaDriverResponse {
+        val driver = driverRepository
+            .findFirstByStatusAndCarNotNullAndIdNotIn(EntryStatus.ACTIVE, driverIdList)
+            .firstOrNull()
+
+        driver?.let {
+            Hibernate.initialize(it.car)
+            return kafkaDriverMapper.toDto(it)
+        } ?: throw NoAvailableDriverException()
+    }
+
     override fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse> {
-        val drivers = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
+        val drivers: Page<Driver> = driverRepository.findAllByStatus(EntryStatus.ACTIVE, PageRequest.of(page, size))
         return driverMapper.toPageResponse(drivers)
     }
 

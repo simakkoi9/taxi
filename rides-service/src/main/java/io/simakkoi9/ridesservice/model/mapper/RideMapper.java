@@ -1,9 +1,9 @@
 package io.simakkoi9.ridesservice.model.mapper;
 
-import io.simakkoi9.ridesservice.model.dto.request.RideCreateRequest;
-import io.simakkoi9.ridesservice.model.dto.request.RideUpdateRequest;
-import io.simakkoi9.ridesservice.model.dto.response.PageResponse;
-import io.simakkoi9.ridesservice.model.dto.response.RideResponse;
+import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
+import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
+import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;
+import io.simakkoi9.ridesservice.model.dto.rest.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.Ride;
 import java.util.List;
 import org.mapstruct.BeanMapping;

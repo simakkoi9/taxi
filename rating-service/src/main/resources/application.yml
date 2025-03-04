@@ -4,10 +4,10 @@ quarkus:
 
   datasource:
     db-kind: postgresql
-    username: {QUARKUS_DATABASE_USERNAME:simakkoi}
-    password: {QUARKUS_DATABASE_PASSWORD:4130}
+    username: ${QUARKUS_DATABASE_USERNAME:simakkoi}
+    password: ${QUARKUS_DATABASE_PASSWORD:4130}
     jdbc:
-      url: {QUARKUS_DATABASE_URL:jdbc:postgresql://localhost:5432/rating_db}
+      url: ${QUARKUS_DATABASE_URL:jdbc:postgresql://localhost:5432/rating_db}
 
   flyway:
     migrate-at-start: true
@@ -20,6 +20,36 @@ quarkus:
   http:
     port: 8083
 
+  rest-client:
+    ridesClient:
+      url: http://localhost:8082/api/v1
 
-rides:
-  count: 10
+kafka:
+  bootstrap:
+    servers: localhost:9092
+
+mp:
+  messaging:
+    incoming:
+      get-person:
+        connector: smallrye-kafka
+        topic: person-topic
+        key:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        auto:
+          offset:
+            reset: latest
+    outgoing:
+      send-person:
+        connector: smallrye-kafka
+        topic: rating-topic
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
+
+rates:
+  limit: 10
