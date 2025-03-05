@@ -5,7 +5,8 @@ import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
 import io.simakkoi9.passengerservice.model.dto.response.MultiErrorResponse;
 import io.simakkoi9.passengerservice.util.MessageKeyConstants;
-import java.sql.SQLException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -82,15 +83,19 @@ public class ControllerAdvice {
                 );
     }
 
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<ErrorResponse> sqlException(SQLException e) {
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<MultiErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse
-                        .builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
+                .body(MultiErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
-                        .message(e.getMessage())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .errors(e.getConstraintViolations()
+                                .stream()
+                                .map(ConstraintViolation::getMessage)
+                                .toList()
+                        )
                         .build()
                 );
     }
+
 }
