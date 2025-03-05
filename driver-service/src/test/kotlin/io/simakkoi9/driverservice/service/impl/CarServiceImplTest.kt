@@ -13,7 +13,7 @@ import io.simakkoi9.driverservice.model.mapper.CarMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
 import io.simakkoi9.driverservice.util.MessageKeyConstants
-import io.simakkoi9.driverservice.util.TestDataUtil
+import io.simakkoi9.driverservice.util.CarTestDataUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,13 +62,13 @@ class CarServiceImplTest {
 
     @BeforeEach
     fun setUp() {
-        car = TestDataUtil.getCar()
-        updatedCar = TestDataUtil.getCar(model = "Corolla")
-        carCreateRequest = TestDataUtil.getCarCreateRequest()
-        carUpdateRequest = TestDataUtil.getCarUpdateRequest()
-        carResponse = TestDataUtil.getCarResponse()
-        updatedCarResponse = TestDataUtil.getCarResponse(model = "Corolla")
-        driver = TestDataUtil.getDriver()
+        car = CarTestDataUtil.getCar()
+        updatedCar = CarTestDataUtil.getCar(model = "Corolla")
+        carCreateRequest = CarTestDataUtil.getCarCreateRequest()
+        carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
+        carResponse = CarTestDataUtil.getCarResponse()
+        updatedCarResponse = CarTestDataUtil.getCarResponse(model = "Corolla")
+        driver = CarTestDataUtil.getDriver()
     }
 
     @Test
@@ -95,7 +95,7 @@ class CarServiceImplTest {
     fun testCreateCar_ShouldThrowDuplicateException() {
         `when`(carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE))
             .thenReturn(true)
-        val expectedMessage = TestDataUtil.getDuplicateCarErrorMessage(carCreateRequest.number)
+        val expectedMessage = CarTestDataUtil.getDuplicateCarErrorMessage(carCreateRequest.number)
         `when`(
             messageSource.getMessage(
                 MessageKeyConstants.DUPLICATE_CAR_FOUND,
@@ -115,7 +115,7 @@ class CarServiceImplTest {
 
     @Test
     fun testUpdateCar_ShouldReturnResponse_Valid() {
-        `when`(carRepository.findByIdAndStatus(TestDataUtil.ID, EntryStatus.ACTIVE))
+        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
             .thenReturn(Optional.of(car))
         doAnswer {
             val car = it.getArgument<Car>(1)
@@ -127,7 +127,7 @@ class CarServiceImplTest {
         `when`(carRepository.save(car)).thenReturn(car)
         `when`(carMapper.toResponse(car)).thenReturn(updatedCarResponse)
 
-        val result = carServiceImpl.updateCar(TestDataUtil.ID, carUpdateRequest)
+        val result = carServiceImpl.updateCar(CarTestDataUtil.ID, carUpdateRequest)
 
         assertAll(
             { assertNotNull(result) },
@@ -141,13 +141,13 @@ class CarServiceImplTest {
 
     @Test
     fun testDeleteCar_ShouldReturnResponse_Valid() {
-        `when`(carRepository.findByIdAndStatus(TestDataUtil.ID, EntryStatus.ACTIVE))
+        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
             .thenReturn(Optional.of(car))
         `when`(driverRepository.findAllByCarAndStatus(car, EntryStatus.ACTIVE)).thenReturn(listOf(driver))
         `when`(carRepository.save(car)).thenReturn(car)
         `when`(carMapper.toResponse(car)).thenReturn(carResponse)
 
-        val result = carServiceImpl.deleteCar(TestDataUtil.ID)
+        val result = carServiceImpl.deleteCar(CarTestDataUtil.ID)
 
         assertAll(
             { assertNotNull(result) },
@@ -164,11 +164,11 @@ class CarServiceImplTest {
 
     @Test
     fun testGetCar_ShouldReturnResponse_Valid() {
-        `when`(carRepository.findByIdAndStatus(TestDataUtil.ID, EntryStatus.ACTIVE))
+        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
             .thenReturn(Optional.of(car))
         `when`(carMapper.toResponse(car)).thenReturn(carResponse)
 
-        val result = carServiceImpl.getCar(TestDataUtil.ID)
+        val result = carServiceImpl.getCar(CarTestDataUtil.ID)
 
         assertAll(
             { assertNotNull(result) },
@@ -180,45 +180,47 @@ class CarServiceImplTest {
 
     @Test
     fun testGetCar_ShouldThrowNotFoundException() {
-        `when`(carRepository.findByIdAndStatus(TestDataUtil.ID, EntryStatus.ACTIVE))
+        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
             .thenReturn(Optional.empty())
-        val expectedMessage = TestDataUtil.getCarNotFoundErrorMessage(TestDataUtil.ID)
+        val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
         `when`(
             messageSource.getMessage(
                 MessageKeyConstants.CAR_NOT_FOUND,
-                arrayOf(TestDataUtil.ID.toString()),
+                arrayOf(CarTestDataUtil.ID.toString()),
                 LocaleContextHolder.getLocale()
             )
         ).thenReturn(expectedMessage)
 
         val exception = assertThrows<CarNotFoundException> {
-            carServiceImpl.getCar(TestDataUtil.ID)
+            carServiceImpl.getCar(CarTestDataUtil.ID)
         }
 
         assertEquals(expectedMessage, exception.message)
-        verify(carRepository).findByIdAndStatus(TestDataUtil.ID, EntryStatus.ACTIVE)
+        verify(carRepository).findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE)
         verifyNoMoreInteractions(carRepository)
     }
 
     @Test
     fun testGetAllCars_ShouldReturnResponse_Valid() {
-        val page = 0
-        val size = 10
-        val pageRequest = PageRequest.of(page, size)
-        val carList = listOf(car)
-        val carPage = PageImpl(carList, pageRequest, 1L)
-        `when`(carRepository.findAllByStatus(EntryStatus.ACTIVE, pageRequest)).thenReturn(carPage)
-        val pageResponse = PageResponse(listOf(carResponse), size, page, 1, 1L) //Пофиксить по аналогии
+        val carPage = PageImpl(
+            listOf(car),
+            CarTestDataUtil.getPageRequest(),
+            CarTestDataUtil.TOTAL_ELEMENTS
+        )
+        val pageResponse = CarTestDataUtil.getPageResponse(listOf(carResponse))
+        `when`(carRepository.findAllByStatus(EntryStatus.ACTIVE, CarTestDataUtil.getPageRequest()))
+            .thenReturn(carPage)
         `when`(carMapper.toPageResponse(carPage)).thenReturn(pageResponse)
 
-        val result = carServiceImpl.getAllCars(page, size)
+        val result = carServiceImpl.getAllCars(CarTestDataUtil.PAGE, CarTestDataUtil.SIZE)
 
         assertAll(
             { assertNotNull(result) },
             { assertEquals(pageResponse, result) }
         )
-        verify(carRepository).findAllByStatus(EntryStatus.ACTIVE, pageRequest)
+        verify(carRepository).findAllByStatus(EntryStatus.ACTIVE, CarTestDataUtil.getPageRequest())
         verify(carMapper).toPageResponse(carPage)
         verifyNoMoreInteractions(carRepository, carMapper)
     }
+
 }

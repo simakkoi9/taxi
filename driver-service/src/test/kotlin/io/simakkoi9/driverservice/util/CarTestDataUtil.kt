@@ -1,5 +1,6 @@
 package io.simakkoi9.driverservice.util
 
+import io.simakkoi9.driverservice.model.dto.rest.PageResponse
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarUpdateRequest
 import io.simakkoi9.driverservice.model.dto.rest.car.response.CarResponse
@@ -7,14 +8,19 @@ import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.Driver
 import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.model.entity.Gender
+import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
-object TestDataUtil {
+object CarTestDataUtil {
 
     const val ID = 1L
+    const val PAGE = 0
+    const val SIZE = 10
+    const val TOTAL_PAGES = 1
+    const val TOTAL_ELEMENTS = 1L
 
     fun getDuplicateCarErrorMessage(number: String): String {
-        return "Car with number $number already exists"
+        return "Car with number $number already exists."
     }
 
     fun getCarNotFoundErrorMessage(id: Long): String {
@@ -85,4 +91,15 @@ object TestDataUtil {
         driver.createdAt = createdAt
         return driver
     }
+
+    fun getPageRequest(): PageRequest = PageRequest.of(PAGE, SIZE)
+
+    fun <T> getPageResponse(list: List<T>): PageResponse<T> =
+        PageResponse(
+            list,
+            SIZE,
+            PAGE,
+            TOTAL_PAGES,
+            TOTAL_ELEMENTS
+        )
 }

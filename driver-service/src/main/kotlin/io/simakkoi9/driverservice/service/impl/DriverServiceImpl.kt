@@ -120,7 +120,10 @@ class DriverServiceImpl(
             }
 
     private fun isCarAvailable(id: Long): Boolean {
-        val car = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
-        return !(car.isPresent && driverRepository.existsByCarAndStatus(car.get(), EntryStatus.ACTIVE))
+        val carOptional = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
+        if (carOptional.isEmpty) {
+            return false
+        }
+        return !driverRepository.existsByCarAndStatus(carOptional.get(), EntryStatus.ACTIVE)
     }
 }
