@@ -1,8 +1,10 @@
 package io.simakkoi9.passengerservice.controller;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -106,7 +108,7 @@ public class PassengerControllerIT {
 
     @Test
     @Order(3)
-    void createPassenger_ShouldThrowValidationException() throws Exception {
+    void createPassenger_ShouldThrowValidationException_InvalidCreateRequest() throws Exception {
         given()
             .contentType(ContentType.JSON)
             .body(TestDataUtil.INVALID_CREATE_REQUEST)
@@ -115,7 +117,7 @@ public class PassengerControllerIT {
             .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
-                .body("errors.size()", equalTo(3));
+                .body("errors", hasSize(3));
     }
 
     @Test
@@ -196,6 +198,26 @@ public class PassengerControllerIT {
                 .statusCode(HttpStatus.OK.value())
                 .body("content", not(empty()))
                 .body("content[0].name", equalTo(TestDataUtil.PASSENGER.getName()));
+    }
+
+    @Test
+    @Order(9)
+    void getAllPassengers_ShouldThrowValidationException_InvalidPageValues() throws Exception {
+        passengerRepository.save(TestDataUtil.PASSENGER);
+
+        given()
+            .param("page", TestDataUtil.INVALID_PAGE)
+            .param("size", TestDataUtil.INVALID_SIZE)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("errors", hasSize(2))
+                .body("errors", containsInAnyOrder(
+                        TestDataUtil.INVALID_PAGE_MESSAGE,
+                        TestDataUtil.INVALID_SIZE_MESSAGE
+                ));
     }
 
 }

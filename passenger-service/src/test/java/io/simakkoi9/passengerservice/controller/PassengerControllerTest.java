@@ -105,23 +105,18 @@ class PassengerControllerTest {
 
     @Test
     void getAllPassengers_ShouldCallServiceAndReturnPageResponse() {
-        int page = 0, size = 10;
-        PageResponse<PassengerResponse> pageResponse = new PageResponse<>(
-                List.of(passengerResponse),
-                size,
-                page,
-                1,
-                1L
-        );
-        when(passengerService.getAllPassengers(page, size)).thenReturn(pageResponse);
+        PageResponse<PassengerResponse> pageResponse = TestDataUtil.getPageResponse(List.of(passengerResponse));
+        when(passengerService.getAllPassengers(TestDataUtil.PAGE, TestDataUtil.SIZE)).thenReturn(pageResponse);
 
-        PageResponse<PassengerResponse> result = passengerController.getAllPassengers(page, size);
+        PageResponse<PassengerResponse> result = passengerController
+                .getAllPassengers(TestDataUtil.PAGE, TestDataUtil.SIZE);
 
         assertAll(
                 () -> assertNotNull(result),
                 () -> assertEquals(pageResponse, result)
         );
-        verify(passengerService).getAllPassengers(page, size);
+        verify(passengerService).getAllPassengers(TestDataUtil.PAGE, TestDataUtil.SIZE);
         verifyNoMoreInteractions(passengerService);
     }
+
 }
