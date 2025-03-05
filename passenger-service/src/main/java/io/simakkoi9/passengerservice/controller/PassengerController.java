@@ -5,6 +5,7 @@ import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
 import io.simakkoi9.passengerservice.service.PassengerService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/passengers")
 @RequiredArgsConstructor
+@Validated
 public class PassengerController {
 
     private final PassengerService passengerService;
@@ -49,8 +51,8 @@ public class PassengerController {
 
     @GetMapping
     public PageResponse<PassengerResponse> getAllPassengers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @Min(value = 0, message = "{page.current.min}") @RequestParam(defaultValue = "0")  int page,
+            @Min(value = 1, message = "{page.size.min}") @RequestParam(defaultValue = "10") int size
     ) {
         return passengerService.getAllPassengers(page, size);
     }

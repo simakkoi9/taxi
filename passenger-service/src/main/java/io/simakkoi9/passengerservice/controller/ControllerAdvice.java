@@ -5,6 +5,8 @@ import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
 import io.simakkoi9.passengerservice.model.dto.response.MultiErrorResponse;
 import io.simakkoi9.passengerservice.util.MessageKeyConstants;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -75,6 +77,21 @@ public class ControllerAdvice {
                                 .getAllErrors()
                                 .stream()
                                 .map(ObjectError::getDefaultMessage)
+                                .toList()
+                        )
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<MultiErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(MultiErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .errors(e.getConstraintViolations()
+                                .stream()
+                                .map(ConstraintViolation::getMessage)
                                 .toList()
                         )
                         .build()

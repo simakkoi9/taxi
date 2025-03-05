@@ -162,79 +162,45 @@ class PassengerServiceImplTest {
 
     @Test
     void testGetPassenger_ShouldThrowPassengerNotFoundException() {
-        when(repository.findByIdAndStatus(2L, UserStatus.ACTIVE)).thenReturn(Optional.empty());
-        String expectedMessage = TestDataUtil.getPassengerNotFoundErrorMessage(2L);
+        when(repository.findByIdAndStatus(TestDataUtil.INVALID_ID, UserStatus.ACTIVE)).thenReturn(Optional.empty());
+        String expectedMessage = TestDataUtil.getPassengerNotFoundErrorMessage(TestDataUtil.INVALID_ID);
         when(messageSource.getMessage(
                 MessageKeyConstants.PASSENGER_NOT_FOUND,
-                new Object[]{"2"},
+                new Object[]{TestDataUtil.INVALID_ID.toString()},
                 LocaleContextHolder.getLocale()
             )
         ).thenReturn(expectedMessage);
 
         Exception exception = assertThrows(
                     PassengerNotFoundException.class,
-                    () -> passengerServiceImpl.getPassenger(2L)
+                    () -> passengerServiceImpl.getPassenger(TestDataUtil.INVALID_ID)
                 );
 
         assertEquals(expectedMessage, exception.getMessage());
-        verify(repository).findByIdAndStatus(2L, UserStatus.ACTIVE);
+        verify(repository).findByIdAndStatus(TestDataUtil.INVALID_ID, UserStatus.ACTIVE);
         verifyNoMoreInteractions(repository);
     }
 
     @Test
     void getAllPassengers_ShouldReturnPageResponse_ValidPageValues() {
-        int page = 0, size = 10;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(TestDataUtil.PAGE, TestDataUtil.SIZE);
         List<Passenger> passengerList = List.of(passenger);
         Page<Passenger> passengerPage = new PageImpl<>(passengerList, pageRequest, passengerList.size());
-        PageResponse<PassengerResponse> pageResponse = new PageResponse<>(
-                List.of(passengerResponse),
-                size,
-                page,
-                1,
-                1L
-        );
+        PageResponse<PassengerResponse> pageResponse = TestDataUtil.getPageResponse(List.of(passengerResponse));
 
         when(repository.findAllByStatus(UserStatus.ACTIVE, pageRequest)).thenReturn(passengerPage);
         when(mapper.toPageResponse(passengerPage)).thenReturn(pageResponse);
 
-        PageResponse<PassengerResponse> result = passengerServiceImpl.getAllPassengers(page, size);
+        PageResponse<PassengerResponse> result = passengerServiceImpl
+                .getAllPassengers(TestDataUtil.PAGE, TestDataUtil.SIZE);
 
         assertAll(
                 () -> assertNotNull(result),
-                () -> assertEquals(1, result.content().size())
+                () -> assertEquals(TestDataUtil.TOTAL_ELEMENTS, result.content().size())
         );
         verify(repository).findAllByStatus(UserStatus.ACTIVE, pageRequest);
         verify(mapper).toPageResponse(passengerPage);
         verifyNoMoreInteractions(repository, mapper);
     }
 
-    @Test
-    void getAllPassengers_ShouldReturnPageResponse_InvalidPageValues() {
-        int page = 0, size = 10;
-        int invalidPage = -1, invalidSize = -1;
-        PageRequest pageRequest = PageRequest.of(page, size);
-        List<Passenger> passengerList = List.of(passenger);
-        Page<Passenger> passengerPage = new PageImpl<>(passengerList, pageRequest, passengerList.size());
-        PageResponse<PassengerResponse> pageResponse = new PageResponse<>(
-                List.of(passengerResponse),
-                size,
-                page,
-                1,
-                1L
-        );
-
-        when(repository.findAllByStatus(UserStatus.ACTIVE, pageRequest)).thenReturn(passengerPage);
-        when(mapper.toPageResponse(passengerPage)).thenReturn(pageResponse);
-
-        PageResponse<PassengerResponse> result = passengerServiceImpl.getAllPassengers(invalidPage, invalidSize);
-
-        assertAll(
-                () -> assertNotNull(result),
-                () -> assertEquals(1, result.content().size())
-        );
-        verify(repository).findAllByStatus(UserStatus.ACTIVE, pageRequest);
-        verify(mapper).toPageResponse(passengerPage);
-        verifyNoMoreInteractions(repository, mapper);
-    }
 }
