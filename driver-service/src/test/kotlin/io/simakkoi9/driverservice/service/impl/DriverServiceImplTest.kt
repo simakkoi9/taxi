@@ -1,9 +1,8 @@
 package io.simakkoi9.driverservice.service.impl
 
 import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
-import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
-import io.simakkoi9.driverservice.exception.CarNotFoundException
+import io.simakkoi9.driverservice.exception.DuplicateDriverFoundException
 import io.simakkoi9.driverservice.exception.NoAvailableDriverException
 import io.simakkoi9.driverservice.model.dto.kafka.KafkaDriverResponse
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
@@ -20,7 +19,6 @@ import io.simakkoi9.driverservice.util.CarTestDataUtil
 import io.simakkoi9.driverservice.util.DriverTestDataUtil
 import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -361,6 +359,72 @@ internal class DriverServiceImplTest {
         )
         verify(driverRepository).findAllByStatus(EntryStatus.ACTIVE, DriverTestDataUtil.getPageRequest())
         verify(driverMapper).toPageResponse(driverPage)
+        verifyNoMoreInteractions(driverRepository, driverMapper)
+    }
+
+    @Test
+    fun testDeleteDriver_ShouldThrowDriverNotFoundException() {
+        `when`(driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE))
+            .thenReturn(Optional.empty())
+        val expectedMessage = DriverTestDataUtil.getDriverNotFoundErrorMessage(DriverTestDataUtil.ID)
+        `when`(
+            messageSource.getMessage(
+                MessageKeyConstants.DRIVER_NOT_FOUND,
+                arrayOf(DriverTestDataUtil.ID.toString()),
+                LocaleContextHolder.getLocale()
+            )
+        ).thenReturn(expectedMessage)
+
+        val exception = assertThrows<DriverNotFoundException> {
+            driverServiceImpl.deleteDriver(DriverTestDataUtil.ID)
+        }
+
+        assertEquals(expectedMessage, exception.message)
+        verify(driverRepository).findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE)
+        verifyNoMoreInteractions(driverRepository, driverMapper)
+    }
+
+    @Test
+    fun testGetDriver_ShouldThrowDriverNotFoundException() {
+        `when`(driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE))
+            .thenReturn(Optional.empty())
+        val expectedMessage = DriverTestDataUtil.getDriverNotFoundErrorMessage(DriverTestDataUtil.ID)
+        `when`(
+            messageSource.getMessage(
+                MessageKeyConstants.DRIVER_NOT_FOUND,
+                arrayOf(DriverTestDataUtil.ID.toString()),
+                LocaleContextHolder.getLocale()
+            )
+        ).thenReturn(expectedMessage)
+
+        val exception = assertThrows<DriverNotFoundException> {
+            driverServiceImpl.getDriver(DriverTestDataUtil.ID)
+        }
+
+        assertEquals(expectedMessage, exception.message)
+        verify(driverRepository).findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE)
+        verifyNoMoreInteractions(driverRepository, driverMapper)
+    }
+
+    @Test
+    fun testRemoveCarForDriver_ShouldThrowDriverNotFoundException() {
+        `when`(driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE))
+            .thenReturn(Optional.empty())
+        val expectedMessage = DriverTestDataUtil.getDriverNotFoundErrorMessage(DriverTestDataUtil.ID)
+        `when`(
+            messageSource.getMessage(
+                MessageKeyConstants.DRIVER_NOT_FOUND,
+                arrayOf(DriverTestDataUtil.ID.toString()),
+                LocaleContextHolder.getLocale()
+            )
+        ).thenReturn(expectedMessage)
+
+        val exception = assertThrows<DriverNotFoundException> {
+            driverServiceImpl.removeCarForDriver(DriverTestDataUtil.ID)
+        }
+
+        assertEquals(expectedMessage, exception.message)
+        verify(driverRepository).findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE)
         verifyNoMoreInteractions(driverRepository, driverMapper)
     }
 }

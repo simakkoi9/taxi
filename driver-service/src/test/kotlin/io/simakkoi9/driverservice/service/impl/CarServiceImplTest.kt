@@ -2,7 +2,6 @@ package io.simakkoi9.driverservice.service.impl
 
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
-import io.simakkoi9.driverservice.model.dto.rest.PageResponse
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarUpdateRequest
 import io.simakkoi9.driverservice.model.dto.rest.car.response.CarResponse
@@ -12,8 +11,9 @@ import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.model.mapper.CarMapper
 import io.simakkoi9.driverservice.repository.CarRepository
 import io.simakkoi9.driverservice.repository.DriverRepository
-import io.simakkoi9.driverservice.util.MessageKeyConstants
 import io.simakkoi9.driverservice.util.CarTestDataUtil
+import io.simakkoi9.driverservice.util.DriverTestDataUtil
+import io.simakkoi9.driverservice.util.MessageKeyConstants
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import java.util.Optional
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -68,7 +67,7 @@ class CarServiceImplTest {
         carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
         carResponse = CarTestDataUtil.getCarResponse()
         updatedCarResponse = CarTestDataUtil.getCarResponse(model = "Corolla")
-        driver = CarTestDataUtil.getDriver()
+        driver = DriverTestDataUtil.getDriver()
     }
 
     @Test
@@ -140,6 +139,28 @@ class CarServiceImplTest {
     }
 
     @Test
+    fun testUpdateCar_ShouldThrowNotFoundException() {
+        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
+            .thenReturn(Optional.empty())
+        val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
+        `when`(
+            messageSource.getMessage(
+                MessageKeyConstants.CAR_NOT_FOUND,
+                arrayOf(CarTestDataUtil.ID.toString()),
+                LocaleContextHolder.getLocale()
+            )
+        ).thenReturn(expectedMessage)
+
+        val exception = assertThrows<CarNotFoundException> {
+            carServiceImpl.updateCar(CarTestDataUtil.ID, carUpdateRequest)
+        }
+
+        assertEquals(expectedMessage, exception.message)
+        verify(carRepository).findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE)
+        verifyNoMoreInteractions(carRepository, carMapper)
+    }
+
+    @Test
     fun testDeleteCar_ShouldReturnResponse_Valid() {
         `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
             .thenReturn(Optional.of(car))
@@ -160,6 +181,28 @@ class CarServiceImplTest {
         verify(carRepository).save(car)
         verify(carMapper).toResponse(car)
         verifyNoMoreInteractions(carMapper, carRepository, driverRepository)
+    }
+
+    @Test
+    fun testDeleteCar_ShouldThrowNotFoundException() {
+        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
+            .thenReturn(Optional.empty())
+        val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
+        `when`(
+            messageSource.getMessage(
+                MessageKeyConstants.CAR_NOT_FOUND,
+                arrayOf(CarTestDataUtil.ID.toString()),
+                LocaleContextHolder.getLocale()
+            )
+        ).thenReturn(expectedMessage)
+
+        val exception = assertThrows<CarNotFoundException> {
+            carServiceImpl.deleteCar(CarTestDataUtil.ID)
+        }
+
+        assertEquals(expectedMessage, exception.message)
+        verify(carRepository).findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE)
+        verifyNoMoreInteractions(carRepository, driverRepository)
     }
 
     @Test

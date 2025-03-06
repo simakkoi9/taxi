@@ -1,29 +1,20 @@
 package io.simakkoi9.driverservice.util
 
-import io.simakkoi9.driverservice.model.dto.rest.PageResponse
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarUpdateRequest
 import io.simakkoi9.driverservice.model.dto.rest.car.response.CarResponse
 import io.simakkoi9.driverservice.model.entity.Car
 import io.simakkoi9.driverservice.model.entity.EntryStatus
-import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
-object CarTestDataUtil {
+object CarITDataUtil {
 
-    const val ID = 1L
-    const val PAGE = 0
-    const val SIZE = 10
-    const val TOTAL_PAGES = 1
-    const val TOTAL_ELEMENTS = 1L
+    const val INVALID_ID = 999L
 
-    fun getDuplicateCarErrorMessage(number: String): String {
-        return "Car with number $number already exists."
-    }
+    const val API_BASE_PATH = "/api/v1"
+    const val CARS_ENDPOINT = "/cars"
 
-    fun getCarNotFoundErrorMessage(id: Long): String {
-        return "Car $id not found."
-    }
+    const val INVALID_JSON = "{ \"brand\": \"Toyota\", \"model\": \"Camry\", invalid json }"
 
     fun getCarCreateRequest(
         brand: String = "Toyota",
@@ -40,7 +31,7 @@ object CarTestDataUtil {
     ): CarUpdateRequest = CarUpdateRequest(brand, model, color, number)
 
     fun getCarResponse(
-        id: Long = ID,
+        id: Long = CarTestDataUtil.ID,
         brand: String = "Toyota",
         model: String = "Camry",
         color: String = "White",
@@ -49,7 +40,7 @@ object CarTestDataUtil {
     ): CarResponse = CarResponse(id, brand, model, color, number, createdAt)
 
     fun getCar(
-        id: Long = ID,
+        id: Long? = null,
         brand: String = "Toyota",
         model: String = "Camry",
         color: String = "White",
@@ -58,7 +49,9 @@ object CarTestDataUtil {
         createdAt: LocalDateTime = LocalDateTime.now()
     ): Car {
         val car = Car()
-        car.id = id
+        if (id != null) {
+            car.id = id
+        }
         car.brand = brand
         car.model = model
         car.color = color
@@ -67,15 +60,4 @@ object CarTestDataUtil {
         car.createdAt = createdAt
         return car
     }
-
-    fun getPageRequest(): PageRequest = PageRequest.of(PAGE, SIZE)
-
-    fun <T> getPageResponse(list: List<T>): PageResponse<T> =
-        PageResponse(
-            list,
-            SIZE,
-            PAGE,
-            TOTAL_PAGES,
-            TOTAL_ELEMENTS
-        )
 }
