@@ -17,6 +17,12 @@ object CarTestDataUtil {
     const val TOTAL_PAGES = 1
     const val TOTAL_ELEMENTS = 1L
 
+    const val BRAND = "Toyota"
+    const val MODEL = "Camry"
+    const val ANOTHER_MODEL = "Corolla"
+    const val COLOR = "White"
+    const val NUMBER = "BY1563"
+
     fun getDuplicateCarErrorMessage(number: String): String {
         return "Car with number $number already exists."
     }
@@ -26,34 +32,34 @@ object CarTestDataUtil {
     }
 
     fun getCarCreateRequest(
-        brand: String = "Toyota",
-        model: String = "Camry",
-        color: String = "White",
-        number: String = "BY1563"
+        brand: String = BRAND,
+        model: String = MODEL,
+        color: String = COLOR,
+        number: String = NUMBER
     ): CarCreateRequest = CarCreateRequest(brand, model, color, number)
 
     fun getCarUpdateRequest(
         brand: String? = null,
-        model: String? = "Corolla",
+        model: String? = ANOTHER_MODEL,
         color: String? = null,
         number: String? = null
     ): CarUpdateRequest = CarUpdateRequest(brand, model, color, number)
 
     fun getCarResponse(
         id: Long = ID,
-        brand: String = "Toyota",
-        model: String = "Camry",
-        color: String = "White",
-        number: String = "BY1563",
+        brand: String = BRAND,
+        model: String = MODEL,
+        color: String = COLOR,
+        number: String = NUMBER,
         createdAt: LocalDateTime = LocalDateTime.now()
     ): CarResponse = CarResponse(id, brand, model, color, number, createdAt)
 
     fun getCar(
         id: Long = ID,
-        brand: String = "Toyota",
-        model: String = "Camry",
-        color: String = "White",
-        number: String = "BY1563",
+        brand: String = BRAND,
+        model: String = MODEL,
+        color: String = COLOR,
+        number: String = NUMBER,
         status: EntryStatus = EntryStatus.ACTIVE,
         createdAt: LocalDateTime = LocalDateTime.now()
     ): Car {

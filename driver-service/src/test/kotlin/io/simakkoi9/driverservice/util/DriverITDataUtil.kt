@@ -17,22 +17,30 @@ object DriverITDataUtil {
 
     const val INVALID_JSON = "{ \"name\": \"John Doe\", \"email\": \"johndoe@mail.com\", invalid json }"
 
+    const val NAME = "name"
+    const val ANOTHER_NAME = "otherName"
+    const val EMAIL = "email@mail.com"
+    const val INVALID_EMAIL = "invalid-email"
+    const val PHONE = "+375442345678"
+    const val INVALID_PHONE = "123"
+    val GENDER = Gender.MALE
+
     fun getDriverCreateRequest(
-        name: String = "name",
-        email: String = "email@mail.com",
-        phone: String = "+375442345678",
-        gender: Gender = Gender.MALE
+        name: String = NAME,
+        email: String = EMAIL,
+        phone: String = PHONE,
+        gender: Gender = GENDER
     ):DriverCreateRequest = DriverCreateRequest(name, email, phone, gender)
 
     fun getInvalidDriverCreateRequest(
         name: String = "",
-        email: String = "invalid-email",
-        phone: String = "123",
-        gender: Gender = Gender.MALE
+        email: String = INVALID_EMAIL,
+        phone: String = INVALID_PHONE,
+        gender: Gender = GENDER
     ): DriverCreateRequest = DriverCreateRequest(name, email, phone, gender)
 
     fun getDriverUpdateRequest(
-        name: String? = "otherName",
+        name: String? = ANOTHER_NAME,
         email: String? = null,
         phone: String? = null,
         gender: Gender? = null
@@ -40,10 +48,10 @@ object DriverITDataUtil {
 
     fun getDriver(
         id: Long? = null,
-        name: String = "name",
-        email: String = "email@mail.com",
-        phone: String = "+375291234567",
-        gender: Gender = Gender.MALE,
+        name: String = NAME,
+        email: String = EMAIL,
+        phone: String = PHONE,
+        gender: Gender = GENDER,
         car: Car? = null,
         status: EntryStatus = EntryStatus.ACTIVE,
         createdAt: LocalDateTime = LocalDateTime.now()

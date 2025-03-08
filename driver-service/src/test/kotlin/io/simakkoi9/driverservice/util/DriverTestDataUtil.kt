@@ -24,6 +24,19 @@ object DriverTestDataUtil {
     const val API_BASE_PATH = "/api/v1"
     const val DRIVERS_ENDPOINT = "/drivers"
 
+    const val NAME = "name"
+    const val ANOTHER_NAME = "otherName"
+    const val EMAIL = "email@mail.com"
+    const val INVALID_EMAIL = "invalid-email"
+    const val PHONE = "+375442345678"
+    const val INVALID_PHONE = "123"
+    val GENDER = Gender.MALE
+
+    const val BRAND = "Toyota"
+    const val MODEL = "Camry"
+    const val COLOR = "White"
+    const val NUMBER = "BY1563"
+
     fun getDuplicateDriverErrorMessage(email: String): String {
         return "Driver with email $email already exists."
     }
@@ -37,21 +50,21 @@ object DriverTestDataUtil {
     }
 
     fun getDriverCreateRequest(
-        name: String = "name",
-        email: String = "email@mail.com",
-        phone: String = "+375442345678",
-        gender: Gender = Gender.MALE
+        name: String = NAME,
+        email: String = EMAIL,
+        phone: String = PHONE,
+        gender: Gender = GENDER
     ):DriverCreateRequest = DriverCreateRequest(name, email, phone, gender)
 
     fun getInvalidDriverCreateRequest(
         name: String = "",
-        email: String = "invalid-email",
-        phone: String = "123",
-        gender: Gender = Gender.MALE
+        email: String = INVALID_EMAIL,
+        phone: String = INVALID_PHONE,
+        gender: Gender = GENDER
     ): DriverCreateRequest = DriverCreateRequest(name, email, phone, gender)
 
     fun getDriverUpdateRequest(
-        name: String? = "otherName",
+        name: String? = ANOTHER_NAME,
         email: String? = null,
         phone: String? = null,
         gender: Gender? = null
@@ -59,37 +72,37 @@ object DriverTestDataUtil {
 
     fun getDriverResponse(
         id: Long = ID,
-        name: String = "name",
-        email: String = "email@mail.com",
-        phone: String = "+375442345678",
-        gender: Gender = Gender.MALE,
+        name: String = NAME,
+        email: String = EMAIL,
+        phone: String = PHONE,
+        gender: Gender = GENDER,
         carId: Long? = null,
         createdAt: LocalDateTime = LocalDateTime.now()
     ):DriverResponse = DriverResponse(id, name, email, phone, gender, carId, createdAt)
 
     fun getKafkaDriverResponse(
         id: Long = ID,
-        name: String = "name",
-        email: String = "email@mail.com",
-        phone: String = "+375442345678",
-        gender: Gender = Gender.MALE,
+        name: String = NAME,
+        email: String = EMAIL,
+        phone: String = PHONE,
+        gender: Gender = GENDER,
         car: KafkaCarDto = getKafkaCarDto()
     ): KafkaDriverResponse = KafkaDriverResponse(id, name, email, phone, gender, car)
 
     private fun getKafkaCarDto(
-        id: Long = CarTestDataUtil.ID,
-        brand: String = "Toyota",
-        model: String = "Camry",
-        color: String = "White",
-        number: String = "BY1563"
+        id: Long = ID,
+        brand: String = BRAND,
+        model: String = MODEL,
+        color: String = COLOR,
+        number: String = NUMBER
     ): KafkaCarDto = KafkaCarDto(id, brand, model, color, number)
 
     fun getDriver(
         id: Long = ID,
-        name: String = "name",
-        email: String = "email@mail.com",
-        phone: String = "+375291234567",
-        gender: Gender = Gender.MALE,
+        name: String = NAME,
+        email: String = EMAIL,
+        phone: String = PHONE,
+        gender: Gender = GENDER,
         car: Car = CarTestDataUtil.getCar(),
         status: EntryStatus = EntryStatus.ACTIVE,
         createdAt: LocalDateTime = LocalDateTime.now()
