@@ -1,5 +1,11 @@
 package io.simakkoi9.driverservice.service.impl
 
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DuplicateCarFoundException
 import io.simakkoi9.driverservice.model.dto.rest.car.request.CarCreateRequest
@@ -20,13 +26,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.data.domain.PageImpl
@@ -34,21 +33,22 @@ import java.util.Optional
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@ExtendWith(MockitoExtension::class)
+@ExtendWith(MockKExtension::class)
 class CarServiceImplTest {
-    @Mock
+
+    @MockK
     lateinit var carRepository: CarRepository
 
-    @Mock
+    @MockK
     lateinit var driverRepository: DriverRepository
 
-    @Mock
+    @MockK
     lateinit var carMapper: CarMapper
 
-    @Mock
+    @MockK
     lateinit var messageSource: MessageSource
 
-    @InjectMocks
+    @InjectMockKs
     lateinit var carServiceImpl: CarServiceImpl
 
     private lateinit var car: Car
@@ -72,11 +72,10 @@ class CarServiceImplTest {
 
     @Test
     fun testCreateCar_ShouldReturnResponse_Valid() {
-        `when`(carMapper.toEntity(carCreateRequest)).thenReturn(car)
-        `when`(carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE))
-            .thenReturn(false)
-        `when`(carRepository.save(car)).thenReturn(car)
-        `when`(carMapper.toResponse(car)).thenReturn(carResponse)
+        every { carMapper.toEntity(carCreateRequest) } returns car
+        every { carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE) } returns false
+        every { carRepository.save(car) } returns car
+        every { carMapper.toResponse(car) } returns carResponse
 
         val result = carServiceImpl.createCar(carCreateRequest)
 
@@ -84,47 +83,41 @@ class CarServiceImplTest {
             { assertNotNull(result) },
             { assertEquals(carResponse, result) }
         )
-        verify(carMapper).toEntity(carCreateRequest)
-        verify(carRepository).save(car)
-        verify(carMapper).toResponse(car)
-        verifyNoMoreInteractions(carMapper, carRepository)
+        verify(exactly = 1) { carMapper.toEntity(carCreateRequest) }
+        verify(exactly = 1) { carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE) }
+        verify(exactly = 1) { carRepository.save(car) }
+        verify(exactly = 1) { carMapper.toResponse(car) }
+        confirmVerified(carMapper, carRepository)
     }
 
     @Test
     fun testCreateCar_ShouldThrowDuplicateException() {
-        `when`(carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE))
-            .thenReturn(true)
+        every { carMapper.toEntity(carCreateRequest) } returns car
+        every { carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE) } returns true
         val expectedMessage = CarTestDataUtil.getDuplicateCarErrorMessage(carCreateRequest.number)
-        `when`(
+        every {
             messageSource.getMessage(
                 MessageKeyConstants.DUPLICATE_CAR_FOUND,
                 arrayOf(carCreateRequest.number),
                 LocaleContextHolder.getLocale()
             )
-        ).thenReturn(expectedMessage)
+        } returns expectedMessage
 
         val exception = assertThrows<DuplicateCarFoundException> {
             carServiceImpl.createCar(carCreateRequest)
         }
 
         assertEquals(expectedMessage, exception.message)
-        verify(carRepository).existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE)
-        verifyNoMoreInteractions(carRepository)
+        verify(exactly = 1) { carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE) }
+        confirmVerified(carRepository)
     }
 
     @Test
     fun testUpdateCar_ShouldReturnResponse_Valid() {
-        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
-            .thenReturn(Optional.of(car))
-        doAnswer {
-            val car = it.getArgument<Car>(1)
-            car.apply {
-                this.model = updatedCar.model
-            }
-            null
-        }.`when`(carMapper).partialUpdate(carUpdateRequest, car)
-        `when`(carRepository.save(car)).thenReturn(car)
-        `when`(carMapper.toResponse(car)).thenReturn(updatedCarResponse)
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
+        every { carMapper.partialUpdate(carUpdateRequest, car) } answers { car.apply { this.model = updatedCar.model } }
+        every { carRepository.save(car) } returns car
+        every { carMapper.toResponse(car) } returns updatedCarResponse
 
         val result = carServiceImpl.updateCar(CarTestDataUtil.ID, carUpdateRequest)
 
@@ -132,41 +125,41 @@ class CarServiceImplTest {
             { assertNotNull(result) },
             { assertEquals(updatedCarResponse, result) }
         )
-        verify(carMapper).partialUpdate(carUpdateRequest, car)
-        verify(carRepository).save(car)
-        verify(carMapper).toResponse(car)
-        verifyNoMoreInteractions(carMapper, carRepository)
+        verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
+        verify(exactly = 1) { carMapper.partialUpdate(carUpdateRequest, car) }
+        verify(exactly = 1) { carRepository.save(car) }
+        verify(exactly = 1) { carMapper.toResponse(car) }
+        confirmVerified(carMapper, carRepository)
     }
 
     @Test
     fun testUpdateCar_ShouldThrowNotFoundException() {
-        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
-            .thenReturn(Optional.empty())
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.empty()
         val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
-        `when`(
+        every {
             messageSource.getMessage(
                 MessageKeyConstants.CAR_NOT_FOUND,
                 arrayOf(CarTestDataUtil.ID.toString()),
                 LocaleContextHolder.getLocale()
             )
-        ).thenReturn(expectedMessage)
+        } returns expectedMessage
 
         val exception = assertThrows<CarNotFoundException> {
             carServiceImpl.updateCar(CarTestDataUtil.ID, carUpdateRequest)
         }
 
         assertEquals(expectedMessage, exception.message)
-        verify(carRepository).findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE)
-        verifyNoMoreInteractions(carRepository, carMapper)
+        verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
+        confirmVerified(carRepository, carMapper)
     }
 
     @Test
     fun testDeleteCar_ShouldReturnResponse_Valid() {
-        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
-            .thenReturn(Optional.of(car))
-        `when`(driverRepository.findAllByCarAndStatus(car, EntryStatus.ACTIVE)).thenReturn(listOf(driver))
-        `when`(carRepository.save(car)).thenReturn(car)
-        `when`(carMapper.toResponse(car)).thenReturn(carResponse)
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
+        every { driverRepository.findAllByCarAndStatus(car, EntryStatus.ACTIVE) } returns listOf(driver)
+        every { driverRepository.save(driver) } returns driver
+        every { carRepository.save(car) } returns car
+        every { carMapper.toResponse(car) } returns carResponse
 
         val result = carServiceImpl.deleteCar(CarTestDataUtil.ID)
 
@@ -176,40 +169,40 @@ class CarServiceImplTest {
             { assertEquals(EntryStatus.DELETED, car.status) },
             { assertNull(driver.car) }
         )
-        verify(driverRepository).findAllByCarAndStatus(car, EntryStatus.ACTIVE)
-        verify(driverRepository).save(driver)
-        verify(carRepository).save(car)
-        verify(carMapper).toResponse(car)
-        verifyNoMoreInteractions(carMapper, carRepository, driverRepository)
+
+        verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
+        verify(exactly = 1) { driverRepository.findAllByCarAndStatus(car, EntryStatus.ACTIVE) }
+        verify(exactly = 1) { driverRepository.save(driver) }
+        verify(exactly = 1) { carRepository.save(car) }
+        verify(exactly = 1) { carMapper.toResponse(car) }
+        confirmVerified(carMapper, carRepository, driverRepository)
     }
 
     @Test
     fun testDeleteCar_ShouldThrowNotFoundException() {
-        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
-            .thenReturn(Optional.empty())
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.empty()
         val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
-        `when`(
+        every {
             messageSource.getMessage(
                 MessageKeyConstants.CAR_NOT_FOUND,
                 arrayOf(CarTestDataUtil.ID.toString()),
                 LocaleContextHolder.getLocale()
             )
-        ).thenReturn(expectedMessage)
+        } returns expectedMessage
 
         val exception = assertThrows<CarNotFoundException> {
             carServiceImpl.deleteCar(CarTestDataUtil.ID)
         }
 
         assertEquals(expectedMessage, exception.message)
-        verify(carRepository).findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE)
-        verifyNoMoreInteractions(carRepository, driverRepository)
+        verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
+        confirmVerified(carRepository, driverRepository)
     }
 
     @Test
     fun testGetCar_ShouldReturnResponse_Valid() {
-        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
-            .thenReturn(Optional.of(car))
-        `when`(carMapper.toResponse(car)).thenReturn(carResponse)
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
+        every { carMapper.toResponse(car) } returns carResponse
 
         val result = carServiceImpl.getCar(CarTestDataUtil.ID)
 
@@ -217,30 +210,29 @@ class CarServiceImplTest {
             { assertNotNull(result) },
             { assertEquals(carResponse, result) }
         )
-        verify(carMapper).toResponse(car)
-        verifyNoMoreInteractions(carMapper)
+        verify(exactly = 1) { carMapper.toResponse(car) }
+        confirmVerified(carMapper)
     }
 
     @Test
     fun testGetCar_ShouldThrowNotFoundException() {
-        `when`(carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE))
-            .thenReturn(Optional.empty())
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.empty()
         val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
-        `when`(
+        every {
             messageSource.getMessage(
                 MessageKeyConstants.CAR_NOT_FOUND,
                 arrayOf(CarTestDataUtil.ID.toString()),
                 LocaleContextHolder.getLocale()
             )
-        ).thenReturn(expectedMessage)
+        } returns expectedMessage
 
         val exception = assertThrows<CarNotFoundException> {
             carServiceImpl.getCar(CarTestDataUtil.ID)
         }
 
         assertEquals(expectedMessage, exception.message)
-        verify(carRepository).findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE)
-        verifyNoMoreInteractions(carRepository)
+        verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
+        confirmVerified(carRepository)
     }
 
     @Test
@@ -251,9 +243,8 @@ class CarServiceImplTest {
             CarTestDataUtil.TOTAL_ELEMENTS
         )
         val pageResponse = CarTestDataUtil.getPageResponse(listOf(carResponse))
-        `when`(carRepository.findAllByStatus(EntryStatus.ACTIVE, CarTestDataUtil.getPageRequest()))
-            .thenReturn(carPage)
-        `when`(carMapper.toPageResponse(carPage)).thenReturn(pageResponse)
+        every { carRepository.findAllByStatus(EntryStatus.ACTIVE, CarTestDataUtil.getPageRequest()) } returns carPage
+        every { carMapper.toPageResponse(carPage) } returns pageResponse
 
         val result = carServiceImpl.getAllCars(CarTestDataUtil.PAGE, CarTestDataUtil.SIZE)
 
@@ -261,9 +252,9 @@ class CarServiceImplTest {
             { assertNotNull(result) },
             { assertEquals(pageResponse, result) }
         )
-        verify(carRepository).findAllByStatus(EntryStatus.ACTIVE, CarTestDataUtil.getPageRequest())
-        verify(carMapper).toPageResponse(carPage)
-        verifyNoMoreInteractions(carRepository, carMapper)
+        verify(exactly = 1) { carRepository.findAllByStatus(EntryStatus.ACTIVE, CarTestDataUtil.getPageRequest()) }
+        verify(exactly = 1) { carMapper.toPageResponse(carPage) }
+        confirmVerified(carRepository, carMapper)
     }
-
 }
+

@@ -1,5 +1,13 @@
 package io.simakkoi9.driverservice.controller
 
+import io.mockk.MockKAnnotations
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import io.mockk.verify
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest
 import io.simakkoi9.driverservice.model.dto.rest.driver.response.DriverResponse
@@ -10,23 +18,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.`when`
-import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-@ExtendWith(MockitoExtension::class)
+@ExtendWith(MockKExtension::class)
 class DriverControllerTest {
 
-    @Mock
-    private lateinit var driverService: DriverService
+    @MockK
+    lateinit var driverService: DriverService
 
-    @InjectMocks
-    private lateinit var driverController: DriverController
+    @InjectMockKs
+    lateinit var driverController: DriverController
 
     private lateinit var driverCreateRequest: DriverCreateRequest
     private lateinit var driverUpdateRequest: DriverUpdateRequest
@@ -43,7 +45,7 @@ class DriverControllerTest {
 
     @Test
     fun testCreateDriver_ShouldReturnResponse_Valid() {
-        `when`(driverService.createDriver(driverCreateRequest)).thenReturn(driverResponse)
+        every { driverService.createDriver(driverCreateRequest) } returns driverResponse
 
         val result = driverController.createDriver(driverCreateRequest)
 
@@ -51,14 +53,13 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(driverResponse, result) }
         )
-        verify(driverService).createDriver(driverCreateRequest)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.createDriver(driverCreateRequest) }
+        confirmVerified(driverService)
     }
 
     @Test
     fun testUpdateDriver_ShouldReturnResponse_Valid() {
-        `when`(driverService.updateDriver(DriverTestDataUtil.ID, driverUpdateRequest))
-            .thenReturn(updatedDriverResponse)
+        every { driverService.updateDriver(DriverTestDataUtil.ID, driverUpdateRequest) } returns updatedDriverResponse
 
         val result = driverController.updateDriver(DriverTestDataUtil.ID, driverUpdateRequest)
 
@@ -66,13 +67,13 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(updatedDriverResponse, result) }
         )
-        verify(driverService).updateDriver(DriverTestDataUtil.ID, driverUpdateRequest)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.updateDriver(DriverTestDataUtil.ID, driverUpdateRequest) }
+        confirmVerified(driverService)
     }
 
     @Test
     fun testDeleteDriver_ShouldReturnResponse_Valid() {
-        `when`(driverService.deleteDriver(DriverTestDataUtil.ID)).thenReturn(driverResponse)
+        every { driverService.deleteDriver(DriverTestDataUtil.ID) } returns driverResponse
 
         val result = driverController.deleteDriver(DriverTestDataUtil.ID)
 
@@ -80,13 +81,13 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(driverResponse, result) }
         )
-        verify(driverService).deleteDriver(DriverTestDataUtil.ID)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.deleteDriver(DriverTestDataUtil.ID) }
+        confirmVerified(driverService)
     }
 
     @Test
     fun testGetDriver_ShouldReturnResponse_Valid() {
-        `when`(driverService.getDriver(DriverTestDataUtil.ID)).thenReturn(driverResponse)
+        every { driverService.getDriver(DriverTestDataUtil.ID) } returns driverResponse
 
         val result = driverController.getDriver(DriverTestDataUtil.ID)
 
@@ -94,14 +95,14 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(driverResponse, result) }
         )
-        verify(driverService).getDriver(DriverTestDataUtil.ID)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.getDriver(DriverTestDataUtil.ID) }
+        confirmVerified(driverService)
     }
 
     @Test
     fun testSetCarForDriver_ShouldReturnResponse_Valid() {
         val carId = CarTestDataUtil.ID
-        `when`(driverService.setCarForDriver(DriverTestDataUtil.ID, carId)).thenReturn(driverResponse)
+        every { driverService.setCarForDriver(DriverTestDataUtil.ID, carId) } returns driverResponse
 
         val result = driverController.updateCarForDriver(DriverTestDataUtil.ID, carId)
 
@@ -109,13 +110,13 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(driverResponse, result) }
         )
-        verify(driverService).setCarForDriver(DriverTestDataUtil.ID, carId)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.setCarForDriver(DriverTestDataUtil.ID, carId) }
+        confirmVerified(driverService)
     }
 
     @Test
     fun testRemoveCarForDriver_ShouldReturnResponse_Valid() {
-        `when`(driverService.removeCarForDriver(DriverTestDataUtil.ID)).thenReturn(driverResponse)
+        every { driverService.removeCarForDriver(DriverTestDataUtil.ID) } returns driverResponse
 
         val result = driverController.removeCarForDriver(DriverTestDataUtil.ID)
 
@@ -123,15 +124,14 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(driverResponse, result) }
         )
-        verify(driverService).removeCarForDriver(DriverTestDataUtil.ID)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.removeCarForDriver(DriverTestDataUtil.ID) }
+        confirmVerified(driverService)
     }
 
     @Test
     fun testGetAllDrivers_ShouldReturnResponse_Valid() {
         val pageResponse = DriverTestDataUtil.getPageResponse(listOf(driverResponse))
-        `when`(driverService.getAllDrivers(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE))
-            .thenReturn(pageResponse)
+        every { driverService.getAllDrivers(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE) } returns pageResponse
 
         val result = driverController.getAllDrivers(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE)
 
@@ -139,7 +139,7 @@ class DriverControllerTest {
             { assertNotNull(result) },
             { assertEquals(pageResponse, result) }
         )
-        verify(driverService).getAllDrivers(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE)
-        verifyNoMoreInteractions(driverService)
+        verify { driverService.getAllDrivers(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE) }
+        confirmVerified(driverService)
     }
 }

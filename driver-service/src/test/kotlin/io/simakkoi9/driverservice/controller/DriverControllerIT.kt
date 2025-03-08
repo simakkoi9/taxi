@@ -25,11 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(PostgresTestContainer::class)
 class DriverControllerIT {
@@ -42,16 +38,6 @@ class DriverControllerIT {
 
     @Autowired
     private lateinit var carRepository: CarRepository
-
-    companion object {
-        @JvmStatic
-        @DynamicPropertySource
-        fun properties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", PostgresTestContainer.getInstance()::getJdbcUrl)
-            registry.add("spring.datasource.username", PostgresTestContainer.getInstance()::getUsername)
-            registry.add("spring.datasource.password", PostgresTestContainer.getInstance()::getPassword)
-        }
-    }
 
     @BeforeEach
     fun setup() {
