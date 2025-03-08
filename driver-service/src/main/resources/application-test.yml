@@ -1,0 +1,17 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: driver-service
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+
+  liquibase:
+    change-log: classpath:/db/changelog/main-changelog.yaml
+    contexts: test
