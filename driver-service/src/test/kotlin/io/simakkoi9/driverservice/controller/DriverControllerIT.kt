@@ -115,7 +115,7 @@ class DriverControllerIT {
     }
 
     @Test
-    fun testUpdateCarForDriver_Valid() {
+    fun testSetCarForDriver_Valid() {
         val driver = DriverITDataUtil.getDriver()
         val savedDriver = driverRepository.save(driver)
         val car = CarITDataUtil.getCar()
@@ -254,7 +254,7 @@ class DriverControllerIT {
     }
 
     @Test
-    fun testUpdateCarForDriver_CarNotFound() {
+    fun testSetCarForDriver_CarNotFound() {
         val driver = DriverITDataUtil.getDriver()
         val savedDriver = driverRepository.save(driver)
 
@@ -268,7 +268,7 @@ class DriverControllerIT {
     }
 
     @Test
-    fun testUpdateCarForDriver_DriverNotFound() {
+    fun testSetCarForDriver_DriverNotFound() {
         val car = CarITDataUtil.getCar()
         val savedCar = carRepository.save(car)
 

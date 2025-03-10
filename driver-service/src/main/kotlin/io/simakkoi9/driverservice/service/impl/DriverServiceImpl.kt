@@ -59,12 +59,14 @@ class DriverServiceImpl(
 
     @Transactional
     override fun setCarForDriver(driverId: Long, carId: Long): DriverResponse {
+        val driver = findActiveDriverByIdOrElseThrow(driverId)
+
         if (!isCarAvailable(carId)) {
             throw CarIsNotAvailableException(MessageKeyConstants.CAR_IS_NOT_AVAILABLE, messageSource)
         }
-        val driver = findActiveDriverByIdOrElseThrow(driverId)
         val car = findActiveCarByIdOrElseThrow(carId)
         driver.car = car
+
         val updatedDriver = driverRepository.save(driver)
         return driverMapper.toResponse(updatedDriver)
     }

@@ -1,12 +1,10 @@
 package io.simakkoi9.driverservice.controller
 
-import io.mockk.MockKAnnotations
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import io.mockk.verify
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverCreateRequest
 import io.simakkoi9.driverservice.model.dto.rest.driver.request.DriverUpdateRequest

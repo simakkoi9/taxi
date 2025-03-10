@@ -193,7 +193,10 @@ class DriverServiceImplTest {
 
     @Test
     fun testSetCarForDriver_ShouldThrowIsNotAvailableException_CarIsNotPresent() {
-        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.empty()
+        every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns
+                Optional.of(driver)
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns
+                Optional.empty()
         val expectedMessage = DriverTestDataUtil.getCarIsNotAvailableErrorMessage()
         every {
             messageSource.getMessage(
@@ -208,13 +211,17 @@ class DriverServiceImplTest {
         }
 
         assertEquals(expectedMessage, exception.message)
+        verify(exactly = 1) { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) }
         verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
         confirmVerified(carRepository, driverRepository)
     }
 
     @Test
     fun testSetCarForDriver_ShouldThrowIsNotAvailableException_CarAlreadyAssigned() {
-        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
+        every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns
+                Optional.of(driver)
+        every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns
+                Optional.of(car)
         every { driverRepository.existsByCarAndStatus(car, EntryStatus.ACTIVE) } returns true
         val expectedMessage = DriverTestDataUtil.getCarIsNotAvailableErrorMessage()
         every {
@@ -230,6 +237,7 @@ class DriverServiceImplTest {
         }
 
         assertEquals(expectedMessage, exception.message)
+        verify(exactly = 1) { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) }
         verify(exactly = 1) { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) }
         verify(exactly = 1) { driverRepository.existsByCarAndStatus(car, EntryStatus.ACTIVE) }
         confirmVerified(carRepository, driverRepository)
