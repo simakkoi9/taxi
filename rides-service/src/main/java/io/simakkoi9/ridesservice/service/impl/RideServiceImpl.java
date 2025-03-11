@@ -73,18 +73,16 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest) {
         Ride ride = findRideByIdOrElseThrow(id);
-        if (
-            ride.getStatus().getCode() >= rideUpdateRequest.status().getCode()
-                || RideStatus.getImmutableStatusList().contains(ride.getStatus())
-        ) {
-            throw new InvalidStatusException(
-                    MessageKeyConstants.INVALID_STATUS,
-                    messageSource,
-                    rideUpdateRequest.status().toValue()
-            );
-        }
 
         mapper.partialUpdate(rideUpdateRequest, ride);
+
+        if (rideUpdateRequest.pickupAddress() != null || rideUpdateRequest.destinationAddress() != null) {
+            BigDecimal cost = fareService.calculateFare(
+                    ride.getPickupAddress(), ride.getDestinationAddress()
+            ).block();
+            ride.setCost(cost);
+        }
+
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
     }
@@ -111,6 +109,7 @@ public class RideServiceImpl implements RideService {
         ride.setDriver(driver);
         ride.setStatus(RideStatus.ACCEPTED);
         Ride updatedRide = repository.save(ride);
+        responseCache.remove(id);
 
         return mapper.toResponse(updatedRide);
     }
@@ -130,7 +129,7 @@ public class RideServiceImpl implements RideService {
         if (
             ride.getStatus().getCode() >= rideStatus.getCode()
                 || (
-                    ride.getStatus().getCode() == rideStatus.getCode() - 1
+                    rideStatus.getCode() > ride.getStatus().getCode() + 1
                     && !RideStatus.getImmutableStatusList().contains(rideStatus)
                 )
                 || RideStatus.getImmutableStatusList().contains(ride.getStatus())
