@@ -35,14 +35,13 @@ class DriverControllerTest {
 
     @BeforeEach
     fun setUp() {
-        driverCreateRequest = DriverTestDataUtil.getDriverCreateRequest()
-        driverUpdateRequest = DriverTestDataUtil.getDriverUpdateRequest()
-        driverResponse = DriverTestDataUtil.getDriverResponse()
-        updatedDriverResponse = DriverTestDataUtil.getDriverResponse(name = "otherName")
+
     }
 
     @Test
     fun testCreateDriver_ShouldReturnResponse_Valid() {
+        driverCreateRequest = DriverTestDataUtil.getDriverCreateRequest()
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverService.createDriver(driverCreateRequest) } returns driverResponse
 
         val result = driverController.createDriver(driverCreateRequest)
@@ -57,6 +56,8 @@ class DriverControllerTest {
 
     @Test
     fun testUpdateDriver_ShouldReturnResponse_Valid() {
+        driverUpdateRequest = DriverTestDataUtil.getDriverUpdateRequest()
+        updatedDriverResponse = DriverTestDataUtil.getDriverResponse(name = "otherName")
         every { driverService.updateDriver(DriverTestDataUtil.ID, driverUpdateRequest) } returns updatedDriverResponse
 
         val result = driverController.updateDriver(DriverTestDataUtil.ID, driverUpdateRequest)
@@ -71,6 +72,7 @@ class DriverControllerTest {
 
     @Test
     fun testDeleteDriver_ShouldReturnResponse_Valid() {
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverService.deleteDriver(DriverTestDataUtil.ID) } returns driverResponse
 
         val result = driverController.deleteDriver(DriverTestDataUtil.ID)
@@ -85,6 +87,7 @@ class DriverControllerTest {
 
     @Test
     fun testGetDriver_ShouldReturnResponse_Valid() {
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverService.getDriver(DriverTestDataUtil.ID) } returns driverResponse
 
         val result = driverController.getDriver(DriverTestDataUtil.ID)
@@ -100,6 +103,7 @@ class DriverControllerTest {
     @Test
     fun testSetCarForDriver_ShouldReturnResponse_Valid() {
         val carId = CarTestDataUtil.ID
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverService.setCarForDriver(DriverTestDataUtil.ID, carId) } returns driverResponse
 
         val result = driverController.updateCarForDriver(DriverTestDataUtil.ID, carId)
@@ -114,6 +118,7 @@ class DriverControllerTest {
 
     @Test
     fun testRemoveCarForDriver_ShouldReturnResponse_Valid() {
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverService.removeCarForDriver(DriverTestDataUtil.ID) } returns driverResponse
 
         val result = driverController.removeCarForDriver(DriverTestDataUtil.ID)
@@ -128,6 +133,7 @@ class DriverControllerTest {
 
     @Test
     fun testGetAllDrivers_ShouldReturnResponse_Valid() {
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         val pageResponse = DriverTestDataUtil.getPageResponse(listOf(driverResponse))
         every { driverService.getAllDrivers(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE) } returns pageResponse
 

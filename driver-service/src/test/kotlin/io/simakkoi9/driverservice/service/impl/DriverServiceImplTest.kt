@@ -70,19 +70,14 @@ class DriverServiceImplTest {
 
     @BeforeEach
     fun setUp() {
-        driverCreateRequest = DriverTestDataUtil.getDriverCreateRequest()
-        driverUpdateRequest = DriverTestDataUtil.getDriverUpdateRequest()
-        car = CarTestDataUtil.getCar()
-        driver = DriverTestDataUtil.getDriver()
-        driverWithCar = DriverTestDataUtil.getDriver(car = car)
-        updatedDriver = DriverTestDataUtil.getDriver(name = "otherName")
-        driverResponse = DriverTestDataUtil.getDriverResponse()
-        driverResponseWithCar = DriverTestDataUtil.getDriverResponse(carId = car.id)
-        kafkaDriverResponse = DriverTestDataUtil.getKafkaDriverResponse()
+
     }
 
     @Test
     fun testCreateDriver_ShouldReturnResponse_Valid() {
+        driverCreateRequest = DriverTestDataUtil.getDriverCreateRequest()
+        driver = DriverTestDataUtil.getDriver()
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverMapper.toEntity(driverCreateRequest) } returns driver
         every { driverRepository.existsByEmailAndStatus(driverCreateRequest.email, EntryStatus.ACTIVE) } returns false
         every { driverRepository.save(driver) } returns driver
@@ -103,6 +98,8 @@ class DriverServiceImplTest {
 
     @Test
     fun testCreateDriver_ShouldThrowDuplicateException() {
+        driverCreateRequest = DriverTestDataUtil.getDriverCreateRequest()
+        driver = DriverTestDataUtil.getDriver()
         every { driverMapper.toEntity(driverCreateRequest) } returns driver
         every { driverRepository.existsByEmailAndStatus(driverCreateRequest.email, EntryStatus.ACTIVE) } returns true
         val expectedMessage = DriverTestDataUtil.getDuplicateDriverErrorMessage(driverCreateRequest.email)
@@ -126,6 +123,10 @@ class DriverServiceImplTest {
 
     @Test
     fun testUpdateDriver_ShouldReturnResponse_Valid() {
+        driverUpdateRequest = DriverTestDataUtil.getDriverUpdateRequest()
+        updatedDriver = DriverTestDataUtil.getDriver(name = "otherName")
+        driver = DriverTestDataUtil.getDriver()
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(driver)
         every { driverMapper.partialUpdate(driverUpdateRequest, driver) } answers {
             driver.apply { this.name = updatedDriver.name }
@@ -149,6 +150,7 @@ class DriverServiceImplTest {
 
     @Test
     fun testUpdateDriver_ShouldThrowDriverNotFoundException() {
+        driverUpdateRequest = DriverTestDataUtil.getDriverUpdateRequest()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.empty()
         val expectedMessage = DriverTestDataUtil.getDriverNotFoundErrorMessage(DriverTestDataUtil.ID)
         every {
@@ -170,6 +172,9 @@ class DriverServiceImplTest {
 
     @Test
     fun testSetCarForDriver_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        driver = DriverTestDataUtil.getDriver()
+        driverResponseWithCar = DriverTestDataUtil.getDriverResponse(carId = car.id)
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
         every { driverRepository.existsByCarAndStatus(car, EntryStatus.ACTIVE) } returns false
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(driver)
@@ -193,6 +198,7 @@ class DriverServiceImplTest {
 
     @Test
     fun testSetCarForDriver_ShouldThrowIsNotAvailableException_CarIsNotPresent() {
+        driver = DriverTestDataUtil.getDriver()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns
                 Optional.of(driver)
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns
@@ -218,6 +224,8 @@ class DriverServiceImplTest {
 
     @Test
     fun testSetCarForDriver_ShouldThrowIsNotAvailableException_CarAlreadyAssigned() {
+        car = CarTestDataUtil.getCar()
+        driver = DriverTestDataUtil.getDriver()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns
                 Optional.of(driver)
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns
@@ -245,6 +253,9 @@ class DriverServiceImplTest {
 
     @Test
     fun testRemoveCarForDriver_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        driverWithCar = DriverTestDataUtil.getDriver(car = car)
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(driverWithCar)
         every { driverRepository.save(driverWithCar) } returns driverWithCar
         every { driverMapper.toResponse(driverWithCar) } returns driverResponse
@@ -264,6 +275,8 @@ class DriverServiceImplTest {
 
     @Test
     fun testDeleteDriver_ShouldReturnResponse_Valid() {
+        driver = DriverTestDataUtil.getDriver()
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(driver)
         every { driverRepository.save(driver) } returns driver
         every { driverMapper.toResponse(driver) } returns driverResponse
@@ -283,6 +296,8 @@ class DriverServiceImplTest {
 
     @Test
     fun testGetDriver_ShouldReturnResponse_Valid() {
+        driver = DriverTestDataUtil.getDriver()
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         every { driverRepository.findByIdAndStatus(DriverTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(driver)
         every { driverMapper.toResponse(driver) } returns driverResponse
 
@@ -299,6 +314,8 @@ class DriverServiceImplTest {
 
     @Test
     fun testGetAvailableDriverForRide_ShouldReturnKafkaResponse() {
+        driver = DriverTestDataUtil.getDriver()
+        kafkaDriverResponse = DriverTestDataUtil.getKafkaDriverResponse()
         every {
             driverRepository.findFirstByStatusAndCarNotNullAndIdNotIn(
                 EntryStatus.ACTIVE,
@@ -347,6 +364,8 @@ class DriverServiceImplTest {
 
     @Test
     fun testGetAllDrivers_ShouldReturnPagedResponse_Valid() {
+        driver = DriverTestDataUtil.getDriver()
+        driverResponse = DriverTestDataUtil.getDriverResponse()
         val driverPage = PageImpl(
             listOf(driver),
             DriverTestDataUtil.getPageRequest(),

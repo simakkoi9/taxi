@@ -61,17 +61,14 @@ class CarServiceImplTest {
 
     @BeforeEach
     fun setUp() {
-        car = CarTestDataUtil.getCar()
-        updatedCar = CarTestDataUtil.getCar(model = "Corolla")
-        carCreateRequest = CarTestDataUtil.getCarCreateRequest()
-        carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
-        carResponse = CarTestDataUtil.getCarResponse()
-        updatedCarResponse = CarTestDataUtil.getCarResponse(model = "Corolla")
-        driver = DriverTestDataUtil.getDriver()
+
     }
 
     @Test
     fun testCreateCar_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        carCreateRequest = CarTestDataUtil.getCarCreateRequest()
+        carResponse = CarTestDataUtil.getCarResponse()
         every { carMapper.toEntity(carCreateRequest) } returns car
         every { carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE) } returns false
         every { carRepository.save(car) } returns car
@@ -92,6 +89,8 @@ class CarServiceImplTest {
 
     @Test
     fun testCreateCar_ShouldThrowDuplicateException() {
+        car = CarTestDataUtil.getCar()
+        carCreateRequest = CarTestDataUtil.getCarCreateRequest()
         every { carMapper.toEntity(carCreateRequest) } returns car
         every { carRepository.existsByNumberAndStatus(carCreateRequest.number, EntryStatus.ACTIVE) } returns true
         val expectedMessage = CarTestDataUtil.getDuplicateCarErrorMessage(carCreateRequest.number)
@@ -114,6 +113,10 @@ class CarServiceImplTest {
 
     @Test
     fun testUpdateCar_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
+        updatedCar = CarTestDataUtil.getCar(model = "Corolla")
+        updatedCarResponse = CarTestDataUtil.getCarResponse(model = "Corolla")
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
         every { carMapper.partialUpdate(carUpdateRequest, car) } answers { car.apply { this.model = updatedCar.model } }
         every { carRepository.save(car) } returns car
@@ -134,6 +137,7 @@ class CarServiceImplTest {
 
     @Test
     fun testUpdateCar_ShouldThrowNotFoundException() {
+        carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.empty()
         val expectedMessage = CarTestDataUtil.getCarNotFoundErrorMessage(CarTestDataUtil.ID)
         every {
@@ -155,6 +159,9 @@ class CarServiceImplTest {
 
     @Test
     fun testDeleteCar_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        carResponse = CarTestDataUtil.getCarResponse()
+        driver = DriverTestDataUtil.getDriver()
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
         every { driverRepository.findAllByCarAndStatus(car, EntryStatus.ACTIVE) } returns listOf(driver)
         every { driverRepository.save(driver) } returns driver
@@ -201,6 +208,8 @@ class CarServiceImplTest {
 
     @Test
     fun testGetCar_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        carResponse = CarTestDataUtil.getCarResponse()
         every { carRepository.findByIdAndStatus(CarTestDataUtil.ID, EntryStatus.ACTIVE) } returns Optional.of(car)
         every { carMapper.toResponse(car) } returns carResponse
 
@@ -237,6 +246,8 @@ class CarServiceImplTest {
 
     @Test
     fun testGetAllCars_ShouldReturnResponse_Valid() {
+        car = CarTestDataUtil.getCar()
+        carResponse = CarTestDataUtil.getCarResponse()
         val carPage = PageImpl(
             listOf(car),
             CarTestDataUtil.getPageRequest(),

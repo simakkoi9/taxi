@@ -34,14 +34,13 @@ class CarControllerTest {
 
     @BeforeEach
     fun setUp() {
-        carCreateRequest = CarTestDataUtil.getCarCreateRequest()
-        carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
-        carResponse = CarTestDataUtil.getCarResponse()
-        updatedCarResponse = CarTestDataUtil.getCarResponse(model = "Corolla")
+
     }
 
     @Test
     fun testCreateCar_ShouldReturnResponse_Valid() {
+        carCreateRequest = CarTestDataUtil.getCarCreateRequest()
+        carResponse = CarTestDataUtil.getCarResponse()
         every { carService.createCar(carCreateRequest) } returns carResponse
 
         val result = carController.createCar(carCreateRequest)
@@ -56,6 +55,8 @@ class CarControllerTest {
 
     @Test
     fun testUpdateCar_ShouldReturnResponse_Valid() {
+        carUpdateRequest = CarTestDataUtil.getCarUpdateRequest()
+        updatedCarResponse = CarTestDataUtil.getCarResponse(model = "Corolla")
         every { carService.updateCar(CarTestDataUtil.ID, carUpdateRequest) } returns updatedCarResponse
 
         val result = carController.updateCar(CarTestDataUtil.ID, carUpdateRequest)
@@ -70,6 +71,7 @@ class CarControllerTest {
 
     @Test
     fun testDeleteCar_ShouldReturnResponse_Valid() {
+        carResponse = CarTestDataUtil.getCarResponse()
         every { carService.deleteCar(CarTestDataUtil.ID) } returns carResponse
 
         val result = carController.deleteCar(CarTestDataUtil.ID)
@@ -84,6 +86,7 @@ class CarControllerTest {
 
     @Test
     fun testGetCar_ShouldReturnResponse_Valid() {
+        carResponse = CarTestDataUtil.getCarResponse()
         every { carService.getCar(CarTestDataUtil.ID) } returns carResponse
 
         val result = carController.getCar(CarTestDataUtil.ID)
@@ -98,6 +101,7 @@ class CarControllerTest {
 
     @Test
     fun testGetAllCars_ShouldReturnPagedResponse_Valid() {
+        carResponse = CarTestDataUtil.getCarResponse()
         val pageResponse = CarTestDataUtil.getPageResponse(listOf(carResponse))
         every { carService.getAllCars(CarTestDataUtil.PAGE, CarTestDataUtil.SIZE) } returns pageResponse
 
