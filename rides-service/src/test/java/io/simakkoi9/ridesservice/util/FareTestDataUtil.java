@@ -12,6 +12,4 @@ public class FareTestDataUtil {
     public static final String OSRM_EXPECTED_PATH = 
         "/route/v1/driving/27.587694,53.929086;27.652157,53.933624?overview=false";
 
-
-
 }

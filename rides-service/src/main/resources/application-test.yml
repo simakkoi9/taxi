@@ -1,0 +1,9 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: rides-service
+  data:
+    mongodb:
+      uri: ${SPRING_MONGO_URI:mongodb://simakkoi:4130@localhost:27017/test_db}

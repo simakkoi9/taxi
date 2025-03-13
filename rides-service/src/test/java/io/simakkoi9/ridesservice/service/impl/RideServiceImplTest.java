@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -133,9 +134,15 @@ class RideServiceImplTest {
         rideUpdateRequest = TestDataUtil.getRideUpdateRequest();
         rideResponse = TestDataUtil.getRideResponse(null);
         when(repository.findById(TestDataUtil.RIDE_ID)).thenReturn(Optional.of(ride));
-        doNothing().when(mapper).partialUpdate(rideUpdateRequest, ride);
+        doAnswer(invocation -> {
+            RideUpdateRequest request = invocation.getArgument(0);
+            Ride ride = invocation.getArgument(1);
+            ride.setPickupAddress(request.pickupAddress());
+            ride.setDestinationAddress(request.destinationAddress());
+            return null;
+        }).when(mapper).partialUpdate(rideUpdateRequest, ride);
         when(fareService.calculateFare(TestDataUtil.PICKUP_ADDRESS_2, TestDataUtil.DESTINATION_ADDRESS_2))
-                .thenReturn(Mono.just(TestDataUtil.COST));
+                .thenReturn(Mono.just(TestDataUtil.COST_2));
         when(repository.save(ride)).thenReturn(ride);
         when(mapper.toResponse(ride)).thenReturn(rideResponse);
 
