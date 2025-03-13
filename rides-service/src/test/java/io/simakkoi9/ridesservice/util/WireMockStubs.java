@@ -26,9 +26,26 @@ public class WireMockStubs {
         );
     }
 
+    public static void mockInvalidPassengerService() {
+        stubFor(
+                WireMock.get(WireMock.urlPathMatching("/api/v1/passengers/999"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(HttpStatus.NOT_FOUND.value())
+                                .withHeader("Content-Type", "application/json")
+                                .withBody(
+                                        """
+                                            {
+                                                "status": 404
+                                            }
+                                        """
+                                )
+                        )
+        );
+    }
+
     public static void mockFareService() {
         stubFor(
-                WireMock.get(WireMock.urlEqualTo(ItDataUtil.OSRM_URL + "/\\s+?overview=false"))
+                WireMock.get(WireMock.urlPathMatching("/route/v1/driving/.*"))
                         .willReturn(WireMock.aResponse()
                                 .withStatus(HttpStatus.OK.value())
                                 .withHeader("Content-Type", "application/json")

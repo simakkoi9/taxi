@@ -116,27 +116,6 @@ public class TestDataUtil {
         );
     }
 
-    public static KafkaCarDto getKafkaCarDto() {
-        return new KafkaCarDto(
-                CAR_ID,
-                CAR_BRAND,
-                CAR_MODEL,
-                CAR_COLOR,
-                CAR_NUMBER
-        );
-    }
-
-    public static KafkaDriverRequest getKafkaDriverRequest() {
-        return new KafkaDriverRequest(
-                DRIVER_ID,
-                DRIVER_NAME,
-                DRIVER_EMAIL,
-                DRIVER_PHONE,
-                Gender.MALE,
-                getKafkaCarDto()
-        );
-    }
-
     public static PageRequest getPageRequest() {
         return PageRequest.of(PAGE, SIZE);
     }

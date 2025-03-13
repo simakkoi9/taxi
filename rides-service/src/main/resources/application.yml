@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: test
   application:
     name: rides-service
   data:
@@ -21,6 +21,7 @@ spring:
             connectTimeout: 5000
             readTimeout: 10000
             url: http://localhost:8080/api/v1/passengers
+
   kafka:
     bootstrap-servers: localhost:9092
 
