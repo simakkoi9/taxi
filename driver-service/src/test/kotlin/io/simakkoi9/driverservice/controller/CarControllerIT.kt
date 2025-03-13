@@ -125,7 +125,7 @@ class CarControllerIT {
     }
 
     @Test
-    fun testGetAllDrivers_Valid() {
+    fun testGetAllCars_Valid() {
         val car1 = CarITDataUtil.getCar()
         val car2 = CarITDataUtil.getCar(model = "Corolla")
         carRepository.saveAll(listOf(car1, car2))
