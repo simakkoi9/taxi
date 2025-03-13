@@ -1,6 +1,6 @@
 package io.simakkoi9.ridesservice.client;
 
-import io.simakkoi9.ridesservice.exception.PassengerNotAvailableException;
+import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,6 @@ public class PassengerClientFallback implements PassengerClient {
 
     @Override
     public PassengerRequest getPassengerById(Long id) {
-        throw new PassengerNotAvailableException(MessageKeyConstants.PASSENGER_NOT_AVAILABLE_ERROR, messageSource);
+        throw new PassengerServiceNotAvailableException(MessageKeyConstants.PASSENGER_NOT_AVAILABLE_ERROR, messageSource);
     }
 }

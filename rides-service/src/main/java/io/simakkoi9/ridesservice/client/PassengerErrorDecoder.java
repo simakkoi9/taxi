@@ -2,7 +2,7 @@ package io.simakkoi9.ridesservice.client;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import io.simakkoi9.ridesservice.exception.PassengerNotAvailableException;
+import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
 import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class PassengerErrorDecoder implements ErrorDecoder {
             );
         }
 
-        return new PassengerNotAvailableException(MessageKeyConstants.PASSENGER_NOT_AVAILABLE_ERROR, messageSource);
+        return new PassengerServiceNotAvailableException(MessageKeyConstants.PASSENGER_NOT_AVAILABLE_ERROR, messageSource);
     }
 
 }

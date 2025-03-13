@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -40,6 +39,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.PageImpl;
 import reactor.core.publisher.Mono;
 
@@ -55,6 +55,8 @@ class RideServiceImplTest {
     FareService fareService;
     @Mock
     PassengerClient passengerClient;
+    @Mock
+    MessageSource messageSource;
     @InjectMocks
     RideServiceImpl rideServiceImpl;
 

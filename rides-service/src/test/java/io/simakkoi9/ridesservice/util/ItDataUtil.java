@@ -4,6 +4,7 @@ import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
 import io.simakkoi9.ridesservice.model.entity.Passenger;
 import io.simakkoi9.ridesservice.model.entity.Ride;
+import io.simakkoi9.ridesservice.model.entity.RideStatus;
 import java.math.BigDecimal;
 
 public class ItDataUtil {
@@ -22,15 +23,37 @@ public class ItDataUtil {
     public static final String DESTINATION_ADDRESS_2 = "55.933624, 27.652157";
     public static final BigDecimal COST = BigDecimal.valueOf(18.82);
     public static final BigDecimal COST_2 = BigDecimal.valueOf(16.93);
+    public static final int INVALID_PAGE = -1;
+    public static final int INVALID_SIZE = 0;
 
     public static RideCreateRequest getRideCreateRequest() {
-        return new RideCreateRequest(PASSENGER_ID, PICKUP_ADDRESS, DESTINATION_ADDRESS);
+        return new RideCreateRequest(
+                PASSENGER_ID,
+                PICKUP_ADDRESS,
+                DESTINATION_ADDRESS
+        );
+    }
+
+    public static RideCreateRequest getInvalidRideCreateRequest() {
+        return new RideCreateRequest(
+                PASSENGER_ID,
+                "123",
+                "123"
+        );
     }
 
     public static Ride getRide() {
         Ride ride = new Ride();
         ride.setPickupAddress(PICKUP_ADDRESS);
         ride.setDestinationAddress(DESTINATION_ADDRESS);
+        ride.setStatus(RideStatus.CREATED);
+        return ride;
+    }
+
+    public static Ride getAnotherRide() {
+        Ride ride = new Ride();
+        ride.setPickupAddress(PICKUP_ADDRESS_2);
+        ride.setDestinationAddress(DESTINATION_ADDRESS_2);
         return ride;
     }
 

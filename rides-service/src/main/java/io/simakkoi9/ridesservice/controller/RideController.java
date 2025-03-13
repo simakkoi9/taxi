@@ -6,6 +6,7 @@ import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;
 import io.simakkoi9.ridesservice.model.dto.rest.response.RideResponse;
 import io.simakkoi9.ridesservice.model.entity.RideStatus;
 import io.simakkoi9.ridesservice.service.RideService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/rides")
 @RequiredArgsConstructor
+@Validated
 public class RideController {
 
     private final RideService rideService;
@@ -54,8 +56,8 @@ public class RideController {
 
     @GetMapping
     public PageResponse<RideResponse> getAllRides(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @Min(value = 0, message = "{page.current.min}") @RequestParam(defaultValue = "0") int page,
+            @Min(value = 1, message = "{page.size.min}") @RequestParam(defaultValue = "10") int size
     ) {
         return rideService.getAllRides(page, size);
     }

@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 public class WireMockStubs {
     public static void mockPassengerService() {
         stubFor(
-                WireMock.get(WireMock.urlPathMatching("/api/v1/passengers/\\d+"))
+                WireMock.get(WireMock.urlPathMatching("/api/v1/passengers/1"))
                         .willReturn(WireMock.aResponse()
                                 .withStatus(HttpStatus.OK.value())
                                 .withHeader("Content-Type", "application/json")
