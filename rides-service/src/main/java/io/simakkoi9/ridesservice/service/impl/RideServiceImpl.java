@@ -96,7 +96,7 @@ public class RideServiceImpl implements RideService {
         BlockingQueue<KafkaDriverRequest> queue = responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
         KafkaDriverRequest kafkaDriverRequest = null;
         try {
-            kafkaDriverRequest = queue.poll(10, TimeUnit.SECONDS);
+            kafkaDriverRequest = queue.poll(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
