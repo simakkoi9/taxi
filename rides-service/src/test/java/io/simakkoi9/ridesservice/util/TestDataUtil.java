@@ -1,8 +1,6 @@
 package io.simakkoi9.ridesservice.util;
 
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
-import io.simakkoi9.ridesservice.model.dto.kafka.KafkaCarDto;
-import io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideCreateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.request.RideUpdateRequest;
 import io.simakkoi9.ridesservice.model.dto.rest.response.PageResponse;

@@ -28,7 +28,6 @@ import java.util.concurrent.CompletableFuture;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.apache.http.impl.conn.Wire;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +59,6 @@ public class RideControllerIT {
     @Autowired
     @Qualifier("testDriverRequestKafkaTemplate")
     private KafkaTemplate<String, KafkaDriverRequest> testKafkaTemplate;
-
-    @Autowired
-    private KafkaConsumer kafkaConsumer;
-
 
     @BeforeEach
     void setUp() {
@@ -177,7 +172,7 @@ public class RideControllerIT {
 
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

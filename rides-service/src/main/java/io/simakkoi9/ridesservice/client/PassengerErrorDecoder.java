@@ -1,10 +1,10 @@
 package io.simakkoi9.ridesservice.client;
 
+import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
+import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
-import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
-import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
