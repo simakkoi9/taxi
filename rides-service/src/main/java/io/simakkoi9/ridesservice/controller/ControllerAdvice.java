@@ -39,9 +39,10 @@ public class ControllerAdvice {
 
     @ExceptionHandler({
         RetryableException.class,
-        PassengerServiceNotAvailableException.class
+        PassengerServiceNotAvailableException.class,
+        AvailableDriverProcessingException.class
     })
-    public ResponseEntity<ErrorResponse> handleFeignException(RuntimeException e) {
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(RuntimeException e) {
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, e);
     }
 
@@ -60,8 +61,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({
-        DistanceProcessingException.class,
-        AvailableDriverProcessingException.class
+        DistanceProcessingException.class
     })
     public ResponseEntity<ErrorResponse> handleDistanceProcessingException(RuntimeException e) {
         return buildErrorResponse(HttpStatus.BAD_GATEWAY, e);

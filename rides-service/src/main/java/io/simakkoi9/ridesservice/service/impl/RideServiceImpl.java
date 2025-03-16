@@ -1,6 +1,7 @@
 package io.simakkoi9.ridesservice.service.impl;
 
 import io.simakkoi9.ridesservice.client.PassengerClient;
+import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
@@ -25,11 +26,13 @@ import io.simakkoi9.ridesservice.service.kafka.KafkaProducer;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -98,7 +101,14 @@ public class RideServiceImpl implements RideService {
                 responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
         Optional<KafkaDriverRequest> kafkaDriverRequest = Optional.empty();
         try {
-            kafkaDriverRequest = queue.poll(5, TimeUnit.SECONDS);
+            Optional<KafkaDriverRequest> result = queue.poll(5, TimeUnit.SECONDS);
+            if (Objects.isNull(result)) {
+                throw new AvailableDriverProcessingException(
+                        MessageKeyConstants.DRIVER_PROCESSING_ERROR,
+                        messageSource
+                );
+            }
+            kafkaDriverRequest = Optional.of(result).flatMap(Function.identity());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

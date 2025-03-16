@@ -29,6 +29,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 
 public class RideSteps {
@@ -83,7 +84,7 @@ public class RideSteps {
             .when()
             .post(ItDataUtil.RIDES_ENDPOINT);
 
-        if (response.statusCode() == 200) {
+        if (response.statusCode() == HttpStatus.OK.value()) {
             currentRideId = response.jsonPath().getString("id");
         }
     }
@@ -145,7 +146,7 @@ public class RideSteps {
                 response = given()
                     .when()
                     .patch(ItDataUtil.RIDES_ENDPOINT + "/" + currentRideId + "/getDriver");
-                assertThat(response.statusCode()).isEqualTo(200);
+                assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
             });
     }
 
@@ -167,7 +168,7 @@ public class RideSteps {
                     response = given()
                             .when()
                             .patch(ItDataUtil.RIDES_ENDPOINT + "/" + currentRideId + "/getDriver");
-                    assertThat(response.statusCode()).isEqualTo(404);
+                    assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
                 });
     }
 
@@ -196,14 +197,6 @@ public class RideSteps {
             .param("status", status)
             .when()
             .patch(ItDataUtil.RIDES_ENDPOINT + "/" + currentRideId);
-    }
-
-    @Given("I have created a ride with passenger {string}")
-    public void iHaveCreatedARideWithPassenger(String passengerId) {
-        Ride ride = ItDataUtil.getRide();
-        ride.setPassenger(ItDataUtil.getPassenger());
-        Ride savedRide = rideRepository.save(ride);
-        currentRideId = savedRide.getId();
     }
 
     @When("I update the ride with the following details:")
@@ -235,7 +228,7 @@ public class RideSteps {
 
     @Then("the system should return validation error")
     public void theSystemShouldReturnValidationError() {
-        assertThat(response.statusCode()).isEqualTo(400);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @Then("the response should contain {int} error(s)")
@@ -253,17 +246,17 @@ public class RideSteps {
 
     @Then("the system should return conflict error")
     public void theSystemShouldReturnConflictError() {
-        assertThat(response.statusCode()).isEqualTo(409);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CONFLICT.value());
     }
 
     @Then("the system should return not found error")
     public void theSystemShouldReturnNotFoundError() {
-        assertThat(response.statusCode()).isEqualTo(404);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Then("the system should return no available drivers error")
     public void theSystemShouldReturnNoAvailableDriversError() {
-        assertThat(response.statusCode()).isEqualTo(404);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Then("the ride status should remain {string}")
@@ -285,7 +278,7 @@ public class RideSteps {
 
     @Then("the system should return invalid status transition error")
     public void theSystemShouldReturnInvalidStatusTransitionError() {
-        assertThat(response.statusCode()).isEqualTo(400);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.jsonPath().getString("errors[0]"))
             .contains("Incorrect status assignment: " + RideStatus.EN_ROUTE_TO_DESTINATION);
     }
@@ -295,8 +288,7 @@ public class RideSteps {
         Ride ride = rideRepository.findById(currentRideId).orElseThrow();
         ride.setStatus(RideStatus.valueOf(status));
         rideRepository.save(ride);
-        
-        // Проверяем, что статус установлен
+
         Ride updatedRide = rideRepository.findById(currentRideId).orElseThrow();
         assertThat(updatedRide.getStatus()).isEqualTo(RideStatus.valueOf(status));
     }
@@ -340,7 +332,7 @@ public class RideSteps {
 
     @Then("the response should contain {int} rides in content")
     public void theResponseShouldContainRidesInContent(int expectedCount) {
-        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.jsonPath().getList("content")).hasSize(expectedCount);
         assertThat(response.jsonPath().getInt("totalElements")).isEqualTo(expectedCount);
     }

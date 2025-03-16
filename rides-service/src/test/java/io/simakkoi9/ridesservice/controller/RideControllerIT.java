@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,6 +202,15 @@ public class RideControllerIT {
         Ride ride = ItDataUtil.getRide();
         Ride createdRide = rideRepository.save(ride);
 
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            testKafkaTemplate.send(new ProducerRecord<>(ItDataUtil.KAFKA_TOPIC, createdRide.getId(), null));
+        });
+
         given()
             .when()
                 .patch(ItDataUtil.RIDES_ENDPOINT + "/" + createdRide.getId() + "/getDriver")
@@ -217,7 +227,7 @@ public class RideControllerIT {
     }
 
     @Test
-    void testGetAvailableDriver_ShouldReturnNotFound_WhenNoDriverResponse() throws Exception {
+    void testGetAvailableDriver_ShouldReturnDriverProcessingException_WhenNoDriverResponse() throws Exception {
         Ride ride = ItDataUtil.getRide();
         Ride createdRide = rideRepository.save(ride);
 
@@ -225,7 +235,7 @@ public class RideControllerIT {
             .when()
                 .patch(ItDataUtil.RIDES_ENDPOINT + "/" + createdRide.getId() + "/getDriver")
             .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
+                .statusCode(HttpStatus.SERVICE_UNAVAILABLE.value())
                 .body("errors", hasSize(1));
 
         Ride unchangedRide = rideRepository.findById(createdRide.getId()).orElse(null);
