@@ -45,13 +45,13 @@ public class PassengerControllerIT {
 
     @BeforeEach
     void setUp() {
-        RestAssured.baseURI = TestDataUtil.BASE_URI.formatted(port);
+        RestAssured.baseURI = TestDataUtil.BASE_URL.formatted(port);
         passengerRepository.deleteAll();
     }
 
     @Test
     void createPassenger_ShouldReturnPassengerResponse() throws Exception {
-        int id = given()
+        Long id = given()
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
@@ -61,9 +61,10 @@ public class PassengerControllerIT {
                 .body("name", equalTo(TestDataUtil.CREATE_REQUEST.name()))
                 .body("email", equalTo(TestDataUtil.CREATE_REQUEST.email()))
                 .extract()
-                .path("id");
+                .jsonPath()
+                .getLong("id");
 
-        Passenger createdPassenger = passengerRepository.findById((long) id).orElse(null);
+        Passenger createdPassenger = passengerRepository.findById(id).orElse(null);
         assertNotNull(createdPassenger);
     }
 

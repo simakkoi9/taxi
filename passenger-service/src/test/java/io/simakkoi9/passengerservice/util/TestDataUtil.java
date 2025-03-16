@@ -13,7 +13,9 @@ public class TestDataUtil {
 
     public static final Long ID = 1L;
     public static final Long INVALID_ID = 2L;
-    public static final String BASE_URI = "http://localhost:%d/api/v1/passengers";
+    public static final String BASE_URL = "http://localhost:%d/api/v1/passengers";
+    public static final String BASE_URL_PATH = "/api/v1";
+    public static final String ENDPOINT = "/passengers";
     public static final LocalDateTime TIME = LocalDateTime.now();
     public static final int PAGE = 0;
     public static final int SIZE = 10;
