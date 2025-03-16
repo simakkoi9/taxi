@@ -111,7 +111,7 @@ public class RideSteps {
 
     @Then("the ride should be created successfully")
     public void theRideShouldBeCreatedSuccessfully() {
-        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(currentRideId).isNotNull();
     }
 
