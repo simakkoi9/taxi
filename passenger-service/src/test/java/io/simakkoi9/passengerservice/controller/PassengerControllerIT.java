@@ -45,7 +45,9 @@ public class PassengerControllerIT {
 
     @BeforeEach
     void setUp() {
-        RestAssured.baseURI = TestDataUtil.BASE_URL.formatted(port);
+        RestAssured.port = port;
+        RestAssured.baseURI = TestDataUtil.BASE_URI;
+        RestAssured.basePath = TestDataUtil.BASE_URL_PATH;
         passengerRepository.deleteAll();
     }
 
@@ -55,7 +57,7 @@ public class PassengerControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
-                .post()
+                .post(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(TestDataUtil.CREATE_REQUEST.name()))
@@ -76,7 +78,7 @@ public class PassengerControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
-                .post()
+                .post(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .body("status", equalTo(HttpStatus.CONFLICT.value()))
@@ -99,7 +101,7 @@ public class PassengerControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.INVALID_CREATE_REQUEST)
             .when()
-                .post()
+                .post(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
@@ -114,7 +116,7 @@ public class PassengerControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.UPDATE_REQUEST)
             .when()
-                .patch("/{id}", savedPassenger.getId())
+                .patch(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(TestDataUtil.UPDATE_REQUEST.name()))
@@ -135,7 +137,7 @@ public class PassengerControllerIT {
 
         given()
             .when()
-                .delete("/{id}", savedPassenger.getId())
+                .delete(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
                 .statusCode(HttpStatus.OK.value());
 
@@ -149,7 +151,7 @@ public class PassengerControllerIT {
 
         given()
             .when()
-                .get("/{id}", savedPassenger.getId())
+                .get(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(TestDataUtil.NAME))
@@ -160,7 +162,7 @@ public class PassengerControllerIT {
     void getPassenger_ShouldThrowNotFoundException() throws Exception {
         given()
             .when()
-                .get("/{id}", TestDataUtil.INVALID_ID)
+                .get(TestDataUtil.ENDPOINT + "/{id}", TestDataUtil.INVALID_ID)
             .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("status", equalTo(HttpStatus.NOT_FOUND.value()))
@@ -182,7 +184,7 @@ public class PassengerControllerIT {
 
         given()
             .when()
-                .get()
+                .get(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("content", not(empty()))
@@ -197,7 +199,7 @@ public class PassengerControllerIT {
             .param("page", TestDataUtil.INVALID_PAGE)
             .param("size", TestDataUtil.INVALID_SIZE)
             .when()
-                .get()
+                .get(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
