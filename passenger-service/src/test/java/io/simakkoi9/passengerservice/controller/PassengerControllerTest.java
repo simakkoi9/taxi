@@ -11,7 +11,6 @@ import io.simakkoi9.passengerservice.model.dto.request.PassengerCreateRequest;
 import io.simakkoi9.passengerservice.model.dto.request.PassengerUpdateRequest;
 import io.simakkoi9.passengerservice.model.dto.response.PageResponse;
 import io.simakkoi9.passengerservice.model.dto.response.PassengerResponse;
-import io.simakkoi9.passengerservice.model.entity.Passenger;
 import io.simakkoi9.passengerservice.service.PassengerService;
 import io.simakkoi9.passengerservice.util.TestDataUtil;
 import java.util.List;
@@ -31,7 +30,6 @@ class PassengerControllerTest {
     private PassengerController passengerController;
 
     Long id;
-    Passenger passenger;
     PassengerCreateRequest passengerCreateRequest;
     PassengerUpdateRequest passengerUpdateRequest;
     PassengerResponse passengerResponse;
@@ -39,16 +37,13 @@ class PassengerControllerTest {
 
     @BeforeEach
     void setUp() {
-        id = TestDataUtil.ID;
-        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
-        passengerUpdateRequest = TestDataUtil.UPDATE_REQUEST;
-        passengerResponse = TestDataUtil.RESPONSE;
-        updatedPassengerResponse = TestDataUtil.UPDATED_RESPONSE;
-        passenger = TestDataUtil.PASSENGER;
+
     }
 
     @Test
     void createPassenger_ShouldCallServiceAndReturnResponse() {
+        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
+        passengerResponse = TestDataUtil.RESPONSE;
         when(passengerService.createPassenger(passengerCreateRequest)).thenReturn(passengerResponse);
 
         PassengerResponse result = passengerController.createPassenger(passengerCreateRequest);
@@ -63,6 +58,9 @@ class PassengerControllerTest {
 
     @Test
     void updatePassenger_ShouldCallServiceAndReturnUpdatedResponse() {
+        id = TestDataUtil.ID;
+        passengerUpdateRequest = TestDataUtil.UPDATE_REQUEST;
+        updatedPassengerResponse = TestDataUtil.UPDATED_RESPONSE;
         when(passengerService.updatePassenger(id, passengerUpdateRequest)).thenReturn(updatedPassengerResponse);
 
         PassengerResponse result = passengerController.updatePassenger(id, passengerUpdateRequest);
@@ -77,6 +75,8 @@ class PassengerControllerTest {
 
     @Test
     void deletePassenger_ShouldCallServiceAndReturnDeletedResponse() {
+        id = TestDataUtil.ID;
+        passengerResponse = TestDataUtil.RESPONSE;
         when(passengerService.deletePassenger(id)).thenReturn(passengerResponse);
 
         PassengerResponse result = passengerController.deletePassenger(id);
@@ -91,6 +91,8 @@ class PassengerControllerTest {
 
     @Test
     void getPassenger_ShouldCallServiceAndReturnPassengerResponse() {
+        id = TestDataUtil.ID;
+        passengerResponse = TestDataUtil.RESPONSE;
         when(passengerService.getPassenger(id)).thenReturn(passengerResponse);
 
         PassengerResponse result = passengerController.getPassenger(id);
@@ -105,6 +107,7 @@ class PassengerControllerTest {
 
     @Test
     void getAllPassengers_ShouldCallServiceAndReturnPageResponse() {
+        passengerResponse = TestDataUtil.RESPONSE;
         PageResponse<PassengerResponse> pageResponse = TestDataUtil.getPageResponse(List.of(passengerResponse));
         when(passengerService.getAllPassengers(TestDataUtil.PAGE, TestDataUtil.SIZE)).thenReturn(pageResponse);
 
