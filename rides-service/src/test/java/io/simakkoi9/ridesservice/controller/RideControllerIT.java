@@ -19,7 +19,6 @@ import io.simakkoi9.ridesservice.model.entity.Passenger;
 import io.simakkoi9.ridesservice.model.entity.Ride;
 import io.simakkoi9.ridesservice.model.entity.RideStatus;
 import io.simakkoi9.ridesservice.repository.RideRepository;
-import io.simakkoi9.ridesservice.service.kafka.KafkaConsumer;
 import io.simakkoi9.ridesservice.util.ItDataUtil;
 import io.simakkoi9.ridesservice.util.WireMockStubs;
 import java.time.Duration;

@@ -236,14 +236,6 @@ public class RideSteps {
         assertThat(response.jsonPath().getList("errors")).hasSize(errorCount);
     }
 
-    @Given("a passenger with id {string} has an active ride with status {string}")
-    public void aPassengerHasAnActiveRideWithStatus(String passengerId, String status) {
-        Ride ride = ItDataUtil.getRide();
-        ride.setPassenger(ItDataUtil.getPassenger());
-        ride.setStatus(RideStatus.valueOf(status));
-        rideRepository.save(ride);
-    }
-
     @Then("the system should return conflict error")
     public void theSystemShouldReturnConflictError() {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CONFLICT.value());
