@@ -11,6 +11,8 @@ import io.simakkoi9.passengerservice.model.entity.Passenger;
 import io.simakkoi9.passengerservice.model.entity.UserStatus;
 import io.simakkoi9.passengerservice.repository.PassengerRepository;
 import io.simakkoi9.passengerservice.util.TestDataUtil;
+import java.util.Map;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -21,8 +23,6 @@ import io.restassured.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import io.cucumber.datatable.DataTable;
-import java.util.Map;
 
 public class PassengerSteps {
 
