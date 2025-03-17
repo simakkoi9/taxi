@@ -19,6 +19,7 @@ quarkus:
 
   http:
     port: 8083
+    test-port: 8084
 
   rest-client:
     ridesClient:

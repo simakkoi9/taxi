@@ -1,6 +1,7 @@
 package io.simakkoi9.ratingservice.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -11,6 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/rides")
+@ApplicationScoped
 @RegisterRestClient(configKey = "ridesClient")
 public interface RidesClient {
 

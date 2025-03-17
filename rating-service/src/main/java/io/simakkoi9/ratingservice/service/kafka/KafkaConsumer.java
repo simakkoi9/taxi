@@ -1,4 +1,4 @@
-package io.simakkoi9.ratingservice.service;
+package io.simakkoi9.ratingservice.service.kafka;
 
 import io.simakkoi9.ratingservice.model.entity.Rate;
 import io.smallrye.mutiny.Uni;
