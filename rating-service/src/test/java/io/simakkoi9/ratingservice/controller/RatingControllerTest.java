@@ -15,9 +15,9 @@ import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
 import io.simakkoi9.ratingservice.model.entity.Rating;
 import io.simakkoi9.ratingservice.service.RatingService;
 import io.simakkoi9.ratingservice.util.TestDataUtil;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.List;
 
 @QuarkusTest
 class RatingControllerTest {

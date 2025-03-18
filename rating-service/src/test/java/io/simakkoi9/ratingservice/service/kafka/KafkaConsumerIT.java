@@ -10,10 +10,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.simakkoi9.ratingservice.config.TestContainersConfig;
 import io.simakkoi9.ratingservice.repository.RateRepository;
 import io.simakkoi9.ratingservice.util.TestDataUtil;
-import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.inject.Inject;
 import jakarta.transaction.TransactionManager;
+import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
+import io.smallrye.reactive.messaging.kafka.Record;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

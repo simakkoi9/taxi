@@ -1,13 +1,13 @@
 package io.simakkoi9.ratingservice.e2e.config;
 
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
-import io.cucumber.java.Scenario;
 import io.simakkoi9.ratingservice.repository.RateRepository;
 import io.simakkoi9.ratingservice.repository.RatingRepository;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.quarkiverse.cucumber.ScenarioScope;
 
 @ScenarioScope

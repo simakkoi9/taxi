@@ -1,10 +1,10 @@
 package io.simakkoi9.ratingservice.e2e;
 
-import io.quarkiverse.cucumber.CucumberOptions;
-import io.quarkiverse.cucumber.CucumberQuarkusTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.simakkoi9.ratingservice.config.TestContainersConfig;
 import io.simakkoi9.ratingservice.config.WireMockConfig;
+import io.quarkiverse.cucumber.CucumberOptions;
+import io.quarkiverse.cucumber.CucumberQuarkusTest;
 
 @QuarkusTestResource(TestContainersConfig.class)
 @QuarkusTestResource(WireMockConfig.class)

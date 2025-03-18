@@ -2,7 +2,6 @@ package io.simakkoi9.ratingservice.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.simakkoi9.ratingservice.model.dto.client.RideRequest;
 import io.simakkoi9.ratingservice.model.dto.kafka.RidePersonRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.DriverRatingUpdateRequest;
 import io.simakkoi9.ratingservice.model.dto.rest.request.PassengerRatingUpdateRequest;
@@ -11,7 +10,6 @@ import io.simakkoi9.ratingservice.model.dto.rest.response.AverageRatingResponse;
 import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
 import io.simakkoi9.ratingservice.model.entity.Rate;
 import io.simakkoi9.ratingservice.model.entity.Rating;
-import io.simakkoi9.ratingservice.model.entity.RideStatus;
 import java.util.List;
 
 public class TestDataUtil {
@@ -50,16 +48,25 @@ public class TestDataUtil {
     public static final int SIZE = 10;
     public static final int TOTAL_PAGES = 1;
 
-    public static final String ERROR_DUPLICATE_RATING = String.format("Рейтинг с RideId %s уже существует.", RIDE_ID);
-    public static final String ERROR_UNCOMPLETED_RIDE = String.format("Поездка %s еще не завершена.", UNCOMPLETED_RIDE_ID);
-    public static final String ERROR_DRIVER_ALREADY_RATED = String.format("Водитель с ID %d уже имеет оценку.", DRIVER_ID);
-    public static final String ERROR_PASSENGER_ALREADY_RATED = String.format("Пассажир с ID %d уже имеет оценку.", PASSENGER_ID);
-    public static final String ERROR_RATING_NOT_FOUND = String.format("Рейтинг с ID %d не найден.", NON_EXISTENT_RATING_ID);
-    public static final String ERROR_DRIVER_NO_RATES = String.format("У водителя с ID %d нет оценок.", DRIVER_ID);
-    public static final String ERROR_PASSENGER_NO_RATES = String.format("У пассажира с ID %d нет оценок.", PASSENGER_ID);
+    public static final String ERROR_DUPLICATE_RATING =
+            String.format("Рейтинг с RideId %s уже существует.", RIDE_ID);
+    public static final String ERROR_UNCOMPLETED_RIDE =
+            String.format("Поездка %s еще не завершена.", UNCOMPLETED_RIDE_ID);
+    public static final String ERROR_DRIVER_ALREADY_RATED =
+            String.format("Водитель с ID %d уже имеет оценку.", DRIVER_ID);
+    public static final String ERROR_PASSENGER_ALREADY_RATED =
+            String.format("Пассажир с ID %d уже имеет оценку.", PASSENGER_ID);
+    public static final String ERROR_RATING_NOT_FOUND =
+            String.format("Рейтинг с ID %d не найден.", NON_EXISTENT_RATING_ID);
+    public static final String ERROR_DRIVER_NO_RATES =
+            String.format("У водителя с ID %d нет оценок.", DRIVER_ID);
+    public static final String ERROR_PASSENGER_NO_RATES =
+            String.format("У пассажира с ID %d нет оценок.", PASSENGER_ID);
 
-    public static final String COMPLETED_RIDE_JSON = "{\"id\":\"" + RIDE_ID + "\",\"status\":\"COMPLETED\"}";
-    public static final String UNCOMPLETED_RIDE_JSON = "{\"id\":\"" + RIDE_ID + "\",\"status\":\"EN_ROUTE_TO_DESTINATION\"}";
+    public static final String COMPLETED_RIDE_JSON =
+            "{\"id\":\"" + RIDE_ID + "\",\"status\":\"COMPLETED\"}";
+    public static final String UNCOMPLETED_RIDE_JSON =
+            "{\"id\":\"" + RIDE_ID + "\",\"status\":\"EN_ROUTE_TO_DESTINATION\"}";
 
     public static JsonNode createCompletedRideJson() {
         try {
@@ -162,20 +169,8 @@ public class TestDataUtil {
         return new PassengerRatingUpdateRequest(PASSENGER_RATE, PASSENGER_COMMENT);
     }
     
-    public static RideRequest createCompletedRideRequest() {
-        return new RideRequest(RIDE_ID, RideStatus.COMPLETED);
-    }
-    
-    public static RideRequest createUncompletedRideRequest() {
-        return new RideRequest(RIDE_ID, RideStatus.EN_ROUTE_TO_DESTINATION);
-    }
-    
     public static RidePersonRequest createDriverPersonRequest() {
         return new RidePersonRequest("driver", DRIVER_RATE);
-    }
-    
-    public static RidePersonRequest createPassengerPersonRequest() {
-        return new RidePersonRequest("passenger", PASSENGER_RATE);
     }
     
     public static List<Rate> createDriverRates() {
