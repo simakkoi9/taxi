@@ -50,16 +50,16 @@ public class TestDataUtil {
     public static final int SIZE = 10;
     public static final int TOTAL_PAGES = 1;
 
-    public static final String ERROR_DUPLICATE_RATING = "Рейтинг для поездки уже существует";
-    public static final String ERROR_UNCOMPLETED_RIDE = "Поездка не завершена";
-    public static final String ERROR_DRIVER_ALREADY_RATED = "Водитель уже оценен";
-    public static final String ERROR_PASSENGER_ALREADY_RATED = "Пассажир уже оценен";
-    public static final String ERROR_RATING_NOT_FOUND = "Рейтинг не найден";
-    public static final String ERROR_DRIVER_NO_RATES = "У водителя нет оценок";
-    public static final String ERROR_PASSENGER_NO_RATES = "У пассажира нет оценок";
+    public static final String ERROR_DUPLICATE_RATING = String.format("Рейтинг с RideId %s уже существует.", RIDE_ID);
+    public static final String ERROR_UNCOMPLETED_RIDE = String.format("Поездка %s еще не завершена.", UNCOMPLETED_RIDE_ID);
+    public static final String ERROR_DRIVER_ALREADY_RATED = String.format("Водитель с ID %d уже имеет оценку.", DRIVER_ID);
+    public static final String ERROR_PASSENGER_ALREADY_RATED = String.format("Пассажир с ID %d уже имеет оценку.", PASSENGER_ID);
+    public static final String ERROR_RATING_NOT_FOUND = String.format("Рейтинг с ID %d не найден.", NON_EXISTENT_RATING_ID);
+    public static final String ERROR_DRIVER_NO_RATES = String.format("У водителя с ID %d нет оценок.", DRIVER_ID);
+    public static final String ERROR_PASSENGER_NO_RATES = String.format("У пассажира с ID %d нет оценок.", PASSENGER_ID);
 
-    private static final String COMPLETED_RIDE_JSON = "{\"id\":\"" + RIDE_ID + "\",\"status\":\"COMPLETED\"}";
-    private static final String UNCOMPLETED_RIDE_JSON = "{\"id\":\"" + RIDE_ID + "\",\"status\":\"EN_ROUTE_TO_DESTINATION\"}";
+    public static final String COMPLETED_RIDE_JSON = "{\"id\":\"" + RIDE_ID + "\",\"status\":\"COMPLETED\"}";
+    public static final String UNCOMPLETED_RIDE_JSON = "{\"id\":\"" + RIDE_ID + "\",\"status\":\"EN_ROUTE_TO_DESTINATION\"}";
 
     public static JsonNode createCompletedRideJson() {
         try {
