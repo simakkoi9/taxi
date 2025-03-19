@@ -1,6 +1,4 @@
-FROM quay.io/quarkus/quarkus-micro-image:latest
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
-COPY target/rating-service-runner runner
-COPY target/lib/ lib/
-EXPOSE 8083
-ENTRYPOINT ["/app/runner"]
+COPY target/quarkus-app /app/
+CMD ["java", "-jar", "/app/quarkus-run.jar"]
