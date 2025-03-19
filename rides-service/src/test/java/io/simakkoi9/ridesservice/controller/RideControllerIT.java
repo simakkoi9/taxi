@@ -39,6 +39,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -59,6 +61,14 @@ public class RideControllerIT {
     @Autowired
     @Qualifier("testDriverRequestKafkaTemplate")
     private KafkaTemplate<String, KafkaDriverRequest> testKafkaTemplate;
+
+    @DynamicPropertySource
+    public static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add(
+                "spring.data.mongodb.uri",
+                () -> TestContainersConfig.mongoContainer.getReplicaSetUrl("test_db")
+        );
+    }
 
     @BeforeEach
     void setUp() {

@@ -3,12 +3,10 @@ server:
 
 spring:
   profiles:
-    active: test
+    active: dev
   application:
     name: rides-service
-  data:
-    mongodb:
-      uri: ${DB_URI:mongodb://simakkoi:4130@localhost:27017/rides_db}
+
   liquibase:
     change-log: classpath:db/changelog/main-changelog.yaml
     enabled: false

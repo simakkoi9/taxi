@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @CucumberContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -19,4 +21,11 @@ import org.springframework.test.context.ActiveProfiles;
     TestWebClientConfig.class
 })
 public class CucumberSpringConfiguration {
+    @DynamicPropertySource
+    public static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add(
+                "spring.data.mongodb.uri",
+                () -> TestContainersConfig.mongoContainer.getReplicaSetUrl("test_db")
+        );
+    }
 } 

@@ -1,4 +1,11 @@
 spring:
+  application:
+    name: rides-service
+
+  data:
+    mongodb:
+      uri: ${DB_URI:mongodb://simakkoi:4130@localhost:27017/rides_db}
+
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
