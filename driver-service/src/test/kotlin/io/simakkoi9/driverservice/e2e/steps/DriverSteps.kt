@@ -7,16 +7,25 @@ import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
+import io.simakkoi9.driverservice.model.entity.EntryStatus
+import io.simakkoi9.driverservice.repository.DriverRepository
+import io.simakkoi9.driverservice.util.DriverTestDataUtil
 import io.simakkoi9.driverservice.util.E2eConstants
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpStatus
 
 class DriverSteps {
 
     @LocalServerPort
     private val port: Int = 0
+
+    @Autowired
+    private lateinit var driverRepository: DriverRepository
 
     private lateinit var driverRequestBody: String
     private var driverId: Long = 0
@@ -101,6 +110,11 @@ class DriverSteps {
             .then()
             .statusCode(statusCode)
             .body("id", notNullValue())
+
+        if (statusCode == HttpStatus.OK.value()) {
+            val id = response.jsonPath().getLong("id")
+            assertTrue(driverRepository.existsById(id))
+        }
     }
 
     @Then("should get a updated driver with status {int}")
@@ -110,6 +124,12 @@ class DriverSteps {
             .statusCode(statusCode)
             .body("id", notNullValue())
             .body("name", equalTo("otherName"))
+
+        if (statusCode == HttpStatus.OK.value()) {
+            val driver = driverRepository.findById(driverId)
+            assertTrue(driver.isPresent)
+            assertEquals("otherName", driver.get().name)
+        }
     }
 
     @Then("should get a driver with car response with status {int}")
@@ -119,6 +139,12 @@ class DriverSteps {
             .statusCode(statusCode)
             .body("id", notNullValue())
             .body("carId", notNullValue())
+
+        if (statusCode == HttpStatus.OK.value()) {
+            val driver = driverRepository.findById(driverId)
+            assertTrue(driver.isPresent)
+            assertEquals(carId, driver.get().car?.id)
+        }
     }
 
     @Then("should get a driver error response with status {int}")
@@ -136,5 +162,16 @@ class DriverSteps {
             .body("page", notNullValue())
             .body("totalPages", notNullValue())
             .body("totalElements", notNullValue())
+
+        if (statusCode == HttpStatus.OK.value()) {
+            val totalElements = response.jsonPath().getLong("totalElements")
+            assertEquals(
+                totalElements,
+                driverRepository.findAllByStatus(
+                    EntryStatus.ACTIVE,
+                    PageRequest.of(DriverTestDataUtil.PAGE, DriverTestDataUtil.SIZE)
+                ).totalElements
+            )
+        }
     }
 }

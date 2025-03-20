@@ -7,15 +7,24 @@ import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
+import io.simakkoi9.driverservice.model.entity.EntryStatus
+import io.simakkoi9.driverservice.repository.CarRepository
+import io.simakkoi9.driverservice.util.CarTestDataUtil
 import io.simakkoi9.driverservice.util.E2eConstants
 import org.hamcrest.Matchers.notNullValue
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpStatus
 
 class CarSteps {
 
     @LocalServerPort
     private val port: Int = 0
+
+    @Autowired
+    private lateinit var carRepository: CarRepository
 
     private lateinit var carRequestBody: String
     private var carId: Long = 0
@@ -55,9 +64,6 @@ class CarSteps {
         response = requestSpec()
             .body(carRequestBody)
             .patch("${E2eConstants.CARS_URL}/$carId")
-            
-        println("Update car response status: ${response.statusCode}")
-        println("Update car response body: ${response.body?.asString()}")
     }
 
     @When("sending request to get car by id")
@@ -84,6 +90,11 @@ class CarSteps {
             .then()
             .statusCode(statusCode)
             .body("id", notNullValue())
+
+        if (statusCode == HttpStatus.OK.value()) {
+            val id = response.jsonPath().getLong("id")
+            assertTrue(carRepository.existsById(id))
+        }
     }
 
     @Then("should get a updated car with status {int}")
@@ -92,6 +103,12 @@ class CarSteps {
             .then()
             .statusCode(statusCode)
             .body("id", notNullValue())
+
+        if (statusCode == HttpStatus.OK.value()) {
+            val car = carRepository.findById(carId)
+            assertTrue(car.isPresent)
+            assertEquals(response.jsonPath().getString("model"), car.get().model)
+        }
     }
 
     @Then("should get a car error response with status {int}")
@@ -110,5 +127,15 @@ class CarSteps {
             .body("totalPages", notNullValue())
             .body("totalElements", notNullValue())
 
+        if (statusCode == HttpStatus.OK.value()) {
+            val totalElements = response.jsonPath().getLong("totalElements")
+            assertEquals(
+                totalElements,
+                carRepository.findAllByStatus(
+                    EntryStatus.ACTIVE,
+                    PageRequest.of(CarTestDataUtil.PAGE, CarTestDataUtil.SIZE)
+                ).totalElements
+            )
+        }
     }
 }

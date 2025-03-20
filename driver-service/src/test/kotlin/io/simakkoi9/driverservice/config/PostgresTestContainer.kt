@@ -15,7 +15,7 @@ object PostgresTestContainer {
 
     @Container
     @ServiceConnection
-    private val POSTGRES_CONTAINER = PostgreSQLContainer(IMAGE_VERSION)
+    val POSTGRES_CONTAINER = PostgreSQLContainer(IMAGE_VERSION)
         .withDatabaseName(DATABASE_NAME)
         .withUsername(USERNAME)
         .withPassword(PASSWORD)
