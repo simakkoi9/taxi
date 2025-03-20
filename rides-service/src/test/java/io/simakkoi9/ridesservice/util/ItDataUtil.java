@@ -74,6 +74,7 @@ public class ItDataUtil {
         Ride ride = new Ride();
         ride.setPickupAddress(PICKUP_ADDRESS_2);
         ride.setDestinationAddress(DESTINATION_ADDRESS_2);
+        ride.setStatus(RideStatus.CREATED);
         return ride;
     }
 

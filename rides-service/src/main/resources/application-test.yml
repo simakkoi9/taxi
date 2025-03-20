@@ -6,4 +6,4 @@ spring:
     name: rides-service
   data:
     mongodb:
-      uri: ${DB_URI:mongodb://localhost:27017/rides_db}
+      uri: ${DB_URI:mongodb://localhost:27017/test_db}
