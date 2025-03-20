@@ -20,6 +20,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
+import org.apache.http.HttpStatus;
 
 public class RatingSteps {
 
@@ -50,9 +51,9 @@ public class RatingSteps {
             .contentType("application/json")
             .body(TestDataUtil.createRatingRequestWithoutRates())
         .when()
-            .post("/api/v1/ratings");
+            .post();
 
-        if (response.statusCode() == 200) {
+        if (response.statusCode() == HttpStatus.SC_OK) {
             testState.setCurrentRatingId(response.jsonPath().getLong("id"));
         }
     }
@@ -63,7 +64,7 @@ public class RatingSteps {
             .contentType("application/json")
             .body(TestDataUtil.createRatingRequestWithUncompletedRide())
         .when()
-            .post("/api/v1/ratings");
+            .post();
     }
 
     @When("I create a rating for the same ride")
@@ -72,13 +73,13 @@ public class RatingSteps {
             .contentType("application/json")
             .body(TestDataUtil.createRatingRequestWithoutRates())
         .when()
-            .post("/api/v1/ratings");
+            .post();
     }
 
     @Then("the rating is successfully created")
     public void theRatingIsSuccessfullyCreated() {
         response.then()
-            .statusCode(200)
+            .statusCode(HttpStatus.SC_OK)
             .body("id", notNullValue());
     }
 
@@ -87,9 +88,9 @@ public class RatingSteps {
         given()
             .contentType("application/json")
         .when()
-            .get("/api/v1/ratings/{id}", testState.getCurrentRatingId())
+            .get("/{id}", testState.getCurrentRatingId())
         .then()
-            .statusCode(200)
+            .statusCode(HttpStatus.SC_OK)
             .body("id", equalTo(testState.getCurrentRatingId().intValue()))
             .body("rideId", equalTo(testState.getCurrentRideId()));
     }
@@ -106,21 +107,21 @@ public class RatingSteps {
     @Then("I receive a duplicate rating error")
     public void iReceiveADuplicateRatingError() {
         response.then()
-            .statusCode(409)
+            .statusCode(HttpStatus.SC_CONFLICT)
             .body("message", equalTo(TestDataUtil.ERROR_DUPLICATE_RATING));
     }
 
     @Then("I receive an uncompleted ride error")
     public void iReceiveAnUncompletedRideError() {
         response.then()
-            .statusCode(400)
+            .statusCode(HttpStatus.SC_BAD_REQUEST)
             .body("message", equalTo(TestDataUtil.ERROR_UNCOMPLETED_RIDE));
     }
 
     @Then("I receive an error {string}")
     public void iReceiveAnError(String errorMessage) {
         response.then()
-            .statusCode(400)
+            .statusCode(HttpStatus.SC_BAD_REQUEST)
             .body("message", equalTo(errorMessage));
     }
 
@@ -146,7 +147,7 @@ public class RatingSteps {
             .contentType("application/json")
             .body(new DriverRatingUpdateRequest(Integer.parseInt(rate), comment))
         .when()
-            .patch("/api/v1/ratings/{id}/driver/rate", testState.getCurrentRatingId());
+            .patch("/{id}/driver/rate", testState.getCurrentRatingId());
     }
 
     @When("I set passenger rate to {string} with comment {string}")
@@ -155,13 +156,13 @@ public class RatingSteps {
             .contentType("application/json")
             .body(new PassengerRatingUpdateRequest(Integer.parseInt(rate), comment))
         .when()
-            .patch("/api/v1/ratings/{id}/passenger/rate", testState.getCurrentRatingId());
+            .patch("/{id}/passenger/rate", testState.getCurrentRatingId());
     }
 
     @Then("the driver rate is successfully updated")
     @Transactional
     public void theDriverRateIsSuccessfullyUpdated() {
-        response.then().statusCode(200);
+        response.then().statusCode(HttpStatus.SC_OK);
         Rating rating = ratingRepository.findById(testState.getCurrentRatingId());
         assertNotNull(rating.getRateForDriver());
         assertNotNull(rating.getCommentForDriver());
@@ -170,7 +171,7 @@ public class RatingSteps {
     @Then("the passenger rate is successfully updated")
     @Transactional
     public void thePassengerRateIsSuccessfullyUpdated() {
-        response.then().statusCode(200);
+        response.then().statusCode(HttpStatus.SC_OK);
         Rating rating = ratingRepository.findById(testState.getCurrentRatingId());
         assertNotNull(rating.getRateForPassenger());
         assertNotNull(rating.getCommentForPassenger());
@@ -179,7 +180,7 @@ public class RatingSteps {
     @Then("I receive a validation error for invalid rate")
     public void iReceiveAValidationErrorForInvalidRate() {
         response.then()
-            .statusCode(400)
+            .statusCode(HttpStatus.SC_BAD_REQUEST)
             .body("errors", hasSize(1));
     }
 
@@ -202,7 +203,7 @@ public class RatingSteps {
         response = given()
             .contentType("application/json")
         .when()
-            .get("/api/v1/ratings/driver/{id}", testState.getCurrentDriverId());
+            .get("/driver/{id}", testState.getCurrentDriverId());
     }
 
     @When("I request the average rating for the passenger")
@@ -210,20 +211,20 @@ public class RatingSteps {
         response = given()
             .contentType("application/json")
         .when()
-            .get("/api/v1/ratings/passenger/{id}", testState.getCurrentDriverId());
+            .get("/passenger/{id}", testState.getCurrentDriverId());
     }
 
     @Then("I receive the driver's average rating {string}")
     public void iReceiveTheDriversAverageRating(String averageRating) {
         response.then()
-            .statusCode(200)
+            .statusCode(HttpStatus.SC_OK)
             .body("averageRating", equalTo(Float.parseFloat(averageRating)));
     }
 
     @Then("I receive the passenger's average rating {string}")
     public void iReceiveThePassengersAverageRating(String averageRating) {
         response.then()
-            .statusCode(200)
+            .statusCode(HttpStatus.SC_OK)
             .body("averageRating", equalTo(Float.parseFloat(averageRating)));
     }
 
