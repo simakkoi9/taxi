@@ -2,6 +2,8 @@ package io.simakkoi9.ratingservice.config;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.simakkoi9.ratingservice.util.TestDataUtil;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.Map;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -17,31 +19,40 @@ public class WireMockConfig implements QuarkusTestResourceLifecycleManager {
         wireMockServer.start();
 
         wireMockServer.stubFor(
-                WireMock.get(WireMock.urlPathMatching("/rides/" + TestDataUtil.RIDE_ID))
+                WireMock.get(WireMock.urlPathMatching(
+                        TestDataUtil.RIDES_WIREMOCK_ENDPOINT + TestDataUtil.RIDE_ID
+                                )
+                        )
                         .willReturn(
                                 WireMock.aResponse()
                                         .withStatus(HttpStatus.SC_OK)
-                                        .withHeader("Content-Type", "application/json")
+                                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                         .withBody(TestDataUtil.RIDE_REQUEST_JSON)
                         )
         );
 
         wireMockServer.stubFor(
-                WireMock.get(WireMock.urlPathMatching("/rides/" + TestDataUtil.WRONG_RIDE_ID))
+                WireMock.get(WireMock.urlPathMatching(
+                        TestDataUtil.RIDES_WIREMOCK_ENDPOINT + TestDataUtil.WRONG_RIDE_ID
+                                )
+                        )
                         .willReturn(
                                 WireMock.aResponse()
                                         .withStatus(HttpStatus.SC_NOT_FOUND)
-                                        .withHeader("Content-Type", "application/json")
+                                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                         .withBody(TestDataUtil.RIDE_NOT_FOUND_JSON)
                         )
         );
 
         wireMockServer.stubFor(
-                WireMock.get(WireMock.urlPathMatching("/rides/" + TestDataUtil.UNCOMPLETED_RIDE_ID))
+                WireMock.get(WireMock.urlPathMatching(
+                        TestDataUtil.RIDES_WIREMOCK_ENDPOINT + TestDataUtil.UNCOMPLETED_RIDE_ID
+                                )
+                        )
                         .willReturn(
                                 WireMock.aResponse()
                                         .withStatus(HttpStatus.SC_OK)
-                                        .withHeader("Content-Type", "application/json")
+                                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                         .withBody(TestDataUtil.UNCOMPLETED_RIDE_REQUEST_JSON)
                         )
         );

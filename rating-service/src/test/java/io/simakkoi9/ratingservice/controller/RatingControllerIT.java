@@ -155,7 +155,7 @@ class RatingControllerIT {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get("/{id}", rating.getId())
+            .get(TestDataUtil.ID_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_OK)
             .body("id", equalTo(rating.getId().intValue()))
@@ -167,7 +167,7 @@ class RatingControllerIT {
         given()
             .contentType(ContentType.JSON)
             .when()
-                .get("/{id}", TestDataUtil.NON_EXISTENT_RATING_ID)
+                .get(TestDataUtil.ID_ENDPOINT, TestDataUtil.NON_EXISTENT_RATING_ID)
             .then()
                 .statusCode(HttpStatus.SC_NOT_FOUND)
                 .body("message", notNullValue());
@@ -188,7 +188,7 @@ class RatingControllerIT {
             .contentType(ContentType.JSON)
             .body(request)
         .when()
-            .patch("/{id}/driver/rate", rating.getId())
+            .patch(TestDataUtil.DRIVER_RATE_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_OK);
             
@@ -216,7 +216,7 @@ class RatingControllerIT {
             .contentType(ContentType.JSON)
             .body(request)
         .when()
-            .patch("/{id}/passenger/rate", rating.getId())
+            .patch(TestDataUtil.PASSENGER_RATE_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_OK);
             
@@ -240,7 +240,7 @@ class RatingControllerIT {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get("/driver/{id}", TestDataUtil.DRIVER_ID)
+            .get(TestDataUtil.DRIVER_AVERAGE_RATING_ENDPOINT, TestDataUtil.DRIVER_ID)
         .then()
             .statusCode(HttpStatus.SC_OK)
             .body("personId", equalTo(TestDataUtil.DRIVER_PERSON_ID))
@@ -258,7 +258,7 @@ class RatingControllerIT {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get("/passenger/{id}", TestDataUtil.PASSENGER_ID)
+            .get(TestDataUtil.PASSENGER_AVERAGE_RATING_ENDPOINT, TestDataUtil.PASSENGER_ID)
         .then()
             .statusCode(HttpStatus.SC_OK)
             .body("personId", equalTo(TestDataUtil.PASSENGER_PERSON_ID))
@@ -280,7 +280,7 @@ class RatingControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.createDriverRatingUpdateRequest())
         .when()
-            .patch("/{id}/driver/rate", rating.getId())
+            .patch(TestDataUtil.DRIVER_RATE_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_CONFLICT)
             .body("message", notNullValue());
@@ -299,7 +299,7 @@ class RatingControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.createPassengerRatingUpdateRequest())
         .when()
-            .patch("/{id}/passenger/rate", rating.getId())
+            .patch(TestDataUtil.PASSENGER_RATE_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_CONFLICT)
             .body("message", notNullValue());
@@ -310,7 +310,7 @@ class RatingControllerIT {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get("/driver/{id}", TestDataUtil.DRIVER_ID)
+            .get(TestDataUtil.DRIVER_AVERAGE_RATING_ENDPOINT, TestDataUtil.DRIVER_ID)
         .then()
             .statusCode(HttpStatus.SC_NOT_FOUND)
             .body("message", notNullValue());
@@ -321,7 +321,7 @@ class RatingControllerIT {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get("/passenger/{id}", TestDataUtil.PASSENGER_ID)
+            .get(TestDataUtil.PASSENGER_AVERAGE_RATING_ENDPOINT, TestDataUtil.PASSENGER_ID)
         .then()
             .statusCode(HttpStatus.SC_NOT_FOUND)
             .body("message", notNullValue());
@@ -340,7 +340,7 @@ class RatingControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.createInvalidDriverRatingUpdateRequest())
         .when()
-            .patch("/{id}/driver/rate", rating.getId())
+            .patch(TestDataUtil.DRIVER_RATE_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_BAD_REQUEST)
             .body("errors", hasSize(1));
@@ -359,7 +359,7 @@ class RatingControllerIT {
             .contentType(ContentType.JSON)
             .body(TestDataUtil.createInvalidPassengerRatingUpdateRequest())
         .when()
-            .patch("/{id}/passenger/rate", rating.getId())
+            .patch(TestDataUtil.PASSENGER_RATE_ENDPOINT, rating.getId())
         .then()
             .statusCode(HttpStatus.SC_BAD_REQUEST)
             .body("errors", hasSize(1));

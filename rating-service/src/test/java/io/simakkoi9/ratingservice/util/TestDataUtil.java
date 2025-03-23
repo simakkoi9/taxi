@@ -68,6 +68,15 @@ public class TestDataUtil {
     public static final String UNCOMPLETED_RIDE_JSON =
             "{\"id\":\"" + RIDE_ID + "\",\"status\":\"EN_ROUTE_TO_DESTINATION\"}";
 
+    public static final String RIDES_WIREMOCK_ENDPOINT = "/rides/";
+    public static final String ID_ENDPOINT = "/{id}";
+
+    // API Endpoints
+    public static final String DRIVER_RATE_ENDPOINT = "/{id}/driver/rate";
+    public static final String PASSENGER_RATE_ENDPOINT = "/{id}/passenger/rate";
+    public static final String DRIVER_AVERAGE_RATING_ENDPOINT = "/driver/{id}";
+    public static final String PASSENGER_AVERAGE_RATING_ENDPOINT = "/passenger/{id}";
+
     public static JsonNode createCompletedRideJson() {
         try {
             return objectMapper.readTree(COMPLETED_RIDE_JSON);

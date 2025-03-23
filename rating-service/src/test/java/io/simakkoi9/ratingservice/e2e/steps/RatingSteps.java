@@ -19,6 +19,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
 
@@ -48,7 +49,7 @@ public class RatingSteps {
     @When("I create a rating for the ride")
     public void iCreateARatingForTheRide() {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
             .body(TestDataUtil.createRatingRequestWithoutRates())
         .when()
             .post();
@@ -61,7 +62,7 @@ public class RatingSteps {
     @When("I create a rating for an uncompleted ride")
     public void iCreateARatingForUncompletedRide() {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
             .body(TestDataUtil.createRatingRequestWithUncompletedRide())
         .when()
             .post();
@@ -70,7 +71,7 @@ public class RatingSteps {
     @When("I create a rating for the same ride")
     public void iCreateARatingForTheSameRide() {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
             .body(TestDataUtil.createRatingRequestWithoutRates())
         .when()
             .post();
@@ -86,9 +87,9 @@ public class RatingSteps {
     @And("I can retrieve the created rating")
     public void iCanRetrieveTheCreatedRating() {
         given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
         .when()
-            .get("/{id}", testState.getCurrentRatingId())
+            .get(TestDataUtil.ID_ENDPOINT, testState.getCurrentRatingId())
         .then()
             .statusCode(HttpStatus.SC_OK)
             .body("id", equalTo(testState.getCurrentRatingId().intValue()))
@@ -144,19 +145,19 @@ public class RatingSteps {
     @When("I set driver rate to {string} with comment {string}")
     public void iSetDriverRateToWithComment(String rate, String comment) {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
             .body(new DriverRatingUpdateRequest(Integer.parseInt(rate), comment))
         .when()
-            .patch("/{id}/driver/rate", testState.getCurrentRatingId());
+            .patch(TestDataUtil.DRIVER_RATE_ENDPOINT, testState.getCurrentRatingId());
     }
 
     @When("I set passenger rate to {string} with comment {string}")
     public void iSetPassengerRateToWithComment(String rate, String comment) {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
             .body(new PassengerRatingUpdateRequest(Integer.parseInt(rate), comment))
         .when()
-            .patch("/{id}/passenger/rate", testState.getCurrentRatingId());
+            .patch(TestDataUtil.PASSENGER_RATE_ENDPOINT, testState.getCurrentRatingId());
     }
 
     @Then("the driver rate is successfully updated")
@@ -201,17 +202,17 @@ public class RatingSteps {
     @When("I request the average rating for the driver")
     public void iRequestTheAverageRatingForTheDriver() {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
         .when()
-            .get("/driver/{id}", testState.getCurrentDriverId());
+            .get(TestDataUtil.DRIVER_AVERAGE_RATING_ENDPOINT, testState.getCurrentDriverId());
     }
 
     @When("I request the average rating for the passenger")
     public void iRequestTheAverageRatingForThePassenger() {
         response = given()
-            .contentType("application/json")
+            .contentType(ContentType.JSON)
         .when()
-            .get("/passenger/{id}", testState.getCurrentDriverId());
+            .get(TestDataUtil.PASSENGER_AVERAGE_RATING_ENDPOINT, testState.getCurrentDriverId());
     }
 
     @Then("I receive the driver's average rating {string}")
