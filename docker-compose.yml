@@ -35,7 +35,9 @@ services:
       CLOUD_OPENFEIGN_CLIENT_CONFIG_PASSENGER_CLIENT_URL: http://passenger-service:8080/api/v1/passengers
 
   rating-service:
-    image: simakkoi/rating-service:1.0-SNAPSHOT
+    build:
+      context: ./rating-service
+      dockerfile: src/main/docker/Dockerfile.jvm
     ports:
       - "8083:8083"
     depends_on:
