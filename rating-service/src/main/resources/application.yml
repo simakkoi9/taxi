@@ -1,4 +1,7 @@
 quarkus:
+  application:
+    name: rating-service
+
   default-locale: ru
   locales: ru,en
 
@@ -50,7 +53,6 @@ mp:
           serializer: org.apache.kafka.common.serialization.StringSerializer
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-
 
 rates:
   limit: 10

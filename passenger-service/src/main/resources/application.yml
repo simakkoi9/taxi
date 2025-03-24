@@ -17,3 +17,8 @@ spring:
 
   liquibase:
     change-log: classpath:/db/changelog/main-changelog.yaml
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
