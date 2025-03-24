@@ -8,6 +8,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class TestWebClientConfig {
     @Bean
     public WebClient osrmWebClient() {
-        return WebClient.create("http://localhost:8080");
+        return WebClient.create("http://localhost:9090");
     }
 }

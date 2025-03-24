@@ -44,7 +44,7 @@ import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@AutoConfigureWireMock(port = 8080)
+@AutoConfigureWireMock(port = 9090)
 @Import({
         TestKafkaConfig.class,
         TestContainersConfig.class,
@@ -67,6 +67,10 @@ public class RideControllerIT {
         registry.add(
                 "spring.data.mongodb.uri",
                 () -> TestContainersConfig.mongoContainer.getReplicaSetUrl("test_db")
+        );
+        registry.add(
+                "spring.kafka.bootstrap-servers",
+                () -> TestContainersConfig.kafkaContainer.getBootstrapServers()
         );
     }
 

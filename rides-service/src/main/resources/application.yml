@@ -11,18 +11,6 @@ spring:
     change-log: classpath:db/changelog/main-changelog.yaml
     enabled: false
 
-  cloud:
-    openfeign:
-      client:
-        config:
-          passenger-client:
-            connectTimeout: 5000
-            readTimeout: 10000
-            url: http://localhost:8080/api/v1/passengers
-
-  kafka:
-    bootstrap-servers: localhost:9092
-
 fare:
   start: 3
   per-km: 2.5
