@@ -1,0 +1,52 @@
+"%test":
+  quarkus:
+    http:
+      port: 8083
+      test-port: 8084
+
+    datasource:
+      db-kind: postgresql
+      devservices:
+        enabled: false
+      jdbc:
+        url:
+      username:
+      password:
+
+    hibernate-orm:
+      database:
+        generation: drop-and-create
+      log:
+        sql: true
+
+    rest-client:
+      ridesClient:
+        url: http://localhost:8082/api/v1
+      mock-enabled: true
+
+    flyway:
+      migrate-at-start: true
+      clean-at-start: true
+
+  kafka:
+    bootstrap:
+      servers:
+    devservices:
+      enabled: false
+    auto:
+      offset:
+        reset: earliest
+
+  mp:
+    messaging:
+      outgoing:
+        send-person:
+          connector: smallrye-kafka
+          topic: rating-topic
+          key:
+            serializer: org.apache.kafka.common.serialization.StringSerializer
+          value:
+            serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
+  rates:
+    limit: 10 

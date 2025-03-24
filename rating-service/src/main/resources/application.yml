@@ -19,14 +19,15 @@ quarkus:
 
   http:
     port: 8083
+    test-port: 8084
 
   rest-client:
     ridesClient:
-      url: http://localhost:8082/api/v1
+      url: ${RIDES_CLIENT_URL:http://localhost:8082/api/v1}
 
 kafka:
   bootstrap:
-    servers: localhost:9092
+    servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
 mp:
   messaging:
