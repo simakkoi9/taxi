@@ -1,6 +1,7 @@
 package io.simakkoi9.ridesservice.service.impl;
 
 import io.simakkoi9.ridesservice.client.PassengerClient;
+import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
@@ -25,10 +26,13 @@ import io.simakkoi9.ridesservice.service.kafka.KafkaProducer;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -48,7 +52,7 @@ public class RideServiceImpl implements RideService {
     private final MessageSource messageSource;
     private final PassengerClient passengerClient;
     private final KafkaProducer kafkaProducer;
-    private final ConcurrentHashMap<String, BlockingQueue<KafkaDriverRequest>> responseCache =
+    private final ConcurrentHashMap<String, BlockingQueue<Optional<KafkaDriverRequest>>> responseCache =
             new ConcurrentHashMap<>();
 
     @Override
@@ -73,18 +77,16 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public RideResponse updateRide(String id, RideUpdateRequest rideUpdateRequest) {
         Ride ride = findRideByIdOrElseThrow(id);
-        if (
-            ride.getStatus().getCode() >= rideUpdateRequest.status().getCode()
-                || RideStatus.getImmutableStatusList().contains(ride.getStatus())
-        ) {
-            throw new InvalidStatusException(
-                    MessageKeyConstants.INVALID_STATUS,
-                    messageSource,
-                    rideUpdateRequest.status().toValue()
-            );
-        }
 
         mapper.partialUpdate(rideUpdateRequest, ride);
+
+        if (rideUpdateRequest.pickupAddress() != null || rideUpdateRequest.destinationAddress() != null) {
+            BigDecimal cost = fareService.calculateFare(
+                    ride.getPickupAddress(), ride.getDestinationAddress()
+            ).block();
+            ride.setCost(cost);
+        }
+
         Ride updatedRide = repository.save(ride);
         return mapper.toResponse(updatedRide);
     }
@@ -95,31 +97,41 @@ public class RideServiceImpl implements RideService {
         final Ride ride = findRideByIdOrElseThrow(id);
         findAvailableDriver(id);
 
-        BlockingQueue<KafkaDriverRequest> queue = responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
-        KafkaDriverRequest kafkaDriverRequest = null;
+        BlockingQueue<Optional<KafkaDriverRequest>> queue =
+                responseCache.computeIfAbsent(id, k -> new LinkedBlockingQueue<>());
+        Optional<KafkaDriverRequest> kafkaDriverRequest = Optional.empty();
         try {
-            kafkaDriverRequest = queue.poll(10, TimeUnit.SECONDS);
+            Optional<KafkaDriverRequest> result = queue.poll(5, TimeUnit.SECONDS);
+            if (Objects.isNull(result)) {
+                throw new AvailableDriverProcessingException(
+                        MessageKeyConstants.DRIVER_PROCESSING_ERROR,
+                        messageSource
+                );
+            }
+            kafkaDriverRequest = Optional.of(result).flatMap(Function.identity());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        if (kafkaDriverRequest == null) {
+        if (kafkaDriverRequest.isEmpty()) {
             throw new NoAvailableDriversException(MessageKeyConstants.NO_DRIVERS_ERROR, messageSource);
         }
 
-        Driver driver = driverMapper.toEntity(kafkaDriverRequest);
+        Driver driver = driverMapper.toEntity(kafkaDriverRequest.get());
         ride.setDriver(driver);
         ride.setStatus(RideStatus.ACCEPTED);
         Ride updatedRide = repository.save(ride);
+        responseCache.remove(id);
 
         return mapper.toResponse(updatedRide);
     }
 
     @Override
     public void handleAvailableDriver(String rideId, KafkaDriverRequest kafkaDriverRequest) {
-        BlockingQueue<KafkaDriverRequest> queue = responseCache.get(rideId);
+        BlockingQueue<Optional<KafkaDriverRequest>> queue = responseCache.get(rideId);
         if (queue != null) {
-            boolean isOffered = queue.offer(kafkaDriverRequest);
+            Optional<KafkaDriverRequest> driverRequest = Optional.ofNullable(kafkaDriverRequest);
+            boolean isOffered = queue.offer(driverRequest);
         }
     }
 
@@ -130,7 +142,7 @@ public class RideServiceImpl implements RideService {
         if (
             ride.getStatus().getCode() >= rideStatus.getCode()
                 || (
-                    ride.getStatus().getCode() == rideStatus.getCode() - 1
+                    rideStatus.getCode() > ride.getStatus().getCode() + 1
                     && !RideStatus.getImmutableStatusList().contains(rideStatus)
                 )
                 || RideStatus.getImmutableStatusList().contains(ride.getStatus())

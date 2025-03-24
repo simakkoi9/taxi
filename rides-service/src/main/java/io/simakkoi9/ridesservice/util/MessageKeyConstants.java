@@ -17,6 +17,8 @@ public final class MessageKeyConstants {
 
     public static final String NO_DRIVERS_ERROR = "no.drivers.error";
 
+    public static final String DRIVER_PROCESSING_ERROR = "driver.processing.error";
+
     public static final String BUSY_PASSENGER_ERROR = "busy.passenger.error";
 
     public static final String INVALID_STATUS = "invalid.status";

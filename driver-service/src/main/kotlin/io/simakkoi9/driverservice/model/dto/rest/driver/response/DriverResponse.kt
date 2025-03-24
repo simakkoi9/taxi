@@ -15,7 +15,7 @@ data class DriverResponse(
 
     val gender: Gender,
 
-    val carId: Long,
+    val carId: Long?,
 
     val createdAt: LocalDateTime
 ) : Serializable

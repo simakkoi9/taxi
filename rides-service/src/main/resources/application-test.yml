@@ -1,0 +1,19 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: rides-service
+  data:
+    mongodb:
+      uri: ${DB_URI:mongodb://localhost:27017/test_db}
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          passenger-client:
+            url: ${PASSENGER_CLIENT_URL:http://localhost:9090/api/v1/passengers}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: rides-service
+
+  data:
+    mongodb:
+      uri: ${DB_URI:mongodb://simakkoi:4130@localhost:27017/rides_db}
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          passenger-client:
+            url: ${PASSENGER_CLIENT_URL:http://localhost:8080/api/v1/passengers}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

@@ -6,11 +6,13 @@ import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
-import io.simakkoi9.ridesservice.exception.PassengerNotAvailableException;
 import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
+import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
 import io.simakkoi9.ridesservice.model.dto.rest.response.ErrorResponse;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,10 @@ public class ControllerAdvice {
 
     @ExceptionHandler({
         RetryableException.class,
-        PassengerNotAvailableException.class
+        PassengerServiceNotAvailableException.class,
+        AvailableDriverProcessingException.class
     })
-    public ResponseEntity<ErrorResponse> handleFeignException(RuntimeException e) {
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(RuntimeException e) {
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, e);
     }
 
@@ -58,8 +61,7 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({
-        DistanceProcessingException.class,
-        AvailableDriverProcessingException.class
+        DistanceProcessingException.class
     })
     public ResponseEntity<ErrorResponse> handleDistanceProcessingException(RuntimeException e) {
         return buildErrorResponse(HttpStatus.BAD_GATEWAY, e);
@@ -75,10 +77,17 @@ public class ControllerAdvice {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationExceptions(ConstraintViolationException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleJsonParseException(HttpMessageNotReadableException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
     }
+
+
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, Exception e) {
         List<String> errors = new ArrayList<>();
@@ -93,6 +102,13 @@ public class ControllerAdvice {
                             errors.add(error.getDefaultMessage());
                         }
                 );
+        } else if (e instanceof ConstraintViolationException) {
+            ((ConstraintViolationException) e)
+                    .getConstraintViolations()
+                    .stream()
+                    .map(ConstraintViolation::getMessage)
+                    .forEach(errors::add);
+
         } else if (e instanceof RetryableException) {
             errors.add(messageSource.getMessage(
                     MessageKeyConstants.PASSENGER_NOT_AVAILABLE_ERROR,

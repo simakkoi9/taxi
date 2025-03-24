@@ -58,7 +58,6 @@ public class FareServiceImpl implements FareService {
                                 .get(0)
                                 .get("distance")
                                 .asDouble();
-                        System.out.println("distance: " + distanceMeters);
                         double distanceKm = distanceMeters / 1000.0;
                         sink.next(distanceKm);
                     } catch (JsonProcessingException e) {
