@@ -55,16 +55,14 @@ class PassengerServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        id = TestDataUtil.ID;
-        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
-        passengerUpdateRequest = TestDataUtil.UPDATE_REQUEST;
-        passengerResponse = TestDataUtil.RESPONSE;
-        updatedPassengerResponse = TestDataUtil.UPDATED_RESPONSE;
-        passenger = TestDataUtil.PASSENGER;
+
     }
 
     @Test
     void testCreatePassenger_ShouldReturnResponse_Valid() {
+        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
+        passengerResponse = TestDataUtil.RESPONSE;
+        passenger = TestDataUtil.getPassenger();
         when(repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE))
                 .thenReturn(false);
         when(mapper.toEntity(passengerCreateRequest)).thenReturn(passenger);
@@ -85,6 +83,7 @@ class PassengerServiceImplTest {
 
     @Test
     void testCreatePassenger_ShouldThrowDuplicatePassengerFoundException() {
+        passengerCreateRequest = TestDataUtil.CREATE_REQUEST;
         when(repository.existsByEmailAndStatus(passengerCreateRequest.email(), UserStatus.ACTIVE))
                 .thenReturn(true);
         String expectedMessage = TestDataUtil.getDuplicatePassengerErrorMessage(passengerCreateRequest.email());
@@ -108,6 +107,10 @@ class PassengerServiceImplTest {
 
     @Test
     void testUpdatePassenger_ShouldReturnResponse_Valid() {
+        id = TestDataUtil.ID;
+        passengerUpdateRequest = TestDataUtil.UPDATE_REQUEST;
+        passenger = TestDataUtil.getPassenger();
+        updatedPassengerResponse = TestDataUtil.UPDATED_RESPONSE;
         when(repository.findByIdAndStatus(id, UserStatus.ACTIVE)).thenReturn(Optional.of(passenger));
         doNothing().when(mapper).setPassengerUpdateRequest(passengerUpdateRequest, passenger);
         when(repository.save(passenger)).thenReturn(passenger);
@@ -128,6 +131,9 @@ class PassengerServiceImplTest {
 
     @Test
     void testDeletePassenger_ShouldReturnResponse_Valid() {
+        id = TestDataUtil.ID;
+        passengerResponse = TestDataUtil.RESPONSE;
+        passenger = TestDataUtil.getPassenger();
         when(repository.findByIdAndStatus(id, UserStatus.ACTIVE)).thenReturn(Optional.of(passenger));
         when(repository.save(passenger)).thenReturn(passenger);
         when(mapper.toResponse(passenger)).thenReturn(passengerResponse);
@@ -146,6 +152,9 @@ class PassengerServiceImplTest {
 
     @Test
     void testGetPassenger_ShouldReturnResponse_Valid() {
+        id = TestDataUtil.ID;
+        passengerResponse = TestDataUtil.RESPONSE;
+        passenger = TestDataUtil.getPassenger();
         when(repository.findByIdAndStatus(id, UserStatus.ACTIVE)).thenReturn(Optional.of(passenger));
         when(mapper.toResponse(passenger)).thenReturn(passengerResponse);
 
@@ -183,6 +192,8 @@ class PassengerServiceImplTest {
 
     @Test
     void getAllPassengers_ShouldReturnPageResponse_ValidPageValues() {
+        passengerResponse = TestDataUtil.RESPONSE;
+        passenger = TestDataUtil.getPassenger();
         PageRequest pageRequest = PageRequest.of(TestDataUtil.PAGE, TestDataUtil.SIZE);
         List<Passenger> passengerList = List.of(passenger);
         Page<Passenger> passengerPage = new PageImpl<>(passengerList, pageRequest, passengerList.size());

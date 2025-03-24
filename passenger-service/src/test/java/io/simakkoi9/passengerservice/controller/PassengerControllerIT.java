@@ -6,7 +6,9 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.simakkoi9.passengerservice.config.PostgresTestContainer;
 import io.simakkoi9.passengerservice.model.entity.Passenger;
@@ -17,12 +19,8 @@ import io.simakkoi9.passengerservice.util.TestDataUtil;
 import java.util.Locale;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -30,15 +28,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Import(PostgresTestContainer.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PassengerControllerIT {
 
     @LocalServerPort
@@ -50,47 +43,42 @@ public class PassengerControllerIT {
     @Autowired
     MessageSource messageSource;
 
-    @BeforeAll
-    static void setUpContainer() {
-        PostgresTestContainer.getInstance().start();
-    }
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", PostgresTestContainer.getInstance()::getJdbcUrl);
-        registry.add("spring.datasource.username", PostgresTestContainer.getInstance()::getUsername);
-        registry.add("spring.datasource.password", PostgresTestContainer.getInstance()::getPassword);
-    }
-
     @BeforeEach
     void setUp() {
-        RestAssured.baseURI = TestDataUtil.BASE_URI.formatted(port);
+        RestAssured.port = port;
+        RestAssured.baseURI = TestDataUtil.BASE_URI;
+        RestAssured.basePath = TestDataUtil.BASE_URL_PATH;
+        passengerRepository.deleteAll();
     }
 
     @Test
-    @Order(1)
     void createPassenger_ShouldReturnPassengerResponse() throws Exception {
-        given()
+        Long id = given()
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
-                .post()
+                .post(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(TestDataUtil.CREATE_REQUEST.name()))
-                .body("email", equalTo(TestDataUtil.CREATE_REQUEST.email()));
+                .body("email", equalTo(TestDataUtil.CREATE_REQUEST.email()))
+                .extract()
+                .jsonPath()
+                .getLong("id");
+
+        Passenger createdPassenger = passengerRepository.findById(id).orElse(null);
+        assertNotNull(createdPassenger);
     }
 
     @Test
-    @Order(2)
     void createPassenger_ShouldThrowDuplicateException() throws Exception {
-        passengerRepository.save(TestDataUtil.PASSENGER);
+        passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
-                .post()
+                .post(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .body("status", equalTo(HttpStatus.CONFLICT.value()))
@@ -104,16 +92,16 @@ public class PassengerControllerIT {
                                 )
                         )
                 );
+
     }
 
     @Test
-    @Order(3)
     void createPassenger_ShouldThrowValidationException_InvalidCreateRequest() throws Exception {
         given()
             .contentType(ContentType.JSON)
             .body(TestDataUtil.INVALID_CREATE_REQUEST)
             .when()
-                .post()
+                .post(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
@@ -121,29 +109,35 @@ public class PassengerControllerIT {
     }
 
     @Test
-    @Order(4)
     void updatePassenger_ShouldReturnUpdatedResponse() throws Exception {
-        Passenger savedPassenger = passengerRepository.save(TestDataUtil.PASSENGER);
+        Passenger savedPassenger = passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
             .contentType(ContentType.JSON)
             .body(TestDataUtil.UPDATE_REQUEST)
             .when()
-                .patch("/{id}", savedPassenger.getId())
+                .patch(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(TestDataUtil.UPDATE_REQUEST.name()))
                 .body("email", equalTo(TestDataUtil.UPDATE_REQUEST.email()));
+
+        Passenger updatedPassenger = passengerRepository.findById(savedPassenger.getId()).orElse(null);
+        assertAll(() -> {
+            assertNotNull(updatedPassenger);
+            assertEquals(TestDataUtil.UPDATE_REQUEST.name(), updatedPassenger.getName());
+            assertEquals(TestDataUtil.UPDATE_REQUEST.email(), updatedPassenger.getEmail());
+            assertEquals(TestDataUtil.UPDATE_REQUEST.phone(), updatedPassenger.getPhone());
+        });
     }
 
     @Test
-    @Order(5)
     void deletePassenger_ShouldSetStatusDeleted() throws Exception {
-        Passenger savedPassenger = passengerRepository.save(TestDataUtil.PASSENGER);
+        Passenger savedPassenger = passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
             .when()
-                .delete("/{id}", savedPassenger.getId())
+                .delete(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
                 .statusCode(HttpStatus.OK.value());
 
@@ -152,25 +146,23 @@ public class PassengerControllerIT {
     }
 
     @Test
-    @Order(6)
     void getPassenger_ShouldReturnPassengerResponse() throws Exception {
-        Passenger savedPassenger = passengerRepository.save(TestDataUtil.PASSENGER);
+        Passenger savedPassenger = passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
             .when()
-                .get("/{id}", savedPassenger.getId())
+                .get(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("name", equalTo(TestDataUtil.PASSENGER.getName()))
-                .body("email", equalTo(TestDataUtil.PASSENGER.getEmail()));
+                .body("name", equalTo(TestDataUtil.NAME))
+                .body("email", equalTo(TestDataUtil.EMAIL));
     }
 
     @Test
-    @Order(7)
     void getPassenger_ShouldThrowNotFoundException() throws Exception {
         given()
             .when()
-                .get("/{id}", TestDataUtil.INVALID_ID)
+                .get(TestDataUtil.ENDPOINT + "/{id}", TestDataUtil.INVALID_ID)
             .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("status", equalTo(HttpStatus.NOT_FOUND.value()))
@@ -187,29 +179,27 @@ public class PassengerControllerIT {
     }
 
     @Test
-    @Order(8)
     void getAllPassengers_ShouldReturnPagedResults() throws Exception {
-        passengerRepository.save(TestDataUtil.PASSENGER);
+        passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
             .when()
-                .get()
+                .get(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("content", not(empty()))
-                .body("content[0].name", equalTo(TestDataUtil.PASSENGER.getName()));
+                .body("content[0].name", equalTo(TestDataUtil.NAME));
     }
 
     @Test
-    @Order(9)
     void getAllPassengers_ShouldThrowValidationException_InvalidPageValues() throws Exception {
-        passengerRepository.save(TestDataUtil.PASSENGER);
+        passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
             .param("page", TestDataUtil.INVALID_PAGE)
             .param("size", TestDataUtil.INVALID_SIZE)
             .when()
-                .get()
+                .get(TestDataUtil.ENDPOINT)
             .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
