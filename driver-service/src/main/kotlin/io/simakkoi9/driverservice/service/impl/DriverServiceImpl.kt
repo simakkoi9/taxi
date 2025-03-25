@@ -59,12 +59,16 @@ class DriverServiceImpl(
 
     @Transactional
     override fun setCarForDriver(driverId: Long, carId: Long): DriverResponse {
+        val driver = findActiveDriverByIdOrElseThrow(driverId)
+
         if (!isCarAvailable(carId)) {
             throw CarIsNotAvailableException(MessageKeyConstants.CAR_IS_NOT_AVAILABLE, messageSource)
         }
-        val driver = findActiveDriverByIdOrElseThrow(driverId)
         val car = findActiveCarByIdOrElseThrow(carId)
-        driver.car = car
+        driver.apply {
+            this.car = car
+        }
+
         val updatedDriver = driverRepository.save(driver)
         return driverMapper.toResponse(updatedDriver)
     }
@@ -72,7 +76,9 @@ class DriverServiceImpl(
     @Transactional
     override fun removeCarForDriver(id: Long): DriverResponse {
         val driver = findActiveDriverByIdOrElseThrow(id)
-        driver.car = null
+        driver.apply {
+            this.car = null
+        }
         val updatedDriver = driverRepository.save(driver)
         return driverMapper.toResponse(updatedDriver)
     }
@@ -120,7 +126,10 @@ class DriverServiceImpl(
             }
 
     private fun isCarAvailable(id: Long): Boolean {
-        val car = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
-        return !(car.isPresent && driverRepository.existsByCarAndStatus(car.get(), EntryStatus.ACTIVE))
+        val carOptional = carRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
+        if (carOptional.isEmpty) {
+            return false
+        }
+        return !driverRepository.existsByCarAndStatus(carOptional.get(), EntryStatus.ACTIVE)
     }
 }
