@@ -65,7 +65,9 @@ class DriverServiceImpl(
             throw CarIsNotAvailableException(MessageKeyConstants.CAR_IS_NOT_AVAILABLE, messageSource)
         }
         val car = findActiveCarByIdOrElseThrow(carId)
-        driver.car = car
+        driver.apply {
+            this.car = car
+        }
 
         val updatedDriver = driverRepository.save(driver)
         return driverMapper.toResponse(updatedDriver)
@@ -74,7 +76,9 @@ class DriverServiceImpl(
     @Transactional
     override fun removeCarForDriver(id: Long): DriverResponse {
         val driver = findActiveDriverByIdOrElseThrow(id)
-        driver.car = null
+        driver.apply {
+            this.car = null
+        }
         val updatedDriver = driverRepository.save(driver)
         return driverMapper.toResponse(updatedDriver)
     }
