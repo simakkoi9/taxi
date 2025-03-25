@@ -14,7 +14,7 @@ RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jdk-jammy AS builder
 WORKDIR /application
-COPY --from=build /app/target/passenger-service-0.0.1-SNAPSHOT.jar application.jar
+COPY --from=build /app/target/rides-service-0.0.1-SNAPSHOT.jar application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 FROM eclipse-temurin:21-jdk-jammy
