@@ -2,6 +2,23 @@ quarkus:
   application:
     name: rating-service
 
+  http:
+    host: 0.0.0.0
+    port: 8083
+    test-port: 8084
+
+  eureka:
+    enable: true
+    region: defaultZone
+    prefer-same-zone: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    metadata:
+      app-key: rating-service
+    heartbeat:
+      enabled: true
+    host-name: localhost
+
   default-locale: ru
   locales: ru,en
 
@@ -19,10 +36,6 @@ quarkus:
   hibernate-orm:
     database:
       generation: validate
-
-  http:
-    port: 8083
-    test-port: 8084
 
   rest-client:
     ridesClient:
