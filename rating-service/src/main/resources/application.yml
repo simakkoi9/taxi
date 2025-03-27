@@ -7,17 +7,24 @@ quarkus:
     port: 8083
     test-port: 8084
 
+  health:
+    enabled: true
+
   eureka:
     enable: true
     region: defaultZone
     prefer-same-zone: true
+    prefer-ip-address: true
+    host-name: ${EUREKA_HOSTNAME:localhost}
     service-url:
       defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
+    health-check-initial-delay: 3
     metadata:
       app-key: rating-service
     heartbeat:
       enabled: true
-    host-name: localhost
+      health-path: /info/health
+      status-path: /info/status
 
   default-locale: ru
   locales: ru,en
