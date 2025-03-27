@@ -168,8 +168,12 @@ services:
     hostname: rides-db
     ports:
       - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: rides_db
     volumes:
       - rides_db_data:/data/db
+    networks:
+      - taxi-network
 
   rating-db:
     image: postgres:16
