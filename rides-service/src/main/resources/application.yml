@@ -2,14 +2,15 @@ server:
   port: 8082
 
 spring:
-  profiles:
-    active: dev
   application:
     name: rides-service
 
   liquibase:
     change-log: classpath:db/changelog/main-changelog.yaml
     enabled: false
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 fare:
   start: 3
