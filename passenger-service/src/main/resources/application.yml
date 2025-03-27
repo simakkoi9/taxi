@@ -17,3 +17,11 @@ spring:
 
   liquibase:
     change-log: classpath:/db/changelog/main-changelog.yaml
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}

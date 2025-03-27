@@ -39,10 +39,10 @@ import jakarta.transaction.Synchronization;
 import jakarta.transaction.TransactionSynchronizationRegistry;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import org.apache.http.HttpStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -216,7 +216,7 @@ public class RatingServiceImpl implements RatingService {
         try {
             jsonNode = ridesClient.getRideById(rideId);
         } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == HttpStatus.SC_NOT_FOUND) {
+            if (e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
             }
         }

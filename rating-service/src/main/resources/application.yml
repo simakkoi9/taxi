@@ -1,4 +1,26 @@
 quarkus:
+  application:
+    name: rating-service
+
+  http:
+    host: 0.0.0.0
+    port: 8083
+    test-port: 8084
+
+  eureka:
+    enable: true
+    region: defaultZone
+    prefer-same-zone: true
+    host-name: ${EUREKA_HOSTNAME:localhost}
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
+    metadata:
+      app-key: rating-service
+    heartbeat:
+      enabled: true
+      health-path: /info/health
+      status-path: /info/status
+
   default-locale: ru
   locales: ru,en
 
@@ -16,10 +38,6 @@ quarkus:
   hibernate-orm:
     database:
       generation: validate
-
-  http:
-    port: 8083
-    test-port: 8084
 
   rest-client:
     ridesClient:
@@ -50,7 +68,6 @@ mp:
           serializer: org.apache.kafka.common.serialization.StringSerializer
         value:
           serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
-
 
 rates:
   limit: 10
