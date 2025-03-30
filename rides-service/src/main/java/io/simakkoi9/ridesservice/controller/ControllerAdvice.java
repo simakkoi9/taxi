@@ -16,6 +16,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -35,6 +36,17 @@ public class ControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e);
+    }
+
+    @ExceptionHandler(CallNotPermittedException.class)
+    public ResponseEntity<ErrorResponse> handleCircuitBreakerException(CallNotPermittedException e) {
+        return buildErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                new PassengerServiceNotAvailableException(
+                        MessageKeyConstants.PASSENGER_TEMP_NOT_AVAILABLE_ERROR,
+                        messageSource
+                )
+        );
     }
 
     @ExceptionHandler({
@@ -86,8 +98,6 @@ public class ControllerAdvice {
     public ResponseEntity<ErrorResponse> handleJsonParseException(HttpMessageNotReadableException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
     }
-
-
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, Exception e) {
         List<String> errors = new ArrayList<>();
