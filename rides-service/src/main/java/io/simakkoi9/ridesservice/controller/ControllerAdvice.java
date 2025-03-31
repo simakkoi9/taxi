@@ -50,7 +50,13 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler({
-        RetryableException.class,
+            RetryableException.class
+    })
+    public ResponseEntity<ErrorResponse> handleRetryableException(RuntimeException e) {
+        return buildErrorResponse(HttpStatus.GATEWAY_TIMEOUT, e);
+    }
+
+    @ExceptionHandler({
         PassengerServiceNotAvailableException.class,
         AvailableDriverProcessingException.class
     })
