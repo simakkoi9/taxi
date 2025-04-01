@@ -184,10 +184,13 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     networks:
       - taxi-network
+    volumes:
+      - grafana_data:/var/lib/grafana
 
 volumes:
   rides_db_data:
   postgres_data:
+  grafana_data:
 
 networks:
   taxi-network:

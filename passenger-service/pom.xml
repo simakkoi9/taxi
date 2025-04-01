@@ -25,6 +25,7 @@
         <testcontainers.version>1.20.4</testcontainers.version>
         <cucumber.version>7.21.1</cucumber.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <prometheus.version>1.14.5</prometheus.version>
     </properties>
     <dependencies>
         <dependency>
@@ -144,6 +145,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${prometheus.version}</version>
         </dependency>
     </dependencies>
 

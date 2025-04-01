@@ -26,6 +26,7 @@
 		<cucumber.version>7.21.1</cucumber.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<resilience.version>2.3.0</resilience.version>
+		<prometheus.version>1.14.5</prometheus.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -203,6 +204,12 @@
 		<dependency>
 			<groupId>io.github.resilience4j</groupId>
 			<artifactId>resilience4j-reactor</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>${prometheus.version}</version>
 		</dependency>
 	</dependencies>
 
