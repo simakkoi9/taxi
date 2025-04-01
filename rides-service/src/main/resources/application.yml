@@ -2,8 +2,6 @@ server:
   port: 8082
 
 spring:
-  profiles:
-    active: dev
   application:
     name: rides-service
 
@@ -11,6 +9,14 @@ spring:
     change-log: classpath:db/changelog/main-changelog.yaml
     enabled: false
 
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
 fare:
   start: 3
   per-km: 2.5
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
