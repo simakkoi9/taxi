@@ -12,6 +12,8 @@ spring:
         config:
           passenger-client:
             url: ${PASSENGER_CLIENT_URL:http://localhost:8080/api/v1/passengers}
+            connect-timeout: 123000
+            read-timeout: 123000
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

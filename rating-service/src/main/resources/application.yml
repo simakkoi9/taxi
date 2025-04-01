@@ -42,6 +42,11 @@ quarkus:
   rest-client:
     ridesClient:
       url: ${RIDES_CLIENT_URL:http://localhost:8082/api/v1}
+      connect-timeout: 5000
+      read-timeout: 5000
+
+  log:
+    level: DEBUG
 
 kafka:
   bootstrap:
