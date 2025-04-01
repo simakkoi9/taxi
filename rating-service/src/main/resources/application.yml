@@ -48,6 +48,12 @@ quarkus:
   log:
     level: DEBUG
 
+  micrometer:
+    export:
+      prometheus:
+        enabled: true
+        path: metrics/prometheus
+
 kafka:
   bootstrap:
     servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
