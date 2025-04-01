@@ -46,7 +46,7 @@ quarkus:
       read-timeout: 5000
 
   log:
-    level: DEBUG
+    level: INFO
 
   micrometer:
     export:
