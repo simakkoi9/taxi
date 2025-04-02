@@ -167,6 +167,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
@@ -177,6 +178,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
@@ -190,15 +192,34 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
+    restart: unless-stopped
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    depends_on:
+      - volume-init
+    volumes:
+      - ./config/loki-config.yml:/etc/loki-config.yml
+      - loki_data:/tmp/loki
+    user: "472:472"
+    command: [ "-config.expand-env=true", "-config.file=/etc/loki-config.yml" ]
     networks:
       - taxi-network
+
+  volume-init:
+    image: busybox:1.35
+    container_name: volume-init
+    command: [ "sh", "-c", "chown -R 472:472 /tmp/loki && mkdir -p /tmp/tempo/traces && chmod -R 777 /tmp/tempo" ]
+    volumes:
+      - loki_data:/tmp/loki
+      - tempo_data:/tmp/tempo
+    networks:
+      - taxi-network
+    entrypoint: [ "sh", "-c", "chown -R 472:472 /tmp/loki && mkdir -p /tmp/tempo/traces && chmod -R 777 /tmp/tempo && exit 0" ]
 
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
+    restart: unless-stopped
     volumes:
       - /var/log:/var/log
       - ./config/promtail-config.yml:/etc/promtail/config.yml
@@ -209,10 +230,39 @@ services:
     networks:
       - taxi-network
 
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    restart: unless-stopped
+    volumes:
+      - ./config/otel-collector-config.yml:/etc/otel-collector-config.yml
+    command: --config=/etc/otel-collector-config.yml
+    ports:
+      - "4318:4318"
+    networks:
+      - taxi-network
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    restart: unless-stopped
+    depends_on:
+      - volume-init
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./config/tempo.yml:/etc/tempo.yml
+      - tempo_data:/tmp/tempo
+    command: -config.file=/etc/tempo.yml
+    networks:
+      - taxi-network
+
 volumes:
   rides_db_data:
   postgres_data:
   grafana_data:
+  loki_data:
+  tempo_data:
 
 networks:
   taxi-network:

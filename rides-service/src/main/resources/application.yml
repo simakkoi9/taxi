@@ -62,6 +62,15 @@ management:
       show-details: always
     circuitbreakers:
       enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      export:
+        enabled: true
+      endpoint: ${OTLP_ENDPOINT:http://otel-collector:4318}
 
 logging:
   level:

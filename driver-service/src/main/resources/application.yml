@@ -27,7 +27,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}\
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
 
 management:
   endpoints:
@@ -37,6 +37,17 @@ management:
   endpoint:
     health:
       show-details: always
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      export:
+        enabled: true
+      endpoint: ${OTLP_ENDPOINT:http://otel-collector:4318}
+
+
 
 logging:
   level:

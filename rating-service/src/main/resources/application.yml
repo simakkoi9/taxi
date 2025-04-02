@@ -49,10 +49,20 @@ quarkus:
     level: INFO
 
   micrometer:
+    enabled: true
     export:
       prometheus:
         enabled: true
         path: metrics/prometheus
+
+  otel:
+    enabled: true
+    exporter:
+      otlp:
+        traces:
+          endpoint: ${OTLP_ENDPOINT:http://otel-collector:4318}
+          sampler:
+            arg: 1.0
 
 kafka:
   bootstrap:
