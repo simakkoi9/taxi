@@ -172,6 +172,9 @@ services:
       - "9090:9090"
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-remote-write-receiver'
     networks:
       - taxi-network
 
@@ -230,26 +233,16 @@ services:
     networks:
       - taxi-network
 
-  otel-collector:
-    image: otel/opentelemetry-collector:latest
-    container_name: otel-collector
-    restart: unless-stopped
-    volumes:
-      - ./config/otel-collector-config.yml:/etc/otel-collector-config.yml
-    command: --config=/etc/otel-collector-config.yml
-    ports:
-      - "4318:4318"
-    networks:
-      - taxi-network
-
   tempo:
     image: grafana/tempo:latest
     container_name: tempo
     restart: unless-stopped
     depends_on:
       - volume-init
+      - loki
     ports:
       - "3200:3200"
+      - "4318:4318"
     volumes:
       - ./config/tempo.yml:/etc/tempo.yml
       - tempo_data:/tmp/tempo

@@ -6,6 +6,7 @@ quarkus:
     host: 0.0.0.0
     port: 8083
     test-port: 8084
+    http2: true
 
   eureka:
     enable: true
@@ -60,9 +61,7 @@ quarkus:
     exporter:
       otlp:
         traces:
-          endpoint: ${OTLP_ENDPOINT:http://otel-collector:4318}
-          sampler:
-            arg: 1.0
+          endpoint: ${OTLP_ENDPOINT:http://tempo:4318/v1/traces}
 
 kafka:
   bootstrap:

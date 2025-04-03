@@ -37,17 +37,17 @@ management:
   endpoint:
     health:
       show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
   tracing:
     enabled: true
     sampling:
       probability: 1.0
   otlp:
     tracing:
-      export:
-        enabled: true
-      endpoint: ${OTLP_ENDPOINT:http://otel-collector:4318}
-
-
+      endpoint: ${OTLP_ENDPOINT:http://tempo:4318/v1/traces}
 
 logging:
   level:
