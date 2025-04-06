@@ -1,5 +1,6 @@
 server:
   http_listen_port: 9080
+  grpc_listen_port: 0
 
 clients:
   - url: http://loki:3100/loki/api/v1/push
@@ -8,12 +9,57 @@ positions:
   filename: /tmp/positions.yaml
 
 scrape_configs:
-  - job_name: "docker-logs"
-    pipeline_stages:
-      - docker: {}
+
+  - job_name: "driver-service-logs"
     static_configs:
       - targets:
           - localhost
         labels:
-          job: "docker"
-          __path__: /var/lib/docker/containers/*/*.log
+          app: "driver-service"
+          job: "driver-service"
+          __path__: /var/lib/docker/containers/*driver-service*.log
+
+  - job_name: "passenger-service-logs"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: "passenger-service"
+          job: "passenger-service"
+          __path__: /var/lib/docker/containers/*passenger-service*.log
+
+  - job_name: "rides-service-logs"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: "rides-service"
+          job: "rides-service"
+          __path__: /var/lib/docker/containers/*rides-service*.log
+
+  - job_name: "rating-service-logs"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: "rating-service"
+          job: "rating-service"
+          __path__: /var/lib/docker/containers/*rating-service*.log
+
+  - job_name: "eureka-service-logs"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: "eureka-service"
+          job: "eureka-service"
+          __path__: /var/lib/docker/containers/*eureka-service*.log
+
+  - job_name: "gateway-service-logs"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: "gateway-service"
+          job: "gateway-service"
+          __path__: /var/lib/docker/containers/*gateway-service*.log

@@ -37,14 +37,18 @@ services:
 
   eureka-service:
     build: ./eureka-service
+    container_name: eureka-service
     ports:
       - "8761:8761"
+    environment:
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
   gateway-service:
     build: ./gateway-service
     hostname: gateway-service
+    container_name: gateway-service
     ports:
       - "8050:8050"
     depends_on:
@@ -52,12 +56,14 @@ services:
         condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
   passenger-service:
     build: ./passenger-service
     hostname: passenger-service
+    container_name: passenger-service
     expose:
       - 8080
     depends_on:
@@ -68,12 +74,14 @@ services:
       SPRING_DATASOURCE_USERNAME: ${USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
   driver-service:
     build: ./driver-service
     hostname: driver-service
+    container_name: driver-service
     expose:
       - 8081
     depends_on:
@@ -89,12 +97,14 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
   rides-service:
     build: ./rides-service
     hostname: rides-service
+    container_name: rides-service
     expose:
       - 8082
     depends_on:
@@ -109,6 +119,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_PASSENGER_CLIENT_URL: http://passenger-service:8080/api/v1/passengers
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
@@ -117,6 +128,7 @@ services:
       context: ./rating-service
       dockerfile: src/main/docker/Dockerfile.jvm
     hostname: rating-service
+    container_name: rating-service
     expose:
       - 8083
     depends_on:
@@ -134,6 +146,7 @@ services:
       QUARKUS_REST_CLIENT_RIDESCLIENT_URL: http://rides-service:8082/api/v1
       QUARKUS_EUREKA_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       QUARKUS_EUREKA_HOST_NAME: rating-service
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
@@ -159,8 +172,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - ./multiple-databases/multiple-databases.sh:/docker-entrypoint-initdb.d/multiple-databases.sh
       - postgres_data:/var/lib/postgresql/data
-      - ./multiple-databases:/docker-entrypoint-initdb.d
     networks:
       - taxi-network
 
@@ -242,6 +255,7 @@ services:
       - loki
     ports:
       - "3200:3200"
+      - "4317:4317"
       - "4318:4318"
     volumes:
       - ./config/tempo.yml:/etc/tempo.yml

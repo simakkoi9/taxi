@@ -34,6 +34,14 @@ management:
   endpoint:
     health:
       show-details: always
+  metrics:
+    tags:
+      application: passenger-service
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
   prometheus:
     metrics:
       export:
@@ -46,7 +54,7 @@ management:
     tracing:
       export:
         enabled: true
-      endpoint: ${OTLP_ENDPOINT:http://tempo:4318/api/v2/spans}
+      endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
 
 logging:
   level:

@@ -48,6 +48,10 @@ quarkus:
 
   log:
     level: INFO
+    console:
+      enable: true
+      level: INFO
+      format: "%d{HH:mm:ss} %-5p [%c] (%t) %s%E%n"
 
   micrometer:
     enabled: true
@@ -55,13 +59,15 @@ quarkus:
       prometheus:
         enabled: true
         path: metrics/prometheus
+    tags:
+      application: rating-service
 
   otel:
     enabled: true
     exporter:
       otlp:
         traces:
-          endpoint: ${OTLP_ENDPOINT:http://tempo:4318/v1/traces}
+          endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
 
 kafka:
   bootstrap:
