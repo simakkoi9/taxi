@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.client;
 
+import io.simakkoi9.ridesservice.config.FeignConfig;
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -8,7 +9,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "passenger-client")
+@FeignClient(name = "passenger-client", configuration = FeignConfig.class)
 public interface PassengerClient {
 
     @CircuitBreaker(name = "passengerCircuitBreaker", fallbackMethod = "fallback")

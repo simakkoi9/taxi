@@ -2,13 +2,28 @@ server:
   http_listen_port: 9080
   grpc_listen_port: 0
 
-clients:
-  - url: http://loki:3100/loki/api/v1/push
-
 positions:
   filename: /tmp/positions.yaml
 
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
 scrape_configs:
+  - job_name: "docker-containers"
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["com.docker.compose.project"]
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'logstream'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
 
   - job_name: "driver-service-logs"
     static_configs:
@@ -16,8 +31,8 @@ scrape_configs:
           - localhost
         labels:
           app: "driver-service"
-          job: "driver-service"
-          __path__: /var/lib/docker/containers/*driver-service*.log
+          component: "business-service"
+          __path__: /var/lib/docker/containers/*driver-service*/*-json.log
 
   - job_name: "passenger-service-logs"
     static_configs:
@@ -25,8 +40,8 @@ scrape_configs:
           - localhost
         labels:
           app: "passenger-service"
-          job: "passenger-service"
-          __path__: /var/lib/docker/containers/*passenger-service*.log
+          component: "business-service"
+          __path__: /var/lib/docker/containers/*passenger-service*/*-json.log
 
   - job_name: "rides-service-logs"
     static_configs:
@@ -34,8 +49,8 @@ scrape_configs:
           - localhost
         labels:
           app: "rides-service"
-          job: "rides-service"
-          __path__: /var/lib/docker/containers/*rides-service*.log
+          component: "business-service"
+          __path__: /var/lib/docker/containers/*rides-service*/*-json.log
 
   - job_name: "rating-service-logs"
     static_configs:
@@ -43,8 +58,8 @@ scrape_configs:
           - localhost
         labels:
           app: "rating-service"
-          job: "rating-service"
-          __path__: /var/lib/docker/containers/*rating-service*.log
+          component: "business-service"
+          __path__: /var/lib/docker/containers/*rating-service*/*-json.log
 
   - job_name: "eureka-service-logs"
     static_configs:
@@ -52,8 +67,8 @@ scrape_configs:
           - localhost
         labels:
           app: "eureka-service"
-          job: "eureka-service"
-          __path__: /var/lib/docker/containers/*eureka-service*.log
+          component: "discovery"
+          __path__: /var/lib/docker/containers/*eureka-service*/*-json.log
 
   - job_name: "gateway-service-logs"
     static_configs:
@@ -61,5 +76,13 @@ scrape_configs:
           - localhost
         labels:
           app: "gateway-service"
-          job: "gateway-service"
-          __path__: /var/lib/docker/containers/*gateway-service*.log
+          component: "api-gateway"
+          __path__: /var/lib/docker/containers/*gateway-service*/*-json.log
+
+  - job_name: "database-logs"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          component: "database"
+          __path__: /var/lib/docker/containers/*postgres*/*-json.log,/var/lib/docker/containers/*rides-db*/*-json.log

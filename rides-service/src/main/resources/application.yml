@@ -86,4 +86,6 @@ management:
 
 logging:
   level:
+    feign: DEBUG
     "*": INFO
+  config: classpath:log4j2.xml

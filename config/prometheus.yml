@@ -26,7 +26,7 @@ scrape_configs:
       - targets: ['rides-service:8082']
 
   - job_name: 'rating-service'
-    metrics_path: '/q/metrics/prometheus'
+    metrics_path: '/q/metrics'
     static_configs:
       - targets: ['rating-service:8083']
 

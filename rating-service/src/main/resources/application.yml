@@ -51,21 +51,26 @@ quarkus:
     console:
       enable: true
       level: INFO
-      format: "%d{HH:mm:ss} %-5p [%c] (%t) %s%E%n"
+      format: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%t{id}] %p [traceId=%X{traceId} spanId=%X{spanId}] - %m%n"
 
   micrometer:
     enabled: true
+    binder:
+      jvm: true
+      http-server:
+        enabled: true
+      messaging:
+        enabled: true
     export:
       prometheus:
         enabled: true
-        path: metrics/prometheus
-    tags:
-      application: rating-service
+        application: rating-service
 
   otel:
     enabled: true
     exporter:
       otlp:
+        protocol: http/protobuf
         traces:
           endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
 

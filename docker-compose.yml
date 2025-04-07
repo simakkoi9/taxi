@@ -146,7 +146,7 @@ services:
       QUARKUS_REST_CLIENT_RIDESCLIENT_URL: http://rides-service:8082/api/v1
       QUARKUS_EUREKA_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       QUARKUS_EUREKA_HOST_NAME: rating-service
-      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
+      QUARKUS_MICROMETER_EXPORT_OTLP_URL: http://tempo:4318/v1/traces
     networks:
       - taxi-network
 
@@ -237,7 +237,7 @@ services:
     container_name: promtail
     restart: unless-stopped
     volumes:
-      - /var/log:/var/log
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./config/promtail-config.yml:/etc/promtail/config.yml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
