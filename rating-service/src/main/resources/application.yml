@@ -64,15 +64,14 @@ quarkus:
     export:
       prometheus:
         enabled: true
-        application: rating-service
 
   otel:
     enabled: true
     exporter:
       otlp:
-        protocol: http/protobuf
         traces:
           endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
+          protocol: http/protobuf
 
 kafka:
   bootstrap:

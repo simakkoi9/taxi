@@ -34,11 +34,9 @@ management:
     enabled: true
     sampling:
       probability: 1.0
-  otlp:
+  zipkin:
     tracing:
-      export:
-        enabled: true
-      endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
+      endpoint: ${ZIPKIN_ENDPOINT:http://tempo:9411/api/v2/spans}
 
 logging:
   level:

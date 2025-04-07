@@ -74,7 +74,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
-      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://tempo:9411/api/v2/spans
     networks:
       - taxi-network
 
@@ -97,7 +97,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
-      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://tempo:9411/api/v2/spans
     networks:
       - taxi-network
 
@@ -119,7 +119,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_PASSENGER_CLIENT_URL: http://passenger-service:8080/api/v1/passengers
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
-      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://tempo:9411/api/v2/spans
     networks:
       - taxi-network
 
@@ -257,6 +257,7 @@ services:
       - "3200:3200"
       - "4317:4317"
       - "4318:4318"
+      - "9411:9411"
     volumes:
       - ./config/tempo.yml:/etc/tempo.yml
       - tempo_data:/tmp/tempo
