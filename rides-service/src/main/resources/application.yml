@@ -70,6 +70,8 @@ management:
         http:
           server:
             requests: true
+        ride_service_create_ride_timer: true
+        ride_service_get_available_driver_timer: true
   prometheus:
     metrics:
       export:

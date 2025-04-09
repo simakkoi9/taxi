@@ -67,11 +67,16 @@ quarkus:
 
   otel:
     enabled: true
+    resource:
+      attributes:
+        - service.name=rating-service
+        - application.name=rating-service
+        - application=rating-service
     exporter:
       otlp:
+        protocol: http/protobuf
         traces:
           endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
-          protocol: http/protobuf
 
 kafka:
   bootstrap:

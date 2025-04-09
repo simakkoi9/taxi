@@ -1,5 +1,6 @@
 package io.simakkoi9.ridesservice.service.impl;
 
+import io.micrometer.core.annotation.Timed;
 import io.simakkoi9.ridesservice.client.PassengerClient;
 import io.simakkoi9.ridesservice.exception.AvailableDriverProcessingException;
 import io.simakkoi9.ridesservice.exception.BusyPassengerException;
@@ -57,6 +58,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
+    @Timed(value = "ride_service_create_ride_timer", description = "Timer for create ride method")
     public RideResponse createRide(RideCreateRequest rideCreateRequest) {
         Ride ride = mapper.toEntity(rideCreateRequest);
 
@@ -93,6 +95,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
+    @Timed(value = "ride_service_get_available_driver_timer", description = "Timer for get available driver method")
     public RideResponse getAvailableDriver(String id) {
         final Ride ride = findRideByIdOrElseThrow(id);
         findAvailableDriver(id);
