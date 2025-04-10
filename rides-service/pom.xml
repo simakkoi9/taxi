@@ -29,6 +29,7 @@
 		<telemetry.version>1.43.0</telemetry.version>
 		<zipkin-reporter.version>3.4.3</zipkin-reporter.version>
 		<feign-micrometer.version>13.5</feign-micrometer.version>
+		<micrometer-tracing.version>1.4.4</micrometer-tracing.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -270,7 +271,7 @@
 			<dependency>
 				<groupId>io.micrometer</groupId>
 				<artifactId>micrometer-tracing-bom</artifactId>
-				<version>1.4.4</version>
+				<version>${micrometer-tracing.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

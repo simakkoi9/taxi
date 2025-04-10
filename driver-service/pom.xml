@@ -30,6 +30,7 @@
         <prometheus.version>1.14.5</prometheus.version>
         <telemetry.version>1.43.0</telemetry.version>
         <zipkin-reporter.version>3.4.3</zipkin-reporter.version>
+        <micrometer-tracing.version>1.4.4</micrometer-tracing.version>
     </properties>
     <dependencies>
         <dependency>
@@ -234,7 +235,7 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-tracing-bom</artifactId>
-                <version>1.4.4</version>
+                <version>${micrometer-tracing.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
