@@ -14,4 +14,31 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: eureka-service
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://tempo:9411/api/v2/spans}
+
+logging:
+  level:
+    "*": INFO
+  config: classpath:log4j2.xml

@@ -1,11 +1,11 @@
 package io.simakkoi9.ridesservice.client;
 
+import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
+import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
-import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
-import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 public class PassengerErrorDecoder implements ErrorDecoder {
 
     private final MessageSource messageSource;
+
+    private final ErrorDecoder errorDecoder = new Default();
 
     @Override
     public Exception decode(String s, Response response) {
@@ -27,10 +29,7 @@ public class PassengerErrorDecoder implements ErrorDecoder {
             );
         }
 
-        return new PassengerServiceNotAvailableException(
-                MessageKeyConstants.PASSENGER_NOT_AVAILABLE_ERROR,
-                messageSource
-        );
+        return errorDecoder.decode(s, response);
     }
 
 }

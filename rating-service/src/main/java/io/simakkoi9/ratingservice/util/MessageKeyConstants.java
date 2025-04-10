@@ -15,4 +15,6 @@ public final class MessageKeyConstants {
     public static final String DRIVER_ALREADY_RATED = "driver.already.rated";
     public static final String PASSENGER_ALREADY_RATED = "passenger.already.rated";
     public static final String INTERNAL_SERVER_ERROR = "internal.server.error";
+    public static final String EXTERNAL_SERVICE_TIMEOUT_ERROR = "external.service.timeout.error";
+    public static final String EXTERNAL_SERVICE_UNAVAILABLE_ERROR = "external.service.unavailable.error";
 }
