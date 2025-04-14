@@ -150,6 +150,20 @@ services:
     networks:
       - taxi-network
 
+  auth-service:
+    build: ./auth-service
+    hostname: auth-service
+    container_name: auth-service
+    expose:
+      - 8061
+    depends_on:
+      eureka-service:
+        condition: service_started
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
+    networks:
+      - taxi-network
+
   rides-db:
     image: mongo:6
     hostname: rides-db
