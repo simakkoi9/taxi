@@ -8,13 +8,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8060/realms/taxi
-          jwk-set-uri: http://localhost:8060/realms/taxi/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8060/realms/taxi-realm
+          jwk-set-uri: http://localhost:8060/realms/taxi-realm/protocol/openid-connect/certs
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
+      defaultZone: http://eureka-service:8761/eureka
   instance:
     prefer-ip-address: true
     

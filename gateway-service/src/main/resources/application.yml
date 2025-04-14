@@ -4,6 +4,25 @@ server:
 spring:
   application:
     name: gateway-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8060/realms/taxi-realm
+      client:
+        registration:
+          keycloak:
+            client-id: gateway
+            client-secret: kDUNuNIxvOnWxIvHghtCO72FzANrBcsf
+            scope: openid
+            provider: keycloak
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8060/login/oauth2/code/keycloak
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8060/realms/taxi-realm
+
   cloud:
     gateway:
       discovery:
