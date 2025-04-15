@@ -8,8 +8,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8060/realms/taxi-realm
-          jwk-set-uri: http://localhost:8060/realms/taxi-realm/protocol/openid-connect/certs
+          issuer-uri: ${keycloak.server-url}/realms/taxi-realm
+          jwk-set-uri: ${keycloak.server-url}/protocol/openid-connect/certs
+
+keycloak:
+  client-id: taxi-client
+  realm: taxi-realm
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8060}
 
 eureka:
   client:

@@ -161,6 +161,8 @@ services:
         condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
+      KEYCLOAK_CLIENT_SECRET: ${CLIENT_SECRET}
+      KEYCLOAK_SERVER_URL: http://keycloak:8060
     networks:
       - taxi-network
 
