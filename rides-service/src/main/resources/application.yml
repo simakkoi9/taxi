@@ -20,3 +20,75 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
+  instance:
+    metadata-map:
+      prometheus.path: /actuator/prometheus
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 90
+        slowCallDurationThreshold: 3s
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 3
+        sliding-window-type: COUNT_BASED
+        slidingWindowSize: 10
+        waitDurationInOpenState: 10s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        ignore-exceptions:
+          - io.simakkoi9.ridesservice.exception.PassengerNotFoundException
+    instances:
+      passengerCircuitBreaker:
+        base-config: default
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        ignore-exceptions:
+          - io.simakkoi9.ridesservice.exception.PassengerNotFoundException
+    instances:
+      passengerServiceRetry:
+        base-config: default
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: rides-service
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+        ride_service_create_ride_timer: true
+        ride_service_get_available_driver_timer: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://tempo:9411/api/v2/spans}
+
+logging:
+  level:
+    feign: DEBUG
+    "*": INFO
+  config: classpath:log4j2.xml

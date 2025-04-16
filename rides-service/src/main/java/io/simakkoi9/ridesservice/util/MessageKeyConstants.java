@@ -15,6 +15,8 @@ public final class MessageKeyConstants {
 
     public static final String PASSENGER_NOT_AVAILABLE_ERROR = "passenger.not-available.error";
 
+    public static final String PASSENGER_TEMP_NOT_AVAILABLE_ERROR = "passenger.temp.not-available.error";
+
     public static final String NO_DRIVERS_ERROR = "no.drivers.error";
 
     public static final String DRIVER_PROCESSING_ERROR = "driver.processing.error";

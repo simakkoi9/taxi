@@ -6,6 +6,7 @@ quarkus:
     host: 0.0.0.0
     port: 8083
     test-port: 8084
+    http2: true
 
   eureka:
     enable: true
@@ -16,6 +17,7 @@ quarkus:
       defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
     metadata:
       app-key: rating-service
+      prometheus.path: /q/metrics
     heartbeat:
       enabled: true
       health-path: /info/health
@@ -42,6 +44,40 @@ quarkus:
   rest-client:
     ridesClient:
       url: ${RIDES_CLIENT_URL:http://localhost:8082/api/v1}
+      connect-timeout: 5000
+      read-timeout: 5000
+
+  log:
+    level: INFO
+    console:
+      enable: true
+      level: INFO
+      format: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%t{id}] %p [traceId=%X{traceId} spanId=%X{spanId}] - %m%n"
+
+  micrometer:
+    enabled: true
+    binder:
+      jvm: true
+      http-server:
+        enabled: true
+      messaging:
+        enabled: true
+    export:
+      prometheus:
+        enabled: true
+
+  otel:
+    enabled: true
+    resource:
+      attributes:
+        - service.name=rating-service
+        - application.name=rating-service
+        - application=rating-service
+    exporter:
+      otlp:
+        protocol: http/protobuf
+        traces:
+          endpoint: ${OTLP_ENDPOINT:http://tempo:4318}
 
 kafka:
   bootstrap:

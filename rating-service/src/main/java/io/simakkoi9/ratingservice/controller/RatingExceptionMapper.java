@@ -13,10 +13,13 @@ import io.simakkoi9.ratingservice.exception.UncompletedRideException;
 import io.simakkoi9.ratingservice.model.dto.rest.ErrorResponse;
 import io.simakkoi9.ratingservice.util.MessageKeyConstants;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.time.LocalDateTime;
+import org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException;
+import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 
 @Provider
 public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> {
@@ -44,6 +47,21 @@ public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> 
                 || e instanceof UncompletedRideException
         ) {
             return buildResponse(Response.Status.BAD_REQUEST, e);
+        } else if (
+                e instanceof ProcessingException
+                || e instanceof TimeoutException
+        ) {
+            return buildResponse(
+                    Response.Status.GATEWAY_TIMEOUT,
+                    MessageKeyConstants.EXTERNAL_SERVICE_TIMEOUT_ERROR
+            );
+        } else if (
+                e instanceof CircuitBreakerOpenException
+        ) {
+            return buildResponse(
+                    Response.Status.SERVICE_UNAVAILABLE,
+                    MessageKeyConstants.EXTERNAL_SERVICE_UNAVAILABLE_ERROR
+            );
         } else {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(
@@ -63,6 +81,16 @@ public class RatingExceptionMapper implements ExceptionMapper<RuntimeException> 
                         LocalDateTime.now(),
                         status.getStatusCode(),
                         e.getMessage()
+                ))
+                .build();
+    }
+
+    private Response buildResponse(Response.Status status, String messageKey) {
+        return Response.status(status)
+                .entity(new ErrorResponse(
+                        LocalDateTime.now(),
+                        status.getStatusCode(),
+                        messageConfig.getMessage(messageKey)
                 ))
                 .build();
     }
