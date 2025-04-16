@@ -1,6 +1,7 @@
 package io.simakkoi9.authservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.simakkoi9.authservice.model.dto.client.DriverCreateRequest;
 import io.simakkoi9.authservice.model.dto.client.PassengerCreateRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.request.KeycloakUserRequest;
@@ -9,6 +10,7 @@ import io.simakkoi9.authservice.model.dto.security.request.register.PassengerReg
 import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
 import io.simakkoi9.authservice.model.dto.security.response.KeycloakUserResponse;
 import io.simakkoi9.authservice.model.dto.security.response.KeycloakRoleResponse;
+import io.simakkoi9.authservice.service.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class SecurityService {
+public class SecurityServiceImpl implements SecurityService {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -43,6 +45,9 @@ public class SecurityService {
 
     @Value("${service.passenger.url}")
     private String passengerServiceUrl;
+
+    @Value("${service.driver.url}")
+    private String driverServiceUrl;
 
     private Mono<String> getAdminToken() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -120,6 +125,23 @@ public class SecurityService {
                 .bodyToMono(Void.class);
     }
 
+    private Mono<Void> sendDriverData(String keycloakId, DriverRegisterRequest request) {
+        DriverCreateRequest driverData = new DriverCreateRequest(
+                keycloakId,
+                request.getName(),
+                request.getEmail(),
+                request.getPhone(),
+                request.getGender()
+        );
+
+        return webClient.post()
+                .uri(driverServiceUrl)
+                .header("Content-Type", "application/json")
+                .bodyValue(driverData)
+                .retrieve()
+                .bodyToMono(Void.class);
+    }
+
     public Mono<TokenResponse> registerPassenger(PassengerRegisterRequest request) {
         return getAdminToken().flatMap(adminToken -> {
             KeycloakUserRequest userRequest = KeycloakUserRequest.builder()
@@ -147,7 +169,8 @@ public class SecurityService {
                     .then(getUserId(adminToken, request.getEmail()))
                     .flatMap(userId -> assignRole(adminToken, userId, "ROLE_PASSENGER")
                             .then(sendPassengerData(userId, request))
-                            .thenReturn(userId))
+                            .thenReturn(userId)
+                    )
                     .then(
                         login(
                             new LoginRequest(request.getEmail(), request.getPassword())
@@ -181,7 +204,10 @@ public class SecurityService {
                     .retrieve()
                     .bodyToMono(Void.class)
                     .then(getUserId(adminToken, request.getEmail()))
-                    .flatMap(userId -> assignRole(adminToken, userId, "ROLE_DRIVER"))
+                    .flatMap(userId -> assignRole(adminToken, userId, "ROLE_DRIVER")
+                                .then(sendDriverData(userId, request))
+                                .thenReturn(Void.class)
+                    )
                     .then(
                         login(
                             new LoginRequest(request.getEmail(), request.getPassword())

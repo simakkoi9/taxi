@@ -4,7 +4,7 @@ import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegist
 import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.PassengerRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
-import io.simakkoi9.authservice.service.impl.SecurityService;
+import io.simakkoi9.authservice.service.impl.SecurityServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SecurityController {
 
-    private final SecurityService securityService;
+    private final SecurityServiceImpl securityService;
 
     @PostMapping("/passenger/register")
     public Mono<ResponseEntity<TokenResponse>> registerPassenger(@RequestBody PassengerRegisterRequest request) {

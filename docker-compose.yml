@@ -164,6 +164,7 @@ services:
       KEYCLOAK_CLIENT_SECRET: ${CLIENT_SECRET}
       KEYCLOAK_SERVER_URL: http://keycloak:8060
       SERVICE_PASSENGER_URL: http://passenger-service:8080/api/v1/passengers
+      SERVICE_DRIVER_URL: http://driver-service:8081/api/v1/drivers
     networks:
       - taxi-network
 
