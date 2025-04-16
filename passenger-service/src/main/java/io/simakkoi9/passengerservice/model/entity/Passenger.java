@@ -28,6 +28,9 @@ public class Passenger {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "external_id", nullable = false)
+    private String externalId;
+
     @Column(name = "name", nullable = false)
     private String name;
 

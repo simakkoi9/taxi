@@ -10,6 +10,8 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
 public record PassengerCreateRequest(
+        String externalId,
+
         @NotBlank(message = "{name.blank}")
         @Pattern(regexp = NAME_REGEX, message = "{name.not-valid}")
         String name,

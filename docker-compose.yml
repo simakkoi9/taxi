@@ -71,8 +71,8 @@ services:
       - eureka-service
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/passenger_db
-      SPRING_DATASOURCE_USERNAME: ${USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://tempo:9411/api/v2/spans
     networks:
@@ -93,8 +93,8 @@ services:
         condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/driver_db
-      SPRING_DATASOURCE_USERNAME: ${USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://tempo:9411/api/v2/spans
@@ -140,8 +140,8 @@ services:
         condition: service_started
     environment:
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/rating_db
-      QUARKUS_DATASOURCE_USERNAME: ${USERNAME}
-      QUARKUS_DATASOURCE_PASSWORD: ${PASSWORD}
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USERNAME}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       QUARKUS_REST_CLIENT_RIDESCLIENT_URL: http://rides-service:8082/api/v1
       QUARKUS_EUREKA_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
@@ -163,6 +163,7 @@ services:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       KEYCLOAK_CLIENT_SECRET: ${CLIENT_SECRET}
       KEYCLOAK_SERVER_URL: http://keycloak:8060
+      SERVICE_PASSENGER_URL: http://passenger-service:8080/api/v1/passengers
     networks:
       - taxi-network
 
@@ -180,16 +181,30 @@ services:
 
   postgres:
     image: postgres:16
+    hostname: postgres
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: ${USERNAME}
-      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_MULTIPLE_DATABASES: passenger_db,driver_db,rating_db,keycloak_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./multiple-databases/multiple-databases.sh:/docker-entrypoint-initdb.d/multiple-databases.sh
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - taxi-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
     networks:
       - taxi-network
 
@@ -292,8 +307,8 @@ services:
       KC_DB_URL_PORT: 5432
       KC_DB_URL_DATABASE: keycloak_db
       KC_DB_SCHEMA: public
-      KC_DB_USERNAME: ${USERNAME}
-      KC_DB_PASSWORD: ${PASSWORD}
+      KC_DB_USERNAME: ${POSTGRES_USERNAME}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KC_HTTP_PORT: 8060
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}

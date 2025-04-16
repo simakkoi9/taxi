@@ -25,6 +25,7 @@ public class TestDataUtil {
     public static final int INVALID_SIZE = 0;
     public static final String INVALID_PAGE_MESSAGE = "Wrong current page number.";
     public static final String INVALID_SIZE_MESSAGE = "Wrong page size.";
+    public static final String EXTERNAL_ID = "default";
     public static final String NAME = "name";
     public static final String EMAIL = "email@mail.com";
     public static final String PHONE = "+375293453434";
@@ -41,12 +42,14 @@ public class TestDataUtil {
     }
 
     public static final PassengerCreateRequest CREATE_REQUEST = new PassengerCreateRequest(
+            EXTERNAL_ID,
             NAME,
             EMAIL,
             PHONE
     );
 
     public static final PassengerCreateRequest INVALID_CREATE_REQUEST = new PassengerCreateRequest(
+            EXTERNAL_ID,
             "!name",
             "email",
             "12345"

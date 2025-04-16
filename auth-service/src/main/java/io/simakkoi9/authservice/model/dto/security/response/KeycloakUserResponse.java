@@ -1,4 +1,4 @@
-package io.simakkoi9.authservice.model.dto.response;
+package io.simakkoi9.authservice.model.dto.security.response;
 
 import lombok.Data;
 

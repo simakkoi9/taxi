@@ -1,10 +1,10 @@
 package io.simakkoi9.authservice.controller;
 
-import io.simakkoi9.authservice.model.dto.request.register.DriverRegisterRequest;
-import io.simakkoi9.authservice.model.dto.request.LoginRequest;
-import io.simakkoi9.authservice.model.dto.request.register.PassengerRegisterRequest;
-import io.simakkoi9.authservice.model.dto.response.TokenResponse;
-import io.simakkoi9.authservice.service.SecurityService;
+import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
+import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
+import io.simakkoi9.authservice.model.dto.security.request.register.PassengerRegisterRequest;
+import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
+import io.simakkoi9.authservice.service.impl.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

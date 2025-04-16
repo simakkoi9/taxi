@@ -24,14 +24,14 @@ public class SecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .oauth2ResourceServer(oauth2 -> oauth2
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+            )
             .authorizeExchange(exchanges -> exchanges
                 .pathMatchers("/api/v1/auth/**", "/actuator/**").permitAll()
-                .pathMatchers("/api/v1/passengers/**").hasRole("PASSENGER")
+                .pathMatchers("/api/v1/passengers/**").permitAll() //не забыть
                 .pathMatchers("/api/v1/drivers/**").hasRole("DRIVER")
                 .anyExchange().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
             );
 
         return http.build();
@@ -43,7 +43,7 @@ public class SecurityConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
             List<String> roles = jwt.getClaimAsStringList("roles");
             Collection<GrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .map(role -> new SimpleGrantedAuthority(role))
                 .collect(Collectors.toList());
             return Flux.fromIterable(authorities);
         });

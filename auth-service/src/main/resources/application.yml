@@ -11,6 +11,10 @@ spring:
           issuer-uri: ${keycloak.server-url}/realms/taxi-realm
           jwk-set-uri: ${keycloak.server-url}/protocol/openid-connect/certs
 
+service:
+  passenger:
+    url: ${PASSENGER_SERVICE_URL:http://localhost:8080/api/v1/passengers}
+
 keycloak:
   client-id: taxi-client
   realm: taxi-realm

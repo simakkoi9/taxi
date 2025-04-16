@@ -1,13 +1,14 @@
-package io.simakkoi9.authservice.service;
+package io.simakkoi9.authservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.simakkoi9.authservice.model.dto.request.register.DriverRegisterRequest;
-import io.simakkoi9.authservice.model.dto.request.KeycloakUserRequest;
-import io.simakkoi9.authservice.model.dto.request.LoginRequest;
-import io.simakkoi9.authservice.model.dto.request.register.PassengerRegisterRequest;
-import io.simakkoi9.authservice.model.dto.response.TokenResponse;
-import io.simakkoi9.authservice.model.dto.response.KeycloakUserResponse;
-import io.simakkoi9.authservice.model.dto.response.KeycloakRoleResponse;
+import io.simakkoi9.authservice.model.dto.client.PassengerCreateRequest;
+import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
+import io.simakkoi9.authservice.model.dto.security.request.KeycloakUserRequest;
+import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
+import io.simakkoi9.authservice.model.dto.security.request.register.PassengerRegisterRequest;
+import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
+import io.simakkoi9.authservice.model.dto.security.response.KeycloakUserResponse;
+import io.simakkoi9.authservice.model.dto.security.response.KeycloakRoleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,9 @@ public class SecurityService {
 
     @Value("${keycloak.client-secret}")
     private String clientSecret;
+
+    @Value("${service.passenger.url}")
+    private String passengerServiceUrl;
 
     private Mono<String> getAdminToken() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -100,6 +104,22 @@ public class SecurityService {
                 });
     }
 
+    private Mono<Void> sendPassengerData(String keycloakId, PassengerRegisterRequest request) {
+        PassengerCreateRequest passengerData = new PassengerCreateRequest(
+                keycloakId,
+                request.getName(),
+                request.getEmail(),
+                request.getPhone()
+        );
+
+        return webClient.post()
+                .uri(passengerServiceUrl)
+                .header("Content-Type", "application/json")
+                .bodyValue(passengerData)
+                .retrieve()
+                .bodyToMono(Void.class);
+    }
+
     public Mono<TokenResponse> registerPassenger(PassengerRegisterRequest request) {
         return getAdminToken().flatMap(adminToken -> {
             KeycloakUserRequest userRequest = KeycloakUserRequest.builder()
@@ -125,7 +145,9 @@ public class SecurityService {
                     .retrieve()
                     .bodyToMono(Void.class)
                     .then(getUserId(adminToken, request.getEmail()))
-                    .flatMap(userId -> assignRole(adminToken, userId, "ROLE_PASSENGER"))
+                    .flatMap(userId -> assignRole(adminToken, userId, "ROLE_PASSENGER")
+                            .then(sendPassengerData(userId, request))
+                            .thenReturn(userId))
                     .then(
                         login(
                             new LoginRequest(request.getEmail(), request.getPassword())

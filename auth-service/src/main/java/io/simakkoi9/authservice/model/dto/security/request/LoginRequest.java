@@ -1,4 +1,4 @@
-package io.simakkoi9.authservice.model.dto.request;
+package io.simakkoi9.authservice.model.dto.security.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
