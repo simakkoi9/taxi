@@ -17,6 +17,7 @@ quarkus:
       defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
     metadata:
       app-key: rating-service
+      prometheus.path: /q/metrics
     heartbeat:
       enabled: true
       health-path: /info/health
