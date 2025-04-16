@@ -20,6 +20,9 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
+  instance:
+    metadata-map:
+      prometheus.path: /actuator/prometheus
 
 resilience4j:
   circuitbreaker:
