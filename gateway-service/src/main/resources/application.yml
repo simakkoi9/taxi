@@ -27,26 +27,36 @@ spring:
           uri: lb://PASSENGER-SERVICE
           predicates:
             - Path=/api/v1/passengers/**
+          filters:
+            - name: JwtUserFilter
 
         - id: driver-service-drivers
           uri: lb://DRIVER-SERVICE
           predicates:
             - Path=/api/v1/drivers/**
+          filters:
+            - name: JwtUserFilter
 
         - id: driver-service-cars
           uri: lb://DRIVER-SERVICE
           predicates:
             - Path=/api/v1/cars/**
+          filters:
+            - name: JwtUserFilter
 
         - id: rides-service
           uri: lb://RIDES-SERVICE
           predicates:
             - Path=/api/v1/rides/**
+          filters:
+            - name: JwtUserFilter
 
         - id: rating-service
           uri: lb://RATING-SERVICE
           predicates:
             - Path=/api/v1/ratings/**
+          filters:
+            - name: JwtUserFilter
 
         - id: auth-service
           uri: lb://AUTH-SERVICE
@@ -94,15 +104,3 @@ logging:
   level:
     "*": INFO
   config: classpath:log4j2.xml
-
-services:
-  auth:
-    name: ${SERVICES_AUTH_NAME:lb://AUTH-SERVICE}
-  passenger:
-    name: ${SERVICES_PASSENGER_NAME:lb://PASSENGER-SERVICE}
-  driver:
-    name: ${SERVICES_DRIVER_NAME:lb://DRIVER-SERVICE}
-  rides:
-    name: ${SERVICES_RIDES_NAME:lb://RIDES-SERVICE}
-  rating:
-    name: ${SERVICES_RATING_NAME:lb://RATING-SERVICE}

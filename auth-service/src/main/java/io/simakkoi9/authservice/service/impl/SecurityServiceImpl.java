@@ -1,12 +1,15 @@
 package io.simakkoi9.authservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.simakkoi9.authservice.model.SecurityRole;
 import io.simakkoi9.authservice.model.dto.client.DriverCreateRequest;
 import io.simakkoi9.authservice.model.dto.client.PassengerCreateRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.request.KeycloakUserRequest;
 import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.PassengerRegisterRequest;
+import io.simakkoi9.authservice.model.dto.security.response.DriverResponse;
+import io.simakkoi9.authservice.model.dto.security.response.PassengerResponse;
 import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
 import io.simakkoi9.authservice.model.dto.security.response.KeycloakUserResponse;
 import io.simakkoi9.authservice.model.dto.security.response.KeycloakRoleResponse;
@@ -111,7 +114,7 @@ public class SecurityServiceImpl implements SecurityService {
                 });
     }
 
-    private Mono<Void> sendPassengerData(String keycloakId, PassengerRegisterRequest request) {
+    private Mono<PassengerResponse> sendPassengerData(String keycloakId, PassengerRegisterRequest request) {
         PassengerCreateRequest passengerData = new PassengerCreateRequest(
                 keycloakId,
                 request.getName(),
@@ -122,12 +125,13 @@ public class SecurityServiceImpl implements SecurityService {
         return passengerServiceClient.post()
                 .uri(passengerServiceUrl)
                 .header("Content-Type", "application/json")
+                .header("X-User-Role", SecurityRole.ROLE_SERVICE.name())
                 .bodyValue(passengerData)
                 .retrieve()
-                .bodyToMono(Void.class);
+                .bodyToMono(PassengerResponse.class);
     }
 
-    private Mono<Void> sendDriverData(String keycloakId, DriverRegisterRequest request) {
+    private Mono<DriverResponse> sendDriverData(String keycloakId, DriverRegisterRequest request) {
         DriverCreateRequest driverData = new DriverCreateRequest(
                 keycloakId,
                 request.getName(),
@@ -139,12 +143,13 @@ public class SecurityServiceImpl implements SecurityService {
         return driverServiceClient.post()
                 .uri(driverServiceUrl)
                 .header("Content-Type", "application/json")
+                .header("X-User-Role", SecurityRole.ROLE_SERVICE.name())
                 .bodyValue(driverData)
                 .retrieve()
-                .bodyToMono(Void.class);
+                .bodyToMono(DriverResponse.class);
     }
 
-    public Mono<TokenResponse> registerPassenger(PassengerRegisterRequest request) {
+    public Mono<PassengerResponse> registerPassenger(PassengerRegisterRequest request) {
         return getAdminToken().flatMap(adminToken -> {
             KeycloakUserRequest userRequest = KeycloakUserRequest.builder()
                     .username(request.getName())
@@ -169,19 +174,13 @@ public class SecurityServiceImpl implements SecurityService {
                     .retrieve()
                     .bodyToMono(Void.class)
                     .then(getUserId(adminToken, request.getEmail()))
-                    .flatMap(userId -> assignRole(adminToken, userId, "ROLE_PASSENGER")
+                    .flatMap(userId -> assignRole(adminToken, userId, SecurityRole.ROLE_PASSENGER.name())
                             .then(sendPassengerData(userId, request))
-                            .thenReturn(userId)
-                    )
-                    .then(
-                        login(
-                            new LoginRequest(request.getEmail(), request.getPassword())
-                        )
                     );
         });
     }
 
-    public Mono<TokenResponse> registerDriver(DriverRegisterRequest request) {
+    public Mono<DriverResponse> registerDriver(DriverRegisterRequest request) {
         return getAdminToken().flatMap(adminToken -> {
             KeycloakUserRequest userRequest = KeycloakUserRequest.builder()
                     .username(request.getName())
@@ -206,14 +205,8 @@ public class SecurityServiceImpl implements SecurityService {
                     .retrieve()
                     .bodyToMono(Void.class)
                     .then(getUserId(adminToken, request.getEmail()))
-                    .flatMap(userId -> assignRole(adminToken, userId, "ROLE_DRIVER")
-                                .then(sendDriverData(userId, request))
-                                .thenReturn(Void.class)
-                    )
-                    .then(
-                        login(
-                            new LoginRequest(request.getEmail(), request.getPassword())
-                        )
+                    .flatMap(userId -> assignRole(adminToken, userId, SecurityRole.ROLE_DRIVER.name())
+                            .then(sendDriverData(userId, request))
                     );
         });
     }

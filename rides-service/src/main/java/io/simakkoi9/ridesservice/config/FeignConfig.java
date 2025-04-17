@@ -35,8 +35,12 @@ public class FeignConfig {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 String userId = attributes.getRequest().getHeader("X-User-Id");
+                String userRole = attributes.getRequest().getHeader("X-User-Role");
                 if (userId != null) {
                     requestTemplate.header("X-User-Id", userId);
+                }
+                if (userRole != null) {
+                    requestTemplate.header("X-User-Role", userRole);
                 }
             }
         };

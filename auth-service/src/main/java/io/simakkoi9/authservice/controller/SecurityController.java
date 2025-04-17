@@ -3,6 +3,8 @@ package io.simakkoi9.authservice.controller;
 import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.PassengerRegisterRequest;
+import io.simakkoi9.authservice.model.dto.security.response.DriverResponse;
+import io.simakkoi9.authservice.model.dto.security.response.PassengerResponse;
 import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
 import io.simakkoi9.authservice.service.impl.SecurityServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,13 @@ public class SecurityController {
     private final SecurityServiceImpl securityService;
 
     @PostMapping("/passenger/register")
-    public Mono<ResponseEntity<TokenResponse>> registerPassenger(@RequestBody PassengerRegisterRequest request) {
+    public Mono<ResponseEntity<PassengerResponse>> registerPassenger(@RequestBody PassengerRegisterRequest request) {
         return securityService.registerPassenger(request)
                 .map(ResponseEntity::ok);
     }
 
     @PostMapping("/driver/register")
-    public Mono<ResponseEntity<TokenResponse>> registerDriver(@RequestBody DriverRegisterRequest request) {
+    public Mono<ResponseEntity<DriverResponse>> registerDriver(@RequestBody DriverRegisterRequest request) {
         return securityService.registerDriver(request)
                 .map(ResponseEntity::ok);
     }

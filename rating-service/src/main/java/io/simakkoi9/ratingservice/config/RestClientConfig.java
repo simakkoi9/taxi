@@ -22,8 +22,12 @@ public class RestClientConfig implements RestClientBuilderListener {
                 @Override
                 public void filter(ClientRequestContext requestContext) {
                     String userId = headers.getHeaderString("X-User-Id");
+                    String userRole = headers.getHeaderString("X-User-Role");
                     if (userId != null) {
                         requestContext.getHeaders().add("X-User-Id", userId);
+                    }
+                    if (userRole != null) {
+                        requestContext.getHeaders().add("X-User-Role", userRole);
                     }
                 }
             })

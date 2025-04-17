@@ -1,5 +1,6 @@
 package io.simakkoi9.passengerservice.controller;
 
+import io.simakkoi9.passengerservice.exception.AccessDeniedException;
 import io.simakkoi9.passengerservice.exception.DuplicatePassengerFoundException;
 import io.simakkoi9.passengerservice.exception.PassengerNotFoundException;
 import io.simakkoi9.passengerservice.model.dto.response.ErrorResponse;
@@ -94,6 +95,18 @@ public class ControllerAdvice {
                                 .map(ConstraintViolation::getMessage)
                                 .toList()
                         )
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .timestamp(LocalDateTime.now())
+                        .message(e.getMessage())
                         .build()
                 );
     }
