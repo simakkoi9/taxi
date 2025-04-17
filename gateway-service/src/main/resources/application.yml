@@ -9,7 +9,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8060/realms/taxi-realm
+          issuer-uri: ${KEYCLOAK_URL:http://keycloak:8060}/realms/taxi-realm
+          jwk-set-uri: ${KEYCLOAK_URL:http://keycloak:8060}/realms/taxi-realm/protocol/openid-connect/certs
       client:
         provider:
           keycloak:
@@ -93,3 +94,15 @@ logging:
   level:
     "*": INFO
   config: classpath:log4j2.xml
+
+services:
+  auth:
+    name: ${SERVICES_AUTH_NAME:lb://AUTH-SERVICE}
+  passenger:
+    name: ${SERVICES_PASSENGER_NAME:lb://PASSENGER-SERVICE}
+  driver:
+    name: ${SERVICES_DRIVER_NAME:lb://DRIVER-SERVICE}
+  rides:
+    name: ${SERVICES_RIDES_NAME:lb://RIDES-SERVICE}
+  rating:
+    name: ${SERVICES_RATING_NAME:lb://RATING-SERVICE}

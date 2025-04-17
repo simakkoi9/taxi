@@ -13,9 +13,11 @@ spring:
 
 service:
   passenger:
-    url: ${PASSENGER_SERVICE_URL:http://localhost:8080/api/v1/passengers}
+    name: ${SERVICE_PASSENGER_NAME:PASSENGER-SERVICE}
+    url: ${SERVICE_PASSENGER_URL:/api/v1/passengers}
   driver:
-    url: ${DRIVER_SERVICE_URL:http://localhost:8081/api/v1/drivers}
+    name: ${SERVICE_DRIVER_NAME:DRIVER-SERVICE}
+    url: ${SERVICE_DRIVER_URL:/api/v1/drivers}
 
 keycloak:
   client-id: taxi-client

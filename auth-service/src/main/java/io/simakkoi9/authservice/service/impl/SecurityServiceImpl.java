@@ -30,6 +30,8 @@ public class SecurityServiceImpl implements SecurityService {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
+    private final WebClient passengerServiceClient;
+    private final WebClient driverServiceClient;
 
     @Value("${keycloak.server-url}")
     private String keycloakServerUrl;
@@ -117,7 +119,7 @@ public class SecurityServiceImpl implements SecurityService {
                 request.getPhone()
         );
 
-        return webClient.post()
+        return passengerServiceClient.post()
                 .uri(passengerServiceUrl)
                 .header("Content-Type", "application/json")
                 .bodyValue(passengerData)
@@ -134,7 +136,7 @@ public class SecurityServiceImpl implements SecurityService {
                 request.getGender()
         );
 
-        return webClient.post()
+        return driverServiceClient.post()
                 .uri(driverServiceUrl)
                 .header("Content-Type", "application/json")
                 .bodyValue(driverData)

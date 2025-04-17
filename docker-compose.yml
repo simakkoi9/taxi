@@ -57,6 +57,11 @@ services:
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
+      SERVICE_AUTH_NAME: lb://AUTH-SERVICE
+      SERVICE_PASSENGER_NAME: lb://PASSENGER-SERVICE
+      SERVICE_DRIVER_NAME: lb://DRIVER-SERVICE
+      SERVICE_RIDES_NAME: lb://RIDES-SERVICE
+      SERVICE_RATING_NAME: lb://RATING-SERVICE
     networks:
       - taxi-network
 
@@ -163,8 +168,10 @@ services:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       KEYCLOAK_CLIENT_SECRET: ${CLIENT_SECRET}
       KEYCLOAK_SERVER_URL: http://keycloak:8060
-      SERVICE_PASSENGER_URL: http://passenger-service:8080/api/v1/passengers
-      SERVICE_DRIVER_URL: http://driver-service:8081/api/v1/drivers
+      SERVICE_PASSENGER_NAME: PASSENGER-SERVICE
+      SERVICE_DRIVER_NAME: DRIVER-SERVICE
+      SERVICE_PASSENGER_URL: /api/v1/passengers
+      SERVICE_DRIVER_URL: /api/v1/drivers
     networks:
       - taxi-network
 

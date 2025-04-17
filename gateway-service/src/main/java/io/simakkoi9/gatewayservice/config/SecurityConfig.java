@@ -29,8 +29,11 @@ public class SecurityConfig {
             )
             .authorizeExchange(exchanges -> exchanges
                 .pathMatchers("/api/v1/auth/**", "/actuator/**").permitAll()
-                .pathMatchers("/api/v1/passengers/**").permitAll() //не забыть
-                .pathMatchers("/api/v1/drivers/**").hasRole("DRIVER")
+                .pathMatchers("/api/v1/passengers/**").hasAnyRole("PASSENGER", "ADMIN")
+                .pathMatchers("/api/v1/drivers/**").hasAnyRole("DRIVER", "ADMIN")
+                .pathMatchers("/api/v1/cars/**").hasRole("ADMIN")
+                .pathMatchers("/api/v1/rides/**").hasAnyRole("PASSENGER", "DRIVER", "ADMIN")
+                .pathMatchers("/api/v1/ratings/**").hasAnyRole("PASSENGER", "DRIVER", "ADMIN")
                 .anyExchange().authenticated()
             );
 
