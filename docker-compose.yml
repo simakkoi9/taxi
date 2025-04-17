@@ -110,8 +110,10 @@ services:
     build: ./rides-service
     hostname: rides-service
     container_name: rides-service
-    expose:
-      - 8082
+#    expose:
+#      - 8082
+    ports:
+      - "8082:8082"
     depends_on:
       rides-db:
         condition: service_started
@@ -134,8 +136,10 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     hostname: rating-service
     container_name: rating-service
-    expose:
-      - 8083
+#    expose:
+#      - 8083
+    ports:
+      - "8083:8083"
     depends_on:
       postgres:
         condition: service_started
