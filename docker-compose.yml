@@ -35,6 +35,23 @@ services:
     networks:
       - taxi-network
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    restart: always
+    ports:
+      - "5051:5060"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      SERVER_PORT: 5060
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - taxi-network
+
   eureka-service:
     build: ./eureka-service
     container_name: eureka-service
@@ -57,11 +74,6 @@ services:
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
-      SERVICE_AUTH_NAME: lb://AUTH-SERVICE
-      SERVICE_PASSENGER_NAME: lb://PASSENGER-SERVICE
-      SERVICE_DRIVER_NAME: lb://DRIVER-SERVICE
-      SERVICE_RIDES_NAME: lb://RIDES-SERVICE
-      SERVICE_RATING_NAME: lb://RATING-SERVICE
     networks:
       - taxi-network
 
@@ -109,7 +121,6 @@ services:
   rides-service:
     build: ./rides-service
     hostname: rides-service
-    container_name: rides-service
 #    expose:
 #      - 8082
     ports:
@@ -211,12 +222,14 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${POSTGRES_USERNAME}
-      PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - "5050:80"
     depends_on:
       - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     networks:
       - taxi-network
 
@@ -339,6 +352,7 @@ volumes:
   grafana_data:
   loki_data:
   tempo_data:
+  pgadmin_data:
 
 networks:
   taxi-network:

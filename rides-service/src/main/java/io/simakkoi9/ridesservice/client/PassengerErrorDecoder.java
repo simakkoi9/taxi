@@ -1,11 +1,11 @@
 package io.simakkoi9.ridesservice.client;
 
 import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
+import io.simakkoi9.ridesservice.exception.PassengerAccessDeniedException;
 import io.simakkoi9.ridesservice.util.MessageKeyConstants;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -25,6 +25,13 @@ public class PassengerErrorDecoder implements ErrorDecoder {
         if (status == HttpStatus.NOT_FOUND) {
             return new PassengerNotFoundException(
                     MessageKeyConstants.PASSENGER_NOT_FOUND_ERROR,
+                    messageSource
+            );
+        }
+
+        if (status == HttpStatus.FORBIDDEN) {
+            return new PassengerAccessDeniedException(
+                    MessageKeyConstants.PASSENGER_ACCESS_DENIED_ERROR,
                     messageSource
             );
         }
