@@ -32,6 +32,10 @@ public class TestDataUtil {
     public static final String NAME_2 = "otherName";
     public static final String EMAIL_2 = "otherEmail@mail.com";
     public static final String PHONE_2 = "+375298765432";
+    public static final String HEADER_ID = "X-User-Id";
+    public static final String HEADER_ROLE = "X-User-Role";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+
 
     public static String getDuplicatePassengerErrorMessage(String email) {
         return "Passenger with email %s already exists.".formatted(email);
@@ -79,6 +83,7 @@ public class TestDataUtil {
 
     public static Passenger getPassenger() {
         Passenger passenger = new Passenger();
+        passenger.setExternalId(EXTERNAL_ID);
         passenger.setName(NAME);
         passenger.setEmail(EMAIL);
         passenger.setPhone(PHONE);
