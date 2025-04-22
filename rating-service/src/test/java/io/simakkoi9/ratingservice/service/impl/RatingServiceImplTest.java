@@ -105,7 +105,7 @@ class RatingServiceImplTest {
         RatingResponse expectedResponse = TestDataUtil.createRatingResponse(savedRating);
 
         when(ratingRepository.existsByRideId(TestDataUtil.RIDE_ID)).thenReturn(false);
-        when(ridesClient.getRideById(TestDataUtil.RIDE_ID)).thenReturn(TestDataUtil.createCompletedRideJson());
+        when(ridesClient.getRideById(TestDataUtil.RIDE_ID)).thenReturn(TestDataUtil.createCompletedRideResponse());
         when(ratingMapper.toEntity(request)).thenReturn(rating);
         when(ratingMapper.toResponse(any(Rating.class))).thenReturn(expectedResponse);
 
@@ -138,7 +138,7 @@ class RatingServiceImplTest {
         RatingCreateRequest request = TestDataUtil.createRatingRequest();
         
         when(ratingRepository.existsByRideId(TestDataUtil.RIDE_ID)).thenReturn(false);
-        when(ridesClient.getRideById(TestDataUtil.RIDE_ID)).thenReturn(TestDataUtil.createUncompletedRideJson());
+        when(ridesClient.getRideById(TestDataUtil.RIDE_ID)).thenReturn(TestDataUtil.createUncompletedRideResponse());
         when(messageConfig.getMessage(MessageKeyConstants.UNCOMPLETED_RIDE))
                 .thenReturn(TestDataUtil.ERROR_UNCOMPLETED_RIDE);
         
