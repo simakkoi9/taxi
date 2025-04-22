@@ -26,6 +26,10 @@ object DriverITDataUtil {
     const val INVALID_PHONE = "123"
     val GENDER = Gender.MALE
 
+    const val HEADER_ID = "X-User-Id"
+    const val HEADER_ROLE = "X-User-Role"
+    const val ROLE_ADMIN = "ROLE_ADMIN"
+
     fun getDriverCreateRequest(
         externalId: String = EXTERNAL_ID,
         name: String = NAME,
@@ -51,6 +55,7 @@ object DriverITDataUtil {
 
     fun getDriver(
         id: Long? = null,
+        externalId: String = EXTERNAL_ID,
         name: String = NAME,
         email: String = EMAIL,
         phone: String = PHONE,
@@ -63,6 +68,7 @@ object DriverITDataUtil {
         if (id != null) {
             driver.id = id
         }
+        driver.externalId = externalId
         driver.name = name
         driver.email = email
         driver.phone = phone
