@@ -1,9 +1,11 @@
 package io.simakkoi9.authservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.simakkoi9.authservice.exception.RoleNotFoundException;
+import io.simakkoi9.authservice.exception.UserNotFoundException;
 import io.simakkoi9.authservice.model.SecurityRole;
-import io.simakkoi9.authservice.model.dto.client.DriverCreateRequest;
-import io.simakkoi9.authservice.model.dto.client.PassengerCreateRequest;
+import io.simakkoi9.authservice.model.dto.client.request.DriverCreateRequest;
+import io.simakkoi9.authservice.model.dto.client.request.PassengerCreateRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.request.KeycloakUserRequest;
 import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
@@ -14,8 +16,10 @@ import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
 import io.simakkoi9.authservice.model.dto.security.response.KeycloakUserResponse;
 import io.simakkoi9.authservice.model.dto.security.response.KeycloakRoleResponse;
 import io.simakkoi9.authservice.service.SecurityService;
+import io.simakkoi9.authservice.util.MessageKeyConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -35,6 +39,7 @@ public class SecurityServiceImpl implements SecurityService {
     private final ObjectMapper objectMapper;
     private final WebClient passengerServiceClient;
     private final WebClient driverServiceClient;
+    private final MessageSource messageSource;
 
     @Value("${keycloak.server-url}")
     private String keycloakServerUrl;
@@ -77,7 +82,7 @@ public class SecurityServiceImpl implements SecurityService {
                 .bodyToMono(List.class)
                 .handle((users, sink) -> {
                     if (users.isEmpty()) {
-                        sink.error(new RuntimeException("User not found"));
+                        sink.error(new UserNotFoundException(MessageKeyConstants.USER_NOT_FOUND, messageSource));
                         return;
                     }
                     Map<String, Object> userMap = (Map<String, Object>) users.get(0);
@@ -99,7 +104,7 @@ public class SecurityServiceImpl implements SecurityService {
                             return;
                         }
                     }
-                    sink.error(new RuntimeException("Role not found: " + roleName));
+                    sink.error(new RoleNotFoundException(MessageKeyConstants.ROLE_NOT_FOUND, messageSource, roles));
                 })
                 .flatMap(role -> {
                     List<KeycloakRoleResponse> roleMappings = Collections.singletonList(role);

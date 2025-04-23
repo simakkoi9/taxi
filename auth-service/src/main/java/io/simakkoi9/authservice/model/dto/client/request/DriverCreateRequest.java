@@ -1,4 +1,4 @@
-package io.simakkoi9.authservice.model.dto.client;
+package io.simakkoi9.authservice.model.dto.client.request;
 
 import io.simakkoi9.authservice.model.Gender;
 
