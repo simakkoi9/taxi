@@ -121,10 +121,9 @@ services:
   rides-service:
     build: ./rides-service
     hostname: rides-service
-#    expose:
-#      - 8082
-    ports:
-      - "8082:8082"
+    container_name: rides-service
+    expose:
+      - 8082
     depends_on:
       rides-db:
         condition: service_started
@@ -147,10 +146,8 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     hostname: rating-service
     container_name: rating-service
-#    expose:
-#      - 8083
-    ports:
-      - "8083:8083"
+    expose:
+      - 8083
     depends_on:
       postgres:
         condition: service_started
@@ -167,8 +164,26 @@ services:
       QUARKUS_EUREKA_SERVICE_URL_DEFAULTZONE: http://eureka-service:8761/eureka
       QUARKUS_EUREKA_HOST_NAME: rating-service
       QUARKUS_MICROMETER_EXPORT_OTLP_URL: http://tempo:4318/v1/traces
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/info/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: always
     networks:
       - taxi-network
+
+  rating-service-restart:
+    image: docker:26.0.0
+    container_name: rating-service-restart
+    command: sh -c "sleep 50 && docker restart rating-service"
+    depends_on:
+      - rating-service
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: no
+    network_mode: host
 
   auth-service:
     build: ./auth-service
