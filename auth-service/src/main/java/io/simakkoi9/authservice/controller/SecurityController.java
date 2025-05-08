@@ -6,6 +6,7 @@ import io.simakkoi9.authservice.model.dto.security.request.register.PassengerReg
 import io.simakkoi9.authservice.model.dto.security.response.DriverResponse;
 import io.simakkoi9.authservice.model.dto.security.response.PassengerResponse;
 import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
+import io.simakkoi9.authservice.service.SecurityService;
 import io.simakkoi9.authservice.service.impl.SecurityServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,22 +25,20 @@ import reactor.core.publisher.Mono;
 @Validated
 public class SecurityController {
 
-    private final SecurityServiceImpl securityService;
+    private final SecurityService securityService;
 
     @PostMapping("/passenger/register")
-    public Mono<ResponseEntity<PassengerResponse>> registerPassenger(
+    public ResponseEntity<PassengerResponse> registerPassenger(
             @RequestBody @Valid PassengerRegisterRequest request
     ) {
-        return securityService.registerPassenger(request)
-                .map(ResponseEntity::ok);
+        return ResponseEntity.ok(securityService.registerPassenger(request));
     }
 
     @PostMapping("/driver/register")
-    public Mono<ResponseEntity<DriverResponse>> registerDriver(
+    public ResponseEntity<DriverResponse> registerDriver(
             @RequestBody @Valid DriverRegisterRequest request
     ) {
-        return securityService.registerDriver(request)
-                .map(ResponseEntity::ok);
+        return ResponseEntity.ok(securityService.registerDriver(request));
     }
 
     @PostMapping("/login")
@@ -55,8 +54,8 @@ public class SecurityController {
     }
 
     @PostMapping("/logout")
-    public Mono<ResponseEntity<Void>> logout(@RequestParam String refreshToken) {
-        return securityService.logout(refreshToken)
-                .then(Mono.just(ResponseEntity.ok().build()));
+    public ResponseEntity<Void> logout(@RequestParam String refreshToken) {
+        securityService.logout(refreshToken);
+        return ResponseEntity.noContent().build();
     }
 }

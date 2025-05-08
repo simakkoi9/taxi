@@ -1,5 +1,6 @@
 package io.simakkoi9.authservice.controller;
 
+import io.simakkoi9.authservice.exception.KeycloakUserRegistrationFailedException;
 import io.simakkoi9.authservice.exception.RoleNotFoundException;
 import io.simakkoi9.authservice.exception.UserNotFoundException;
 import io.simakkoi9.authservice.model.dto.client.response.ErrorResponse;
@@ -45,6 +46,11 @@ public class ControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationExceptions(ConstraintViolationException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
+    }
+
+    @ExceptionHandler(KeycloakUserRegistrationFailedException.class)
+    public ResponseEntity<ErrorResponse> handleRegistrationFailedException(RuntimeException e) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, e);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, Exception e) {

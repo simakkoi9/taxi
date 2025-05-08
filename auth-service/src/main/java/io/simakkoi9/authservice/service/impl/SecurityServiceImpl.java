@@ -1,25 +1,29 @@
 package io.simakkoi9.authservice.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.simakkoi9.authservice.exception.RoleNotFoundException;
-import io.simakkoi9.authservice.exception.UserNotFoundException;
+import io.simakkoi9.authservice.exception.KeycloakUserRegistrationFailedException;
+import io.simakkoi9.authservice.exception.LoginFailedException;
 import io.simakkoi9.authservice.model.SecurityRole;
 import io.simakkoi9.authservice.model.dto.client.request.DriverCreateRequest;
 import io.simakkoi9.authservice.model.dto.client.request.PassengerCreateRequest;
-import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
-import io.simakkoi9.authservice.model.dto.security.request.KeycloakUserRequest;
 import io.simakkoi9.authservice.model.dto.security.request.LoginRequest;
+import io.simakkoi9.authservice.model.dto.security.request.register.DriverRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.request.register.PassengerRegisterRequest;
 import io.simakkoi9.authservice.model.dto.security.response.DriverResponse;
 import io.simakkoi9.authservice.model.dto.security.response.PassengerResponse;
 import io.simakkoi9.authservice.model.dto.security.response.TokenResponse;
-import io.simakkoi9.authservice.model.dto.security.response.KeycloakUserResponse;
-import io.simakkoi9.authservice.model.dto.security.response.KeycloakRoleResponse;
 import io.simakkoi9.authservice.service.SecurityService;
 import io.simakkoi9.authservice.util.MessageKeyConstants;
+import io.simakkoi9.authservice.util.RegularExpressionConstants;
+import jakarta.ws.rs.core.Response;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,31 +31,18 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 @Service
 @RequiredArgsConstructor
 public class SecurityServiceImpl implements SecurityService {
 
+    private final Keycloak keycloak;
     private final WebClient webClient;
-    private final ObjectMapper objectMapper;
     private final WebClient passengerServiceClient;
     private final WebClient driverServiceClient;
     private final MessageSource messageSource;
 
-    @Value("${keycloak.server-url}")
-    private String keycloakServerUrl;
-
     @Value("${keycloak.realm}")
     private String realm;
-
-    @Value("${keycloak.client-id}")
-    private String clientId;
-
-    @Value("${keycloak.client-secret}")
-    private String clientSecret;
 
     @Value("${service.passenger.url}")
     private String passengerServiceUrl;
@@ -59,67 +50,16 @@ public class SecurityServiceImpl implements SecurityService {
     @Value("${service.driver.url}")
     private String driverServiceUrl;
 
-    private Mono<String> getAdminToken() {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "client_credentials");
-        formData.add("client_id", clientId);
-        formData.add("client_secret", clientSecret);
+    @Value("${keycloak.server-url}")
+    private String keycloakServerUrl;
 
-        return webClient.post()
-                .uri(keycloakServerUrl + "/realms/" + realm + "/protocol/openid-connect/token")
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .body(BodyInserters.fromFormData(formData))
-                .retrieve()
-                .bodyToMono(TokenResponse.class)
-                .map(TokenResponse::getAccessToken);
-    }
+    @Value("${keycloak.client-id}")
+    private String clientId;
 
-    private Mono<String> getUserId(String adminToken, String email) {
-        return webClient.get()
-                .uri(keycloakServerUrl + "/admin/realms/" + realm + "/users?email=" + email)
-                .header("Authorization", "Bearer " + adminToken)
-                .retrieve()
-                .bodyToMono(List.class)
-                .handle((users, sink) -> {
-                    if (users.isEmpty()) {
-                        sink.error(new UserNotFoundException(MessageKeyConstants.USER_NOT_FOUND, messageSource));
-                        return;
-                    }
-                    Map<String, Object> userMap = (Map<String, Object>) users.get(0);
-                    sink.next(objectMapper.convertValue(userMap, KeycloakUserResponse.class).getId());
-                });
-    }
+    @Value("${keycloak.client-secret}")
+    private String clientSecret;
 
-    private Mono<KeycloakRoleResponse> assignRole(String adminToken, String userId, String roleName) {
-        return webClient.get()
-                .uri(keycloakServerUrl + "/admin/realms/" + realm + "/roles")
-                .header("Authorization", "Bearer " + adminToken)
-                .retrieve()
-                .bodyToMono(List.class)
-                .<KeycloakRoleResponse>handle((roles, sink) -> {
-                    for (Object role : roles) {
-                        Map<String, Object> roleMap = (Map<String, Object>) role;
-                        if (roleName.equals(roleMap.get("name"))) {
-                            sink.next(objectMapper.convertValue(roleMap, KeycloakRoleResponse.class));
-                            return;
-                        }
-                    }
-                    sink.error(new RoleNotFoundException(MessageKeyConstants.ROLE_NOT_FOUND, messageSource, roles));
-                })
-                .flatMap(role -> {
-                    List<KeycloakRoleResponse> roleMappings = Collections.singletonList(role);
-                    return webClient.post()
-                            .uri(keycloakServerUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm")
-                            .header("Authorization", "Bearer " + adminToken)
-                            .header("Content-Type", "application/json")
-                            .bodyValue(roleMappings)
-                            .retrieve()
-                            .bodyToMono(Void.class)
-                            .thenReturn(role);
-                });
-    }
-
-    private Mono<PassengerResponse> sendPassengerData(String keycloakId, PassengerRegisterRequest request) {
+    private PassengerResponse sendPassengerData(String keycloakId, PassengerRegisterRequest request) {
         PassengerCreateRequest passengerData = new PassengerCreateRequest(
                 keycloakId,
                 request.getName(),
@@ -133,10 +73,11 @@ public class SecurityServiceImpl implements SecurityService {
                 .header("X-User-Role", SecurityRole.ROLE_SERVICE.name())
                 .bodyValue(passengerData)
                 .retrieve()
-                .bodyToMono(PassengerResponse.class);
+                .bodyToMono(PassengerResponse.class)
+                .block();
     }
 
-    private Mono<DriverResponse> sendDriverData(String keycloakId, DriverRegisterRequest request) {
+    private DriverResponse sendDriverData(String keycloakId, DriverRegisterRequest request) {
         DriverCreateRequest driverData = new DriverCreateRequest(
                 keycloakId,
                 request.getName(),
@@ -151,69 +92,82 @@ public class SecurityServiceImpl implements SecurityService {
                 .header("X-User-Role", SecurityRole.ROLE_SERVICE.name())
                 .bodyValue(driverData)
                 .retrieve()
-                .bodyToMono(DriverResponse.class);
+                .bodyToMono(DriverResponse.class)
+                .block();
     }
 
-    public Mono<PassengerResponse> registerPassenger(PassengerRegisterRequest request) {
-        return getAdminToken().flatMap(adminToken -> {
-            KeycloakUserRequest userRequest = KeycloakUserRequest.builder()
-                    .username(request.getName())
-                    .email(request.getEmail())
-                    .enabled(true)
-                    .emailVerified(false)
-                    .firstName(request.getName())
-                    .credentials(Collections.singletonList(
-                            KeycloakUserRequest.Credential.builder()
-                                    .type("password")
-                                    .value(request.getPassword())
-                                    .temporary(false)
-                                    .build()
-                    ))
-                    .build();
+    @Override
+    public PassengerResponse registerPassenger(PassengerRegisterRequest request) {
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(request.getEmail());
+        user.setEmail(request.getEmail());
+        user.setEnabled(true);
+        user.setEmailVerified(false);
+        user.setFirstName(request.getName());
 
-            return webClient.post()
-                    .uri(keycloakServerUrl + "/admin/realms/" + realm + "/users")
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + adminToken)
-                    .bodyValue(userRequest)
-                    .retrieve()
-                    .bodyToMono(Void.class)
-                    .then(getUserId(adminToken, request.getEmail()))
-                    .flatMap(userId -> assignRole(adminToken, userId, SecurityRole.ROLE_PASSENGER.name())
-                            .then(sendPassengerData(userId, request))
-                    );
-        });
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(request.getPassword());
+        credential.setTemporary(false);
+
+        user.setCredentials(Collections.singletonList(credential));
+
+        Response response = keycloak.realm(realm).users().create(user);
+        if (response.getStatus() != HttpStatus.CREATED.value()) {
+            throw new KeycloakUserRegistrationFailedException(
+                    MessageKeyConstants.USER_REGISTRATION_ERROR,
+                    messageSource
+            );
+        }
+
+        String userId = response.getLocation().getPath()
+                .replaceAll(RegularExpressionConstants.KEYCLOAK_USER_ID_REGEX, "$1");
+
+        RoleRepresentation passengerRole = keycloak.realm(realm).roles()
+                .get(SecurityRole.ROLE_PASSENGER.name())
+                .toRepresentation();
+
+        keycloak.realm(realm).users().get(userId).roles().realmLevel()
+                .add(Collections.singletonList(passengerRole));
+
+        return sendPassengerData(userId, request);
     }
 
-    public Mono<DriverResponse> registerDriver(DriverRegisterRequest request) {
-        return getAdminToken().flatMap(adminToken -> {
-            KeycloakUserRequest userRequest = KeycloakUserRequest.builder()
-                    .username(request.getName())
-                    .email(request.getEmail())
-                    .enabled(true)
-                    .emailVerified(false)
-                    .firstName(request.getName())
-                    .credentials(Collections.singletonList(
-                            KeycloakUserRequest.Credential.builder()
-                                    .type("password")
-                                    .value(request.getPassword())
-                                    .temporary(false)
-                                    .build()
-                    ))
-                    .build();
+    @Override
+    public DriverResponse registerDriver(DriverRegisterRequest request) {
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(request.getEmail());
+        user.setEmail(request.getEmail());
+        user.setEnabled(true);
+        user.setEmailVerified(false);
+        user.setFirstName(request.getName());
 
-            return webClient.post()
-                    .uri(keycloakServerUrl + "/admin/realms/" + realm + "/users")
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + adminToken)
-                    .bodyValue(userRequest)
-                    .retrieve()
-                    .bodyToMono(Void.class)
-                    .then(getUserId(adminToken, request.getEmail()))
-                    .flatMap(userId -> assignRole(adminToken, userId, SecurityRole.ROLE_DRIVER.name())
-                            .then(sendDriverData(userId, request))
-                    );
-        });
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(request.getPassword());
+        credential.setTemporary(false);
+
+        user.setCredentials(Collections.singletonList(credential));
+
+        Response response = keycloak.realm(realm).users().create(user);
+        if (response.getStatus() != HttpStatus.CREATED.value()) {
+            throw new KeycloakUserRegistrationFailedException(
+                    MessageKeyConstants.USER_REGISTRATION_ERROR,
+                    messageSource
+            );
+        }
+
+        String userId = response.getLocation().getPath()
+                .replaceAll(RegularExpressionConstants.KEYCLOAK_USER_ID_REGEX, "$1");
+
+        RoleRepresentation driverRole = keycloak.realm(realm).roles()
+                .get(SecurityRole.ROLE_DRIVER.name())
+                .toRepresentation();
+
+        keycloak.realm(realm).users().get(userId).roles().realmLevel()
+                .add(Collections.singletonList(driverRole));
+
+        return sendDriverData(userId, request);
     }
 
     public Mono<TokenResponse> login(LoginRequest request) {
@@ -229,6 +183,12 @@ public class SecurityServiceImpl implements SecurityService {
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .body(BodyInserters.fromFormData(formData))
                 .retrieve()
+                .onStatus(
+                        httpStatusCode -> httpStatusCode.value() == HttpStatus.UNAUTHORIZED.value(),
+                        clientResponse -> Mono.error(
+                                new LoginFailedException(MessageKeyConstants.USER_LOGIN_ERROR, messageSource)
+                        )
+                )
                 .bodyToMono(TokenResponse.class);
     }
 
@@ -247,17 +207,8 @@ public class SecurityServiceImpl implements SecurityService {
                 .bodyToMono(TokenResponse.class);
     }
 
-    public Mono<Void> logout(String refreshToken) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("client_id", clientId);
-        formData.add("client_secret", clientSecret);
-        formData.add("refresh_token", refreshToken);
-
-        return webClient.post()
-                .uri(keycloakServerUrl + "/realms/" + realm + "/protocol/openid-connect/logout")
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .body(BodyInserters.fromFormData(formData))
-                .retrieve()
-                .bodyToMono(Void.class);
+    @Override
+    public void logout(String refreshToken) {
+        keycloak.tokenManager().invalidate(refreshToken);
     }
 }

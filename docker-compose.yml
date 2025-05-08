@@ -353,9 +353,14 @@ services:
       KC_DB_USERNAME: ${POSTGRES_USERNAME}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KC_HTTP_PORT: 8060
+      KC_IMPORT_REALM: taxi-realm
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-    command: start-dev
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - ./config/taxi-realm.json:/opt/keycloak/data/import/taxi-realm.json
     depends_on:
       - postgres
     networks:
