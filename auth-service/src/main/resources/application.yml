@@ -28,7 +28,7 @@ keycloak:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-service:8761/eureka
+      defaultZone: ${EUREKA_SERVICE_URL:http://eureka-service:8761/eureka}
   instance:
     prefer-ip-address: true
     
