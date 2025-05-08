@@ -24,6 +24,7 @@ object DriverTestDataUtil {
     const val API_BASE_PATH = "/api/v1"
     const val DRIVERS_ENDPOINT = "/drivers"
 
+    const val EXTERNAL_ID = "default"
     const val NAME = "name"
     const val ANOTHER_NAME = "otherName"
     const val EMAIL = "email@mail.com"
@@ -50,18 +51,20 @@ object DriverTestDataUtil {
     }
 
     fun getDriverCreateRequest(
+        externalId: String = EXTERNAL_ID,
         name: String = NAME,
         email: String = EMAIL,
         phone: String = PHONE,
         gender: Gender = GENDER
-    ):DriverCreateRequest = DriverCreateRequest(name, email, phone, gender)
+    ):DriverCreateRequest = DriverCreateRequest(externalId, name, email, phone, gender)
 
     fun getInvalidDriverCreateRequest(
+        externalId: String = EXTERNAL_ID,
         name: String = "",
         email: String = INVALID_EMAIL,
         phone: String = INVALID_PHONE,
         gender: Gender = GENDER
-    ): DriverCreateRequest = DriverCreateRequest(name, email, phone, gender)
+    ): DriverCreateRequest = DriverCreateRequest(externalId, name, email, phone, gender)
 
     fun getDriverUpdateRequest(
         name: String? = ANOTHER_NAME,

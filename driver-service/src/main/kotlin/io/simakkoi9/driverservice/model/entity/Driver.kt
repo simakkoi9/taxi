@@ -24,6 +24,10 @@ open class Driver {
     open var id: Long? = null
 
     @NotNull
+    @Column(name = "external_id", nullable = false)
+    open var externalId: String? = null
+
+    @NotNull
     @Column(name = "name", nullable = false)
     open var name: String? = null
 

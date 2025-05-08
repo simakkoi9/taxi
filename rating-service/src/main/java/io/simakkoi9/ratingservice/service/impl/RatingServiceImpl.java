@@ -212,24 +212,17 @@ public class RatingServiceImpl implements RatingService {
 
     private RideRequest getRideByid(String rideId) {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
-        try {
-            jsonNode = ridesClient.getRideById(rideId);
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
-                throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
-            }
+        Response response = ridesClient.getRideById(rideId);
+        
+        if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            throw new RideNotFoundException(MessageKeyConstants.RIDE_NOT_FOUND, messageConfig, rideId);
         }
-
-        RideRequest rideRequest;
-
+        
         try {
-            rideRequest = objectMapper.treeToValue(jsonNode, RideRequest.class);
+            return objectMapper.readValue(response.readEntity(String.class), RideRequest.class);
         } catch (JsonProcessingException e) {
             throw new RideJsonProcessingException(MessageKeyConstants.RIDE_JSON, messageConfig);
         }
-
-        return rideRequest;
     }
 
     private Double calculateAverageRate(List<Integer> ratingList) {

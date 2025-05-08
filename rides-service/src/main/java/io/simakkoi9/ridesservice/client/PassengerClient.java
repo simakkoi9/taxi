@@ -1,6 +1,6 @@
 package io.simakkoi9.ridesservice.client;
 
-import io.simakkoi9.ridesservice.config.FeignConfig;
+import io.simakkoi9.ridesservice.config.feign.FeignConfig;
 import io.simakkoi9.ridesservice.model.dto.feign.PassengerRequest;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;

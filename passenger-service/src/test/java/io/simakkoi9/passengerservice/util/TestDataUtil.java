@@ -25,12 +25,17 @@ public class TestDataUtil {
     public static final int INVALID_SIZE = 0;
     public static final String INVALID_PAGE_MESSAGE = "Wrong current page number.";
     public static final String INVALID_SIZE_MESSAGE = "Wrong page size.";
+    public static final String EXTERNAL_ID = "default";
     public static final String NAME = "name";
     public static final String EMAIL = "email@mail.com";
     public static final String PHONE = "+375293453434";
     public static final String NAME_2 = "otherName";
     public static final String EMAIL_2 = "otherEmail@mail.com";
     public static final String PHONE_2 = "+375298765432";
+    public static final String HEADER_ID = "X-User-Id";
+    public static final String HEADER_ROLE = "X-User-Role";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+
 
     public static String getDuplicatePassengerErrorMessage(String email) {
         return "Passenger with email %s already exists.".formatted(email);
@@ -41,12 +46,14 @@ public class TestDataUtil {
     }
 
     public static final PassengerCreateRequest CREATE_REQUEST = new PassengerCreateRequest(
+            EXTERNAL_ID,
             NAME,
             EMAIL,
             PHONE
     );
 
     public static final PassengerCreateRequest INVALID_CREATE_REQUEST = new PassengerCreateRequest(
+            EXTERNAL_ID,
             "!name",
             "email",
             "12345"
@@ -76,6 +83,7 @@ public class TestDataUtil {
 
     public static Passenger getPassenger() {
         Passenger passenger = new Passenger();
+        passenger.setExternalId(EXTERNAL_ID);
         passenger.setName(NAME);
         passenger.setEmail(EMAIL);
         passenger.setPhone(PHONE);

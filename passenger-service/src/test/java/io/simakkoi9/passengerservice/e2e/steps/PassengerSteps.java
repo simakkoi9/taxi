@@ -20,6 +20,7 @@ import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -42,10 +43,16 @@ public class PassengerSteps {
         passengerRepository.deleteAll();
     }
 
+    private RequestSpecification requestSpec() {
+        return given()
+                .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+                .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
+                .contentType(ContentType.JSON);
+    }
+
     @When("I create a new passenger with details:")
     public void iCreateANewPassengerWithDetails(DataTable dataTable) {
-        response = given()
-            .contentType(ContentType.JSON)
+        response = requestSpec()
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
             .post(TestDataUtil.ENDPOINT);
@@ -68,8 +75,7 @@ public class PassengerSteps {
     public void iCreateAnotherPassengerWithSameEmail() {
         passengerRepository.save(TestDataUtil.getPassenger());
         
-        response = given()
-            .contentType(ContentType.JSON)
+        response = requestSpec()
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
             .post(TestDataUtil.ENDPOINT);
@@ -90,7 +96,7 @@ public class PassengerSteps {
 
     @When("I request the passenger details by ID")
     public void iRequestThePassengerDetailsById() {
-        response = given()
+        response = requestSpec()
             .when()
             .get(TestDataUtil.ENDPOINT + "/{id}", passengerId);
     }
@@ -120,8 +126,7 @@ public class PassengerSteps {
 
     @When("I update the passenger with details:")
     public void iUpdateThePassengerWithDetails(DataTable dataTable) {
-        response = given()
-            .contentType(ContentType.JSON)
+        response = requestSpec()
             .body(TestDataUtil.UPDATE_REQUEST)
             .when()
             .patch(TestDataUtil.ENDPOINT + "/{id}", passengerId);
@@ -140,7 +145,7 @@ public class PassengerSteps {
 
     @When("I delete the passenger by ID")
     public void iDeleteThePassengerById() {
-        response = given()
+        response = requestSpec()
             .when()
             .delete(TestDataUtil.ENDPOINT + "/{id}", passengerId);
     }
@@ -160,7 +165,7 @@ public class PassengerSteps {
         String expectedEmail = expectedData.get("email");
         String expectedPhone = expectedData.get("phone");
         
-        response = given()
+        response = requestSpec()
             .when()
             .get(TestDataUtil.ENDPOINT + "/{id}", passengerId);
             
@@ -173,8 +178,7 @@ public class PassengerSteps {
     
     @When("I create a passenger with invalid details")
     public void iCreateAPassengerWithInvalidDetails() {
-        response = given()
-            .contentType(ContentType.JSON)
+        response = requestSpec()
             .body(TestDataUtil.INVALID_CREATE_REQUEST)
             .when()
             .post(TestDataUtil.ENDPOINT);
@@ -194,7 +198,7 @@ public class PassengerSteps {
     
     @When("I request all passengers")
     public void iRequestAllPassengers() {
-        response = given()
+        response = requestSpec()
             .when()
             .get(TestDataUtil.ENDPOINT);
     }
@@ -209,7 +213,7 @@ public class PassengerSteps {
     
     @When("I request passengers with invalid pagination")
     public void iRequestPassengersWithInvalidPagination() {
-        response = given()
+        response = requestSpec()
             .param("page", TestDataUtil.INVALID_PAGE)
             .param("size", TestDataUtil.INVALID_SIZE)
             .when()

@@ -13,6 +13,8 @@ public final class MessageKeyConstants {
 
     public static final String PASSENGER_NOT_FOUND_ERROR = "passenger.not-found.error";
 
+    public static final String PASSENGER_ACCESS_DENIED_ERROR = "passenger.access.denied.error";
+
     public static final String PASSENGER_NOT_AVAILABLE_ERROR = "passenger.not-available.error";
 
     public static final String PASSENGER_TEMP_NOT_AVAILABLE_ERROR = "passenger.temp.not-available.error";

@@ -58,6 +58,8 @@ class DriverControllerIT {
         val request = DriverITDataUtil.getDriverCreateRequest()
 
         val response = given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(request)
             .`when`()
@@ -98,6 +100,8 @@ class DriverControllerIT {
         val updateRequest = DriverITDataUtil.getDriverUpdateRequest()
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(updateRequest)
             .`when`()
@@ -122,6 +126,8 @@ class DriverControllerIT {
         val savedCar = carRepository.save(car)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .param("id", savedCar.id!!)
             .`when`()
                 .patch("${DriverITDataUtil.DRIVERS_ENDPOINT}/${savedDriver.id!!}/setCar")
@@ -143,6 +149,8 @@ class DriverControllerIT {
         val savedDriver = driverRepository.save(driver)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
                 .patch("${DriverITDataUtil.DRIVERS_ENDPOINT}/${savedDriver.id!!}/removeCar")
             .then()
@@ -161,6 +169,8 @@ class DriverControllerIT {
         val savedDriver = driverRepository.save(driver)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
             .delete("${DriverITDataUtil.DRIVERS_ENDPOINT}/${savedDriver.id!!}")
             .then()
@@ -176,6 +186,8 @@ class DriverControllerIT {
         val savedDriver = driverRepository.save(driver)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
             .get("${DriverITDataUtil.DRIVERS_ENDPOINT}/${savedDriver.id!!}")
             .then()
@@ -194,6 +206,8 @@ class DriverControllerIT {
         driverRepository.saveAll(listOf(driver1, driver2))
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
             .get(DriverITDataUtil.DRIVERS_ENDPOINT)
             .then()
@@ -205,6 +219,8 @@ class DriverControllerIT {
     @Test
     fun testGetDriver_NotFound() {
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
                 .get("${DriverITDataUtil.DRIVERS_ENDPOINT}/${DriverITDataUtil.INVALID_ID}")
             .then()
@@ -217,6 +233,8 @@ class DriverControllerIT {
         val updateRequest = DriverITDataUtil.getDriverUpdateRequest()
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(updateRequest)
             .`when`()
@@ -229,6 +247,8 @@ class DriverControllerIT {
     @Test
     fun testDeleteDriver_NotFound() {
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
                 .delete("${DriverITDataUtil.DRIVERS_ENDPOINT}/${DriverITDataUtil.INVALID_ID}")
             .then()
@@ -244,6 +264,8 @@ class DriverControllerIT {
         val request = DriverITDataUtil.getDriverCreateRequest(email = driver.email!!)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(request)
             .`when`()
@@ -259,6 +281,8 @@ class DriverControllerIT {
         val savedDriver = driverRepository.save(driver)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .param("id", DriverITDataUtil.INVALID_ID)
             .`when`()
                 .patch("${DriverITDataUtil.DRIVERS_ENDPOINT}/${savedDriver.id!!}/setCar")
@@ -273,6 +297,8 @@ class DriverControllerIT {
         val savedCar = carRepository.save(car)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .param("id", savedCar.id!!)
             .`when`()
                 .patch("${DriverITDataUtil.DRIVERS_ENDPOINT}/999/setCar")
@@ -294,6 +320,8 @@ class DriverControllerIT {
         val savedDriver2 = driverRepository.save(driver2)
 
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .param("id", savedCar.id!!)
             .`when`()
                 .patch("${DriverITDataUtil.DRIVERS_ENDPOINT}/${savedDriver2.id!!}/setCar")
@@ -305,6 +333,8 @@ class DriverControllerIT {
     @Test
     fun testRemoveCarForDriver_DriverNotFound() {
         given()
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .`when`()
                 .patch("${DriverITDataUtil.DRIVERS_ENDPOINT}/999/removeCar")
             .then()

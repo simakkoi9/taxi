@@ -6,6 +6,7 @@ import io.simakkoi9.ridesservice.exception.BusyPassengerException;
 import io.simakkoi9.ridesservice.exception.DistanceProcessingException;
 import io.simakkoi9.ridesservice.exception.InvalidStatusException;
 import io.simakkoi9.ridesservice.exception.NoAvailableDriversException;
+import io.simakkoi9.ridesservice.exception.PassengerAccessDeniedException;
 import io.simakkoi9.ridesservice.exception.PassengerNotFoundException;
 import io.simakkoi9.ridesservice.exception.PassengerServiceNotAvailableException;
 import io.simakkoi9.ridesservice.exception.RideNotFoundException;
@@ -103,6 +104,11 @@ public class ControllerAdvice {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleJsonParseException(HttpMessageNotReadableException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e);
+    }
+
+    @ExceptionHandler(PassengerAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handlePassengerAccessDeniedException(RuntimeException e) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, e);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, Exception e) {

@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Size
 import java.io.Serializable
 
 data class DriverCreateRequest(
+    val externalId: String,
+
     @field:NotBlank(message = "{name.not-blank}")
     @field:Pattern(regexp = NAME_REGEX, message = "{name.invalid}")
     @field:Size(max = 70, message = "{name.size}")

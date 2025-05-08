@@ -10,6 +10,8 @@ import io.simakkoi9.ratingservice.model.dto.rest.response.AverageRatingResponse;
 import io.simakkoi9.ratingservice.model.dto.rest.response.RatingResponse;
 import io.simakkoi9.ratingservice.model.entity.Rate;
 import io.simakkoi9.ratingservice.model.entity.Rating;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 public class TestDataUtil {
@@ -258,4 +260,23 @@ public class TestDataUtil {
                     ]
                 }
             """;
+
+    public static Response createCompletedRideResponse() {
+        return Response.ok(COMPLETED_RIDE_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    public static Response createUncompletedRideResponse() {
+        return Response.ok(UNCOMPLETED_RIDE_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    public static Response createRideNotFoundResponse() {
+        return Response.status(Response.Status.NOT_FOUND)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(RIDE_NOT_FOUND_JSON)
+                .build();
+    }
 }

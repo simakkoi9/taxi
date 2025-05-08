@@ -2,8 +2,8 @@ Feature: Passenger API test
 
   Scenario: Create a new passenger successfully
     When I create a new passenger with details:
-      | name  | email           | phone         |
-      | name  | email@mail.com  | +375293453434 |
+      | externalId | name  | email           | phone         |
+      | default    | name  | email@mail.com  | +375293453434 |
     Then Passenger should be created successfully
     And Passenger details should match:
       | name  | email           | phone         |

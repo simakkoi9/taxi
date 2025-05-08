@@ -1,14 +1,14 @@
 package io.simakkoi9.ratingservice.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import io.simakkoi9.ratingservice.exception.RideNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
@@ -27,13 +27,14 @@ public interface RidesClient {
             requestVolumeThreshold = 4,
             failureRatio = 0.5,
             delay = 5000,
-            successThreshold = 2
+            successThreshold = 2,
+            skipOn = {RideNotFoundException.class}
     )
     @Retry(
             maxRetries = 3,
             delay = 200
     )
     @Timeout(1000)
-    JsonNode getRideById(@PathParam("id") String id) throws WebApplicationException;
+    Response getRideById(@PathParam("id") String id);
 
 }

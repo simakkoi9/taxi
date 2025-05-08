@@ -22,4 +22,6 @@ interface DriverService {
     fun getAvailableDriverForRide(driverIdList: List<Long>): KafkaDriverResponse
 
     fun getAllDrivers(page: Int, size: Int): PageResponse<DriverResponse>
+
+    fun isDriverOwner(driverId: Long, userId: String): Boolean
 }

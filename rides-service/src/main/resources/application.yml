@@ -40,6 +40,7 @@ resilience4j:
         automaticTransitionFromOpenToHalfOpenEnabled: true
         ignore-exceptions:
           - io.simakkoi9.ridesservice.exception.PassengerNotFoundException
+          - io.simakkoi9.ridesservice.exception.PassengerAccessDeniedException
     instances:
       passengerCircuitBreaker:
         base-config: default
@@ -51,6 +52,7 @@ resilience4j:
         wait-duration: 500ms
         ignore-exceptions:
           - io.simakkoi9.ridesservice.exception.PassengerNotFoundException
+          - io.simakkoi9.ridesservice.exception.PassengerAccessDeniedException
     instances:
       passengerServiceRetry:
         base-config: default

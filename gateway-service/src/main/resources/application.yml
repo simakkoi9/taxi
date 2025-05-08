@@ -4,6 +4,18 @@ server:
 spring:
   application:
     name: gateway-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_URL:http://keycloak:8060}/realms/taxi-realm
+          jwk-set-uri: ${KEYCLOAK_URL:http://keycloak:8060}/realms/taxi-realm/protocol/openid-connect/certs
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8060/realms/taxi-realm
+
   cloud:
     gateway:
       discovery:
@@ -15,26 +27,41 @@ spring:
           uri: lb://PASSENGER-SERVICE
           predicates:
             - Path=/api/v1/passengers/**
+          filters:
+            - name: JwtUserFilter
 
         - id: driver-service-drivers
           uri: lb://DRIVER-SERVICE
           predicates:
             - Path=/api/v1/drivers/**
+          filters:
+            - name: JwtUserFilter
 
         - id: driver-service-cars
           uri: lb://DRIVER-SERVICE
           predicates:
             - Path=/api/v1/cars/**
+          filters:
+            - name: JwtUserFilter
 
         - id: rides-service
           uri: lb://RIDES-SERVICE
           predicates:
             - Path=/api/v1/rides/**
+          filters:
+            - name: JwtUserFilter
 
         - id: rating-service
           uri: lb://RATING-SERVICE
           predicates:
             - Path=/api/v1/ratings/**
+          filters:
+            - name: JwtUserFilter
+
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
 
 eureka:
   client:
