@@ -58,6 +58,8 @@ Instruments:
     - Rest Assured
     - Cucumber
     - Testcontainers
+    - Mockito
+    - MockK
 
 # Service monitoring
 Stack for metrics collecting, log stashing and request tracing.
