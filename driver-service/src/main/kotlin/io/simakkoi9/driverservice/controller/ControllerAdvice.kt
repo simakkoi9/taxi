@@ -1,5 +1,6 @@
 package io.simakkoi9.driverservice.controller
 
+import io.simakkoi9.driverservice.exception.AccessDeniedException
 import io.simakkoi9.driverservice.exception.CarIsNotAvailableException
 import io.simakkoi9.driverservice.exception.CarNotFoundException
 import io.simakkoi9.driverservice.exception.DriverNotFoundException
@@ -50,6 +51,10 @@ class ControllerAdvice(
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleJsonParseException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> =
         buildErrorResponse(HttpStatus.BAD_REQUEST, e)
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(e: RuntimeException): ResponseEntity<ErrorResponse> =
+        buildErrorResponse(HttpStatus.FORBIDDEN, e)
 
     private fun buildErrorResponse(status: HttpStatus, e: Exception): ResponseEntity<ErrorResponse> {
         val errors = mutableListOf<String?>()

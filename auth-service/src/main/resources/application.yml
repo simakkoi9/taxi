@@ -1,0 +1,47 @@
+server:
+  port: 8061
+
+spring:
+  application:
+    name: auth-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.server-url}/realms/taxi-realm
+          jwk-set-uri: ${keycloak.server-url}/protocol/openid-connect/certs
+
+service:
+  passenger:
+    name: ${SERVICE_PASSENGER_NAME:PASSENGER-SERVICE}
+    url: ${SERVICE_PASSENGER_URL:/api/v1/passengers}
+  driver:
+    name: ${SERVICE_DRIVER_NAME:DRIVER-SERVICE}
+    url: ${SERVICE_DRIVER_URL:/api/v1/drivers}
+
+keycloak:
+  client-id: taxi-client
+  realm: taxi-realm
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8060}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://eureka-service:8761/eureka}
+  instance:
+    prefer-ip-address: true
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    "*": INFO
+  config: classpath:log4j2.xml

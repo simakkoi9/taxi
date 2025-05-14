@@ -20,9 +20,11 @@
         sql: true
 
     rest-client:
+      provider-autodiscovery: true
+      mock-enabled: true
       ridesClient:
         url: http://localhost:8082/api/v1
-      mock-enabled: true
+        disable-default-mapper: true
 
     flyway:
       migrate-at-start: true

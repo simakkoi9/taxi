@@ -73,6 +73,13 @@ public class PassengerServiceImpl implements PassengerService {
         return mapper.toPageResponse(passengers);
     }
 
+    @Override
+    public boolean isPassengerOwner(Long passengerId, String userId) {
+        return repository.findById(passengerId)
+                .map(passenger -> passenger.getExternalId().equals(userId))
+                .orElse(false);
+    }
+
     private Passenger findActivePassengerOrElseThrow(Long id) {
         return repository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(

@@ -9,6 +9,7 @@ import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
 import io.simakkoi9.driverservice.model.entity.EntryStatus
 import io.simakkoi9.driverservice.repository.DriverRepository
+import io.simakkoi9.driverservice.util.DriverITDataUtil
 import io.simakkoi9.driverservice.util.DriverTestDataUtil
 import io.simakkoi9.driverservice.util.E2eConstants
 import org.hamcrest.Matchers.equalTo
@@ -35,6 +36,8 @@ class DriverSteps {
     private fun requestSpec(): RequestSpecification {
         return RestAssured.given()
             .baseUri(E2eConstants.BASE_URL)
+            .header(DriverITDataUtil.HEADER_ID, DriverITDataUtil.EXTERNAL_ID)
+            .header(DriverITDataUtil.HEADER_ROLE, DriverITDataUtil.ROLE_ADMIN)
             .port(port)
             .contentType(ContentType.JSON)
     }

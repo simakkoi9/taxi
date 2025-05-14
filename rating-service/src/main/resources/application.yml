@@ -42,10 +42,12 @@ quarkus:
       generation: validate
 
   rest-client:
+    provider-autodiscovery: true
     ridesClient:
       url: ${RIDES_CLIENT_URL:http://localhost:8082/api/v1}
       connect-timeout: 5000
       read-timeout: 5000
+      disable-default-mapper: true
 
   log:
     level: INFO

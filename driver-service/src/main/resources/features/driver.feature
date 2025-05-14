@@ -5,6 +5,7 @@ Feature: Driver API test
     Given driver request body:
     """
     {
+        "externalId": "default",
         "name": "name",
         "email": "email@mail.com",
         "phone": "+375442345678",
@@ -18,6 +19,7 @@ Feature: Driver API test
     Given driver request body:
     """
     {
+        "externalId": "default",
         "name": "name",
         "email": "email@mail.com",
         "phone": "+375442345678",

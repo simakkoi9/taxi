@@ -15,4 +15,6 @@ public interface PassengerService {
     PassengerResponse getPassenger(Long id);
 
     PageResponse<PassengerResponse> getAllPassengers(int page, int size);
+
+    boolean isPassengerOwner(Long passengerId, String userId);
 }

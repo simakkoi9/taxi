@@ -54,6 +54,8 @@ public class PassengerControllerIT {
     @Test
     void createPassenger_ShouldReturnPassengerResponse() throws Exception {
         Long id = given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
@@ -75,6 +77,8 @@ public class PassengerControllerIT {
         passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(TestDataUtil.CREATE_REQUEST)
             .when()
@@ -98,6 +102,8 @@ public class PassengerControllerIT {
     @Test
     void createPassenger_ShouldThrowValidationException_InvalidCreateRequest() throws Exception {
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(TestDataUtil.INVALID_CREATE_REQUEST)
             .when()
@@ -113,6 +119,8 @@ public class PassengerControllerIT {
         Passenger savedPassenger = passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .contentType(ContentType.JSON)
             .body(TestDataUtil.UPDATE_REQUEST)
             .when()
@@ -136,6 +144,8 @@ public class PassengerControllerIT {
         Passenger savedPassenger = passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .when()
                 .delete(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
@@ -150,6 +160,8 @@ public class PassengerControllerIT {
         Passenger savedPassenger = passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .when()
                 .get(TestDataUtil.ENDPOINT + "/{id}", savedPassenger.getId())
             .then()
@@ -161,6 +173,8 @@ public class PassengerControllerIT {
     @Test
     void getPassenger_ShouldThrowNotFoundException() throws Exception {
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .when()
                 .get(TestDataUtil.ENDPOINT + "/{id}", TestDataUtil.INVALID_ID)
             .then()
@@ -183,6 +197,8 @@ public class PassengerControllerIT {
         passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .when()
                 .get(TestDataUtil.ENDPOINT)
             .then()
@@ -196,6 +212,8 @@ public class PassengerControllerIT {
         passengerRepository.save(TestDataUtil.getPassenger());
 
         given()
+            .header(TestDataUtil.HEADER_ID, TestDataUtil.EXTERNAL_ID)
+            .header(TestDataUtil.HEADER_ROLE, TestDataUtil.ROLE_ADMIN)
             .param("page", TestDataUtil.INVALID_PAGE)
             .param("size", TestDataUtil.INVALID_SIZE)
             .when()

@@ -113,6 +113,11 @@ class DriverServiceImpl(
         return driverMapper.toPageResponse(drivers)
     }
 
+    override fun isDriverOwner(driverId: Long, userId: String): Boolean =
+        driverRepository.findById(driverId)
+            .map { it.externalId == userId }
+            .orElse(false)
+
     private fun findActiveDriverByIdOrElseThrow(id: Long): Driver =
         driverRepository.findByIdAndStatus(id, EntryStatus.ACTIVE)
             .orElseThrow {
