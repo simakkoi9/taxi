@@ -31,7 +31,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 30s
-      timeout: 5s
+      timeout: 10s
     networks:
       - taxi-network
 

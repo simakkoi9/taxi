@@ -15,7 +15,7 @@ public class LoggingConfig implements ContainerRequestFilter {
         String method = requestContext.getMethod();
         String path = requestContext.getUriInfo().getRequestUri().getPath();
 
-        LOG.infof("HTTP REQUEST: %s %s\nHeaders: %s\nBody: %s", method, path);
+        LOG.infof("HTTP REQUEST: %s %s", method, path);
     }
 
 }

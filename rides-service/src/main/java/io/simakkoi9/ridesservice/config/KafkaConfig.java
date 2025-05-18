@@ -21,6 +21,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
@@ -37,12 +38,16 @@ public class KafkaConfig {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        config.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, true);
+        config.put(JsonSerializer.TYPE_MAPPINGS, "driverIds:java.util.List");
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
     public KafkaTemplate<String, List<Long>> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        var template = new KafkaTemplate<>(producerFactory());
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean
@@ -51,12 +56,15 @@ public class KafkaConfig {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, true);
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
     public KafkaTemplate<String, String> ratingKafkaTemplate() {
-        return new KafkaTemplate<>(ratingProducerFactory());
+        var template = new KafkaTemplate<>(ratingProducerFactory());
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean
@@ -67,12 +75,14 @@ public class KafkaConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-
-        return new DefaultKafkaConsumerFactory<>(
-                config,
-                new StringDeserializer(),
-                new JsonDeserializer<>(KafkaDriverRequest.class, false)
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "io.simakkoi9.ridesservice.model.dto.kafka");
+        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
+        config.put(
+                JsonDeserializer.TYPE_MAPPINGS,
+                "kafkaDriverEvent:io.simakkoi9.ridesservice.model.dto.kafka.KafkaDriverRequest"
         );
+
+        return new DefaultKafkaConsumerFactory<>(config);
     }
 
     @Bean
@@ -81,6 +91,8 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, KafkaDriverRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        ContainerProperties containerProps = factory.getContainerProperties();
+        containerProps.setObservationEnabled(true);
         return factory;
     }
 
@@ -92,12 +104,10 @@ public class KafkaConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
 
-        return new DefaultKafkaConsumerFactory<>(
-                config,
-                new StringDeserializer(),
-                new JsonDeserializer<>(KafkaRatingRequest.class, false)
-        );
+        return new DefaultKafkaConsumerFactory<>(config);
     }
 
     @Bean
@@ -106,6 +116,8 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, KafkaRatingRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(ratingConsumerFactory());
+        ContainerProperties containerProps = factory.getContainerProperties();
+        containerProps.setObservationEnabled(true);
         return factory;
     }
 
