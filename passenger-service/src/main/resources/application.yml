@@ -60,4 +60,5 @@ management:
 logging:
   level:
     "*": INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
   config: classpath:log4j2.xml
