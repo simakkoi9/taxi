@@ -98,6 +98,7 @@ mp:
         auto:
           offset:
             reset: latest
+        tracing-enabled: true
     outgoing:
       send-person:
         connector: smallrye-kafka

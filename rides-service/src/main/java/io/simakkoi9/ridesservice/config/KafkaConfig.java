@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
@@ -104,10 +106,21 @@ public class KafkaConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
 
-        return new DefaultKafkaConsumerFactory<>(config);
+        JsonDeserializer<KafkaRatingRequest> jsonDeserializer = new JsonDeserializer<>(){
+            @Override
+            public KafkaRatingRequest deserialize(String topic, Headers headers, byte[] data) {
+                headers.remove("__TypeId__");
+                return super.deserialize(topic, headers, data);
+            }
+        };
+        jsonDeserializer.addTrustedPackages("io.simakkoi9.ridesservice.model.dto.kafka");
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new ErrorHandlingDeserializer<>(new StringDeserializer()),
+                new ErrorHandlingDeserializer<>(jsonDeserializer)
+        );
     }
 
     @Bean
