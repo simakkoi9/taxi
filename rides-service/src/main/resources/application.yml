@@ -91,6 +91,7 @@ management:
 
 logging:
   level:
-    feign: DEBUG
     "*": INFO
+    feign: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
   config: classpath:log4j2.xml

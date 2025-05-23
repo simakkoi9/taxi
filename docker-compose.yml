@@ -31,7 +31,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 30s
-      timeout: 5s
+      timeout: 10s
     networks:
       - taxi-network
 
@@ -177,7 +177,7 @@ services:
   rating-service-restart:
     image: docker:26.0.0
     container_name: rating-service-restart
-    command: sh -c "sleep 50 && docker restart rating-service"
+    command: sh -c "sleep 70 && docker restart rating-service"
     depends_on:
       - rating-service
     volumes:

@@ -16,6 +16,12 @@ scrape_configs:
         filters:
           - name: label
             values: ["com.docker.compose.project"]
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
@@ -27,62 +33,97 @@ scrape_configs:
 
   - job_name: "driver-service-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           app: "driver-service"
           component: "business-service"
           __path__: /var/lib/docker/containers/*driver-service*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
 
   - job_name: "passenger-service-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           app: "passenger-service"
           component: "business-service"
           __path__: /var/lib/docker/containers/*passenger-service*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
 
   - job_name: "rides-service-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           app: "rides-service"
           component: "business-service"
           __path__: /var/lib/docker/containers/*rides-service*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
 
   - job_name: "rating-service-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           app: "rating-service"
           component: "business-service"
           __path__: /var/lib/docker/containers/*rating-service*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
 
   - job_name: "eureka-service-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           app: "eureka-service"
           component: "discovery"
           __path__: /var/lib/docker/containers/*eureka-service*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
 
   - job_name: "gateway-service-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           app: "gateway-service"
           component: "api-gateway"
           __path__: /var/lib/docker/containers/*gateway-service*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
 
   - job_name: "database-logs"
     static_configs:
-      - targets:
-          - localhost
+      - targets: [localhost]
         labels:
           component: "database"
           __path__: /var/lib/docker/containers/*postgres*/*-json.log,/var/lib/docker/containers/*rides-db*/*-json.log
+    pipeline_stages:
+      - docker: {}
+      - regex:
+          expression: '\[traceId=(?P<traceId>[0-9a-f]+)\s+spanId=[0-9a-f]+\]'
+      - labels:
+          traceId:
